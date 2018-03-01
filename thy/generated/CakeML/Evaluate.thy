@@ -39,7 +39,7 @@ definition dec_clock  :: " 'a state \<Rightarrow> 'a state "  where
 fun 
 list_result  :: "('a,'b)result \<Rightarrow>(('a list),'b)result "  where 
      "
-list_result (Rval v1) = ( Rval [v1])"
+list_result (Rval v2) = ( Rval [v2])"
 |"
 list_result (Rerr e) = ( Rerr e )"
 
@@ -67,13 +67,13 @@ fun_evaluate st env [Lit l] = ( (st, Rval [Litv l]))"
 |"
 fun_evaluate st env [Raise e] = (
   (case  fun_evaluate st env [e] of
-    (st', Rval v1) => (st', Rerr (Rraise (List.hd v1)))
+    (st', Rval v2) => (st', Rerr (Rraise (List.hd v2)))
   | res => res
   ))"
 |"
 fun_evaluate st env [Handle e pes] = (
   (case  fix_clock st (fun_evaluate st env [e]) of
-    (st', Rerr (Rraise v1)) => fun_evaluate_match st' env v1 pes v1
+    (st', Rerr (Rraise v2)) => fun_evaluate_match st' env v2 pes v2
   | res => res
   ))"
 |"
@@ -82,7 +82,7 @@ fun_evaluate st env [Con cn es] = (
     (case  fun_evaluate st env (List.rev es) of
       (st', Rval vs) =>
         (case  build_conv(c   env) cn (List.rev vs) of
-          Some v1 => (st', Rval [v1])
+          Some v2 => (st', Rval [v2])
         | None => (st', Rerr (Rabort Rtype_error))
         )
     | res => res
@@ -91,7 +91,7 @@ fun_evaluate st env [Con cn es] = (
 |"
 fun_evaluate st env [Var n] = (
   (case  nsLookup(v   env) n of
-    Some v1 => (st, Rval [v1])
+    Some v2 => (st, Rval [v2])
   | None => (st, Rerr (Rabort Rtype_error))
   ))"
 |"
@@ -122,7 +122,7 @@ fun_evaluate st env [Log lop e1 e2] = (
     (st', Rval v1) =>
       (case  do_log lop (List.hd v1) e2 of
         Some (Exp e) => fun_evaluate st' env [e]
-      | Some (Val v1) => (st', Rval [v1])
+      | Some (Val v2) => (st', Rval [v2])
       | None => (st', Rerr (Rabort Rtype_error))
       )
   | res => res
@@ -130,8 +130,8 @@ fun_evaluate st env [Log lop e1 e2] = (
 |"
 fun_evaluate st env [If e1 e2 e3] = (
   (case  fix_clock st (fun_evaluate st env [e1]) of
-    (st', Rval v1) =>
-      (case  do_if (List.hd v1) e2 e3 of
+    (st', Rval v2) =>
+      (case  do_if (List.hd v2) e2 e3 of
         Some e => fun_evaluate st' env [e]
       | None => (st', Rerr (Rabort Rtype_error))
       )
@@ -140,14 +140,14 @@ fun_evaluate st env [If e1 e2 e3] = (
 |"
 fun_evaluate st env [Mat e pes] = (
   (case  fix_clock st (fun_evaluate st env [e]) of
-    (st', Rval v1) =>
-      fun_evaluate_match st' env (List.hd v1) pes Bindv
+    (st', Rval v2) =>
+      fun_evaluate_match st' env (List.hd v2) pes Bindv
   | res => res
   ))"
 |"
 fun_evaluate st env [Let xo e1 e2] = (
   (case  fix_clock st (fun_evaluate st env [e1]) of
-    (st', Rval v1) => fun_evaluate st' ( env (| v := (nsOptBind xo (List.hd v1)(v   env)) |)) [e2]
+    (st', Rval v2) => fun_evaluate st' ( env (| v := (nsOptBind xo (List.hd v2)(v   env)) |)) [e2]
   | res => res
   ))"
 |"
@@ -158,19 +158,19 @@ fun_evaluate st env [Letrec funs e] = (
   else
     (st, Rerr (Rabort Rtype_error)))"
 |"
-fun_evaluate st env [Tannot e t] = (
+fun_evaluate st env [Tannot e t1] = (
   fun_evaluate st env [e])"
 |"
 fun_evaluate st env [Lannot e l] = (
   fun_evaluate st env [e])"
 |"
-fun_evaluate_match st env v1 [] err_v = ( (st, Rerr (Rraise err_v)))"
+fun_evaluate_match st env v2 [] err_v = ( (st, Rerr (Rraise err_v)))"
 |"
-fun_evaluate_match st env v1 ((p,e)# pes) err_v  = (
+fun_evaluate_match st env v2 ((p,e)# pes) err_v  = (
   if allDistinct (pat_bindings p []) then
-    (case  pmatch(c   env)(refs   st) p v1 [] of
+    (case  pmatch(c   env)(refs   st) p v2 [] of
       Match env_v' => fun_evaluate st ( env (| v := (nsAppend (alist_to_ns env_v')(v   env)) |)) [e]
-    | No_match => fun_evaluate_match st env v1 pes err_v
+    | No_match => fun_evaluate_match st env v2 pes err_v
     | Match_type_error => (st, Rerr (Rabort Rtype_error))
     )
   else (st, Rerr (Rabort Rtype_error)))" 
@@ -196,9 +196,9 @@ fun_evaluate_decs mn st env (d1 # d2 # ds) = (
 fun_evaluate_decs mn st env [Dlet locs p e] = (
   if allDistinct (pat_bindings p []) then
     (case  fun_evaluate st env [e] of
-      (st', Rval v1) =>
+      (st', Rval v2) =>
         (st',
-         (case  pmatch(c   env)(refs   st') p (List.hd v1) [] of
+         (case  pmatch(c   env)(refs   st') p (List.hd v2) [] of
            Match new_vals => Rval (| v = (alist_to_ns new_vals), c = nsEmpty |)
          | No_match => Rerr (Rraise Bindv)
          | Match_type_error => Rerr (Rabort Rtype_error)
@@ -228,7 +228,7 @@ fun_evaluate_decs mn st env [Dtype locs tds] = (
     else
       (st, Rerr (Rabort Rtype_error))))"
 |"
-fun_evaluate_decs mn st env [Dtabbrev locs tvs tn t] = (
+fun_evaluate_decs mn st env [Dtabbrev locs tvs tn t1] = (
   (st, Rval (| v = nsEmpty, c = nsEmpty |)))"
 |"
 fun_evaluate_decs mn st env [Dexn locs cn ts] = (

@@ -147,7 +147,7 @@ definition Tstring  :: " t "  where
      " Tstring = ( Tapp [] TC_string )"
 
 definition Tref  :: " t \<Rightarrow> t "  where 
-     " Tref t = ( Tapp [t] TC_ref )"
+     " Tref t1 = ( Tapp [t1] TC_ref )"
 
 fun  TC_word  :: " word_size \<Rightarrow> tctor "  where 
      " TC_word W8 = ( TC_word8 )"

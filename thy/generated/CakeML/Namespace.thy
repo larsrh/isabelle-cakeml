@@ -42,8 +42,8 @@ datatype( 'm, 'n, 'v) namespace =
 
 (*val nsLookup : forall 'v 'm 'n. Eq 'n, Eq 'm => namespace 'm 'n 'v -> id 'm 'n -> maybe 'v*)
 fun  nsLookup  :: "('m,'n,'v)namespace \<Rightarrow>('m,'n)id0 \<Rightarrow> 'v option "  where 
-     " nsLookup (Bind v1 m) (Short n) = ( Map.map_of v1 n )"
-    |" nsLookup (Bind v1 m) (Long mn id1) = (
+     " nsLookup (Bind v2 m) (Short n) = ( Map.map_of v2 n )"
+    |" nsLookup (Bind v2 m) (Long mn id1) = (
       (case  Map.map_of m mn of
         None => None
       | Some env => nsLookup env id1
@@ -53,7 +53,7 @@ fun  nsLookup  :: "('m,'n,'v)namespace \<Rightarrow>('m,'n)id0 \<Rightarrow> 'v 
 (*val nsLookupMod : forall 'm 'n 'v. Eq 'n, Eq 'm => namespace 'm 'n 'v -> list 'm -> maybe (namespace 'm 'n 'v)*)
 fun  nsLookupMod  :: "('m,'n,'v)namespace \<Rightarrow> 'm list \<Rightarrow>(('m,'n,'v)namespace)option "  where 
      " nsLookupMod e [] = ( Some e )"
-    |" nsLookupMod (Bind v1 m) (mn # path) = (
+    |" nsLookupMod (Bind v2 m) (mn # path) = (
       (case  Map.map_of m mn of
         None => None
       | Some env => nsLookupMod env path
@@ -82,13 +82,13 @@ definition alist_to_ns  :: "('n*'v)list \<Rightarrow>('m,'n,'v)namespace "  wher
 
 (*val nsBind : forall 'v 'm 'n. 'n -> 'v -> namespace 'm 'n 'v -> namespace 'm 'n 'v*)
 fun nsBind  :: " 'n \<Rightarrow> 'v \<Rightarrow>('m,'n,'v)namespace \<Rightarrow>('m,'n,'v)namespace "  where 
-     " nsBind k x (Bind v1 m) = ( Bind ((k,x)# v1) m )"
+     " nsBind k x (Bind v2 m) = ( Bind ((k,x)# v2) m )"
 
 
 (*val nsBindList : forall 'v 'm 'n. list ('n * 'v) -> namespace 'm 'n 'v -> namespace 'm 'n 'v*)
 definition nsBindList  :: "('n*'v)list \<Rightarrow>('m,'n,'v)namespace \<Rightarrow>('m,'n,'v)namespace "  where 
      " nsBindList l e = ( List.foldr ( \<lambda>x .  
-  (case  x of (x,v1) => \<lambda> e .  nsBind x v1 e )) l e )"
+  (case  x of (x,v2) => \<lambda> e .  nsBind x v2 e )) l e )"
 
 
 (*val nsOptBind : forall 'v 'm 'n. maybe 'n -> 'v -> namespace 'm 'n 'v -> namespace 'm 'n 'v*)
@@ -118,10 +118,10 @@ definition nsSub  :: "(('m,'n)id0 \<Rightarrow> 'v1 \<Rightarrow> 'v2 \<Rightarr
 (*val nsAll : forall 'v 'm 'n. Eq 'm, Eq 'n, Eq 'v => (id 'm 'n -> 'v -> bool) -> namespace 'm 'n 'v -> bool*)
 fun  nsAll  :: "(('m,'n)id0 \<Rightarrow> 'v \<Rightarrow> bool)\<Rightarrow>('m,'n,'v)namespace \<Rightarrow> bool "  where 
      " nsAll f env = (
-  ((\<forall> id0. \<forall> v0.      
-(nsLookup env id0 = Some v0)
+  ((\<forall> id0. \<forall> v1.      
+(nsLookup env id0 = Some v1)
      \<longrightarrow>
-     f id0 v0)))"
+     f id0 v1)))"
 
 
 (*val eAll2 : forall 'v1 'v2 'm 'n. Eq 'm, Eq 'n, Eq 'v1, Eq 'v2 =>
@@ -136,9 +136,9 @@ definition nsAll2  :: "(('d,'c)id0 \<Rightarrow> 'b \<Rightarrow> 'a \<Rightarro
 definition nsDom  :: "('m,'n,'v)namespace \<Rightarrow>(('m,'n)id0)set "  where 
      " nsDom env = ( (let x2 = 
   ({}) in  Finite_Set.fold
-   (\<lambda>v1 x2 .  Finite_Set.fold
+   (\<lambda>v2 x2 .  Finite_Set.fold
                         (\<lambda>n x2 . 
-                         if nsLookup env n = Some v1 then Set.insert n x2
+                         if nsLookup env n = Some v2 then Set.insert n x2
                          else x2) x2 UNIV) x2 UNIV))"
 
 
@@ -146,17 +146,17 @@ definition nsDom  :: "('m,'n,'v)namespace \<Rightarrow>(('m,'n)id0)set "  where
 definition nsDomMod  :: "('m,'n,'v)namespace \<Rightarrow>('m list)set "  where 
      " nsDomMod env = ( (let x2 = 
   ({}) in  Finite_Set.fold
-   (\<lambda>v1 x2 .  Finite_Set.fold
+   (\<lambda>v2 x2 .  Finite_Set.fold
                         (\<lambda>n x2 . 
-                         if nsLookupMod env n = Some v1 then Set.insert n x2
+                         if nsLookupMod env n = Some v2 then Set.insert n x2
                          else x2) x2 UNIV) x2 UNIV))"
 
 
 (*val nsMap : forall 'v 'w 'm 'n. ('v -> 'w) -> namespace 'm 'n 'v -> namespace 'm 'n 'w*)
 function (sequential,domintros)  nsMap  :: "('v \<Rightarrow> 'w)\<Rightarrow>('m,'n,'v)namespace \<Rightarrow>('m,'n,'w)namespace "  where 
-     " nsMap f (Bind v1 m) = (
+     " nsMap f (Bind v2 m) = (
   Bind (List.map ( \<lambda>x .  
-  (case  x of (n,x) => (n, f x) )) v1)
+  (case  x of (n,x) => (n, f x) )) v2)
        (List.map ( \<lambda>x .  
   (case  x of (mn,e) => (mn, nsMap f e) )) m))" 
 by pat_completeness auto

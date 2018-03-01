@@ -119,8 +119,8 @@ type_synonym( 'a, 'b) alist =" ('a * 'b) list "
 
 (*val opt_bind : forall 'a 'b. maybe 'a -> 'b -> alist 'a 'b -> alist 'a 'b*)
 fun opt_bind  :: " 'a option \<Rightarrow> 'b \<Rightarrow>('a*'b)list \<Rightarrow>('a*'b)list "  where 
-     " opt_bind None v1 e = ( e )"
-|" opt_bind (Some n') v1 e = ( (n',v1)# e )"
+     " opt_bind None v2 e = ( e )"
+|" opt_bind (Some n') v2 e = ( (n',v2)# e )"
 
 
 (* Lists of indices *)
@@ -129,7 +129,7 @@ fun
 lshift  :: " nat \<Rightarrow>(nat)list \<Rightarrow>(nat)list "  where 
      "
 lshift (n :: nat) ls = (
-  List.map (\<lambda> v1 .  v1 - n) (List.filter (\<lambda> v1 .  n \<le> v1) ls))"
+  List.map (\<lambda> v2 .  v2 - n) (List.filter (\<lambda> v2 .  n \<le> v2) ls))"
 
 
 (*open import {hol} `locationTheory`*)

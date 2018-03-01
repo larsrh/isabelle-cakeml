@@ -70,25 +70,25 @@ definition push  :: "(v)sem_env \<Rightarrow>(v)store*'ffi ffi_state \<Rightarro
 
 (*val return : forall 'ffi. sem_env v -> store_ffi 'ffi v -> v -> list ctxt -> e_step_result 'ffi*)
 definition return  :: "(v)sem_env \<Rightarrow>(v)store*'ffi ffi_state \<Rightarrow> v \<Rightarrow>(ctxt)list \<Rightarrow> 'ffi e_step_result "  where 
-     " return env s v1 c1 = ( Estep (env, s, Val v1, c1))"
+     " return env s v2 c2 = ( Estep (env, s, Val v2, c2))"
 
 
 (*val application : forall 'ffi. op -> sem_env v -> store_ffi 'ffi v -> list v -> list ctxt -> e_step_result 'ffi*)
 definition application  :: " op0 \<Rightarrow>(v)sem_env \<Rightarrow>(v)store*'ffi ffi_state \<Rightarrow>(v)list \<Rightarrow>(ctxt)list \<Rightarrow> 'ffi e_step_result "  where 
-     " application op1 env s vs c1 = (
+     " application op1 env s vs c2 = (
   (case  op1 of
       Opapp =>
       (case  do_opapp vs of
-          Some (env,e) => Estep (env, s, Exp e, c1)
+          Some (env,e) => Estep (env, s, Exp e, c2)
         | None => Eabort Rtype_error
       )
     | _ =>
       (case  do_app s op1 vs of
           Some (s',r) =>
           (case  r of
-              Rerr (Rraise v1) => Estep (env,s',Val v1,((Craise () ,env)# c1))
+              Rerr (Rraise v2) => Estep (env,s',Val v2,((Craise () ,env)# c2))
             | Rerr (Rabort a) => Eabort a
-            | Rval v1 => return env s' v1 c1
+            | Rval v2 => return env s' v2 c2
           )
         | None => Eabort Rtype_error
       )
@@ -98,61 +98,61 @@ definition application  :: " op0 \<Rightarrow>(v)sem_env \<Rightarrow>(v)store*'
 (* apply a context to a value *)
 (*val continue : forall 'ffi. store_ffi 'ffi v -> v -> list ctxt -> e_step_result 'ffi*)
 fun continue  :: "(v)store*'ffi ffi_state \<Rightarrow> v \<Rightarrow>(ctxt_frame*(v)sem_env)list \<Rightarrow> 'ffi e_step_result "  where 
-     " continue s v1 ([]) = ( Estuck )"
-|" continue s v1 ((Craise _, env) # c1) = (
-        (case  c1 of
+     " continue s v2 ([]) = ( Estuck )"
+|" continue s v2 ((Craise _, env) # c2) = (
+        (case  c2 of
             [] => Estuck
-          | ((Chandle _ pes,env') # c1) =>
-              Estep (env,s,Val v1,((Cmat ()  pes v1, env')# c1))
-          | _ # c1 => Estep (env,s,Val v1,((Craise () ,env)# c1))
+          | ((Chandle _ pes,env') # c2) =>
+              Estep (env,s,Val v2,((Cmat ()  pes v2, env')# c2))
+          | _ # c2 => Estep (env,s,Val v2,((Craise () ,env)# c2))
         ))"
-|" continue s v1 ((Chandle _ pes, env) # c1) = (
-        return env s v1 c1 )"
-|" continue s v1 ((Capp op1 vs _ [], env) # c1) = (
-        application op1 env s (v1 # vs) c1 )"
-|" continue s v1 ((Capp op1 vs _ (e # es), env) # c1) = (
-        push env s e (Capp op1 (v1 # vs) ()  es) c1 )"
-|" continue s v1 ((Clog l _ e, env) # c1) = (
-        (case  do_log l v1 e of
-            Some (Exp e) => Estep (env, s, Exp e, c1)
-          | Some (Val v1) => return env s v1 c1
+|" continue s v2 ((Chandle _ pes, env) # c2) = (
+        return env s v2 c2 )"
+|" continue s v2 ((Capp op1 vs _ [], env) # c2) = (
+        application op1 env s (v2 # vs) c2 )"
+|" continue s v2 ((Capp op1 vs _ (e # es), env) # c2) = (
+        push env s e (Capp op1 (v2 # vs) ()  es) c2 )"
+|" continue s v2 ((Clog l _ e, env) # c2) = (
+        (case  do_log l v2 e of
+            Some (Exp e) => Estep (env, s, Exp e, c2)
+          | Some (Val v2) => return env s v2 c2
           | None => Eabort Rtype_error
         ))"
-|" continue s v1 ((Cif _ e1 e2, env) # c1) = (
-        (case  do_if v1 e1 e2 of
-            Some e => Estep (env, s, Exp e, c1)
+|" continue s v2 ((Cif _ e1 e2, env) # c2) = (
+        (case  do_if v2 e1 e2 of
+            Some e => Estep (env, s, Exp e, c2)
           | None => Eabort Rtype_error
         ))"
-|" continue s v1 ((Cmat _ [] err_v, env) # c1) = (
-        Estep (env, s, Val err_v, ((Craise () , env) # c1)))"
-|" continue s v1 ((Cmat _ ((p,e)# pes) err_v, env) # c1) = (
+|" continue s v2 ((Cmat _ [] err_v, env) # c2) = (
+        Estep (env, s, Val err_v, ((Craise () , env) # c2)))"
+|" continue s v2 ((Cmat _ ((p,e)# pes) err_v, env) # c2) = (
         if Lem_list.allDistinct (pat_bindings p []) then
-          (case  pmatch(c   env) (fst s) p v1 [] of
+          (case  pmatch(c   env) (fst s) p v2 [] of
               Match_type_error => Eabort Rtype_error
-            | No_match => Estep (env, s, Val v1, ((Cmat ()  pes err_v,env)# c1))
-            | Match env' => Estep (( env (| v := (nsAppend (alist_to_ns env')(v   env)) |)), s, Exp e, c1)
+            | No_match => Estep (env, s, Val v2, ((Cmat ()  pes err_v,env)# c2))
+            | Match env' => Estep (( env (| v := (nsAppend (alist_to_ns env')(v   env)) |)), s, Exp e, c2)
           )
         else
           Eabort Rtype_error )"
-|" continue s v1 ((Clet n _ e, env) # c1) = (
-        Estep (( env (| v := (nsOptBind n v1(v   env)) |)), s, Exp e, c1))"
-|" continue s v1 ((Ccon n vs _ [], env) # c1) = (
+|" continue s v2 ((Clet n _ e, env) # c2) = (
+        Estep (( env (| v := (nsOptBind n v2(v   env)) |)), s, Exp e, c2))"
+|" continue s v2 ((Ccon n vs _ [], env) # c2) = (
         if do_con_check(c   env) n (List.length vs +( 1 :: nat)) then
-           (case  build_conv(c   env) n (v1 # vs) of
+           (case  build_conv(c   env) n (v2 # vs) of
                None => Eabort Rtype_error
-             | Some v1 => return env s v1 c1
+             | Some v2 => return env s v2 c2
            )
         else
           Eabort Rtype_error )"
-|" continue s v1 ((Ccon n vs _ (e # es), env) # c1) = (
+|" continue s v2 ((Ccon n vs _ (e # es), env) # c2) = (
         if do_con_check(c   env) n (((List.length vs +( 1 :: nat)) +( 1 :: nat)) + List.length es) then
-          push env s e (Ccon n (v1 # vs) ()  es) c1
+          push env s e (Ccon n (v2 # vs) ()  es) c2
         else
           Eabort Rtype_error )"
-|" continue s v1 ((Ctannot _ t, env) # c1) = (
-        return env s v1 c1 )"
-|" continue s v1 ((Clannot _ l, env) # c1) = (
-        return env s v1 c1 )"
+|" continue s v2 ((Ctannot _ t1, env) # c2) = (
+        return env s v2 c2 )"
+|" continue s v2 ((Clannot _ l, env) # c2) = (
+        return env s v2 c2 )"
 
 
 (* The single step expression evaluator.  Returns None if there is nothing to
@@ -163,53 +163,53 @@ fun continue  :: "(v)store*'ffi ffi_state \<Rightarrow> v \<Rightarrow>(ctxt_fra
 
 (*val e_step : forall 'ffi. small_state 'ffi -> e_step_result 'ffi*)
 fun e_step  :: "(v)sem_env*((v)store*'ffi ffi_state)*exp_or_val*(ctxt)list \<Rightarrow> 'ffi e_step_result "  where 
-     " e_step (env, s,(Val v1), c1) = (
-        continue s v1 c1 )"
-|" e_step (env, s,(Exp e), c1) = (
+     " e_step (env, s,(Val v2), c2) = (
+        continue s v2 c2 )"
+|" e_step (env, s,(Exp e), c2) = (
         (case  e of
-            Lit l => return env s (Litv l) c1
+            Lit l => return env s (Litv l) c2
           | Raise e =>
-              push env s e (Craise () ) c1
+              push env s e (Craise () ) c2
           | Handle e pes =>
-              push env s e (Chandle ()  pes) c1
+              push env s e (Chandle ()  pes) c2
           | Con n es =>
               if do_con_check(c   env) n (List.length es) then
                 (case  List.rev es of
                     [] =>
                       (case  build_conv(c   env) n [] of
                           None => Eabort Rtype_error
-                        | Some v1 => return env s v1 c1
+                        | Some v2 => return env s v2 c2
                       )
                   | e # es =>
-                      push env s e (Ccon n [] ()  es) c1
+                      push env s e (Ccon n [] ()  es) c2
                 )
               else
                 Eabort Rtype_error
           | Var n =>
               (case  nsLookup(v   env) n of
                   None => Eabort Rtype_error
-                | Some v1 =>
-                    return env s v1 c1
+                | Some v2 =>
+                    return env s v2 c2
               )
-          | Fun n e => return env s (Closure env n e) c1
+          | Fun n e => return env s (Closure env n e) c2
           | App op1 es =>
               (case  List.rev es of
-                  [] => application op1 env s [] c1
-                | (e # es) => push env s e (Capp op1 [] ()  es) c1
+                  [] => application op1 env s [] c2
+                | (e # es) => push env s e (Capp op1 [] ()  es) c2
               )
-          | Log l e1 e2 => push env s e1 (Clog l ()  e2) c1
-          | If e1 e2 e3 => push env s e1 (Cif ()  e2 e3) c1
-          | Mat e pes => push env s e (Cmat ()  pes (Conv (Some ((''Bind''), TypeExn (Short (''Bind'')))) [])) c1
-          | Let n e1 e2 => push env s e1 (Clet n ()  e2) c1
+          | Log l e1 e2 => push env s e1 (Clog l ()  e2) c2
+          | If e1 e2 e3 => push env s e1 (Cif ()  e2 e3) c2
+          | Mat e pes => push env s e (Cmat ()  pes (Conv (Some ((''Bind''), TypeExn (Short (''Bind'')))) [])) c2
+          | Let n e1 e2 => push env s e1 (Clet n ()  e2) c2
           | Letrec funs e =>
               if \<not> (allDistinct (List.map ( \<lambda>x .  
   (case  x of (x,y,z) => x )) funs)) then
                 Eabort Rtype_error
               else
                 Estep (( env (| v := (build_rec_env funs env(v   env)) |)),
-                       s, Exp e, c1)
-          | Tannot e t => push env s e (Ctannot ()  t) c1
-          | Lannot e l => push env s e (Clannot ()  l) c1
+                       s, Exp e, c2)
+          | Tannot e t1 => push env s e (Ctannot ()  t1) c2
+          | Lannot e l => push env s e (Clannot ()  l) c2
         ))"
 
 
@@ -226,18 +226,18 @@ definition e_step_reln  :: "(v)sem_env*('ffi,(v))store_ffi*exp_or_val*(ctxt)list
 fun 
 small_eval  :: "(v)sem_env \<Rightarrow>(v)store*'ffi ffi_state \<Rightarrow> exp \<Rightarrow>(ctxt)list \<Rightarrow>((v)store*'ffi ffi_state)*((v),(v))result \<Rightarrow> bool "  where 
      "
-small_eval env s e c1 (s', Rval v1) = ((
-  \<exists> env'.  (rtranclp (e_step_reln)) (env,s,Exp e,c1) (env',s',Val v1,[])))"
+small_eval env s e c2 (s', Rval v2) = ((
+  \<exists> env'.  (rtranclp (e_step_reln)) (env,s,Exp e,c2) (env',s',Val v2,[])))"
 |"
-small_eval env s e c1 (s', Rerr (Rraise v1)) = ((
+small_eval env s e c2 (s', Rerr (Rraise v2)) = ((
   \<exists> env'. 
-  \<exists> env''.  (rtranclp (e_step_reln)) (env,s,Exp e,c1) (env',s',Val v1,[(Craise () , env'')])))"
+  \<exists> env''.  (rtranclp (e_step_reln)) (env,s,Exp e,c2) (env',s',Val v2,[(Craise () , env'')])))"
 |"
-small_eval env s e c1 (s', Rerr (Rabort a)) = ((
+small_eval env s e c2 (s', Rerr (Rabort a)) = ((
   \<exists> env'. 
   \<exists> e'. 
   \<exists> c'. 
-    (rtranclp (e_step_reln)) (env,s,Exp e,c1) (env',s',e',c') \<and>
+    (rtranclp (e_step_reln)) (env,s,Exp e,c2) (env',s',e',c') \<and>
     (e_step (env',s',e',c') = Eabort a)))"
 
 

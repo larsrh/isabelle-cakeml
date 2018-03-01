@@ -122,17 +122,17 @@ definition store_lookup  :: " nat \<Rightarrow>('a store_v)list \<Rightarrow>('a
 
 (*val store_alloc : forall 'a. store_v 'a -> store 'a -> store 'a * nat*)
 definition store_alloc  :: " 'a store_v \<Rightarrow>('a store_v)list \<Rightarrow>('a store_v)list*nat "  where 
-     " store_alloc v1 st = (
-  ((st @ [v1]), List.length st))"
+     " store_alloc v2 st = (
+  ((st @ [v2]), List.length st))"
 
 
 (*val store_assign : forall 'a. nat -> store_v 'a -> store 'a -> maybe (store 'a)*)
 definition store_assign  :: " nat \<Rightarrow> 'a store_v \<Rightarrow>('a store_v)list \<Rightarrow>(('a store_v)list)option "  where 
-     " store_assign n v1 st = (
+     " store_assign n v2 st = (
   if (n < List.length st) \<and>
-     store_v_same_type (List.nth st n) v1
+     store_v_same_type (List.nth st n) v2
   then
-    Some (List.list_update st n v1)
+    Some (List.list_update st n v2)
   else
     None )"
 
@@ -170,7 +170,7 @@ fun build_conv  :: "((string),(string),(nat*tid_or_exn))namespace \<Rightarrow>(
 |" build_conv envC (Some id1) vs = (
         (case  nsLookup envC id1 of
             None => None
-          | Some (len,t) => Some (Conv (Some (id_to_n id1, t)) vs)
+          | Some (len,t1) => Some (Conv (Some (id_to_n id1, t1)) vs)
         ))"
 
 
@@ -243,9 +243,9 @@ pmatch envC s (Plit l) (Litv l') env = (
 |"
 pmatch envC s (Pcon (Some n) ps) (Conv (Some (n', t')) vs) env = (
   (case  nsLookup envC n of
-      Some (l, t) =>
-        if same_tid t t' \<and> (List.length ps = l) then
-          if same_ctor (id_to_n n, t) (n',t') then
+      Some (l, t1) =>
+        if same_tid t1 t' \<and> (List.length ps = l) then
+          if same_ctor (id_to_n n, t1) (n',t') then
             pmatch_list envC s ps vs env
           else
             No_match
@@ -262,20 +262,20 @@ pmatch envC s (Pcon None ps) (Conv None vs) env = (
 |"
 pmatch envC s (Pref p) (Loc lnum) env = (
   (case  store_lookup lnum s of
-      Some (Refv v1) => pmatch envC s p v1 env
+      Some (Refv v2) => pmatch envC s p v2 env
     | Some _ => Match_type_error
     | None => Match_type_error
   ))"
 |"
-pmatch envC s (Ptannot p t) v1 env = (
-  pmatch envC s p v1 env )"
+pmatch envC s (Ptannot p t1) v2 env = (
+  pmatch envC s p v2 env )"
 |"
 pmatch envC _ _ _ env = ( Match_type_error )"
 |"
 pmatch_list envC s [] [] env = ( Match env )"
 |"
-pmatch_list envC s (p # ps) (v1 # vs) env = (
-  (case  pmatch envC s p v1 env of
+pmatch_list envC s (p # ps) (v2 # vs) env = (
+  (case  pmatch envC s p v2 env of
       No_match => No_match
     | Match_type_error => Match_type_error
     | Match env' => pmatch_list envC s ps vs env'
@@ -370,13 +370,13 @@ definition prim_exn  :: " string \<Rightarrow> v "  where
 (* Do an application *)
 (*val do_opapp : list v -> maybe (sem_env v * exp)*)
 fun do_opapp  :: "(v)list \<Rightarrow>((v)sem_env*exp)option "  where 
-     " do_opapp ([Closure env n e, v1]) = (
-      Some (( env (| v := (nsBind n v1(v   env)) |)), e))"
-|" do_opapp ([Recclosure env funs n, v1]) = (
+     " do_opapp ([Closure env n e, v2]) = (
+      Some (( env (| v := (nsBind n v2(v   env)) |)), e))"
+|" do_opapp ([Recclosure env funs n, v2]) = (
       if allDistinct (List.map ( \<lambda>x .  
   (case  x of (f,x,e) => f )) funs) then
         (case  find_recfun n funs of
-            Some (n,e) => Some (( env (| v := (nsBind n v1 (build_rec_env funs env(v   env))) |)), e)
+            Some (n,e) => Some (( env (| v := (nsBind n v2 (build_rec_env funs env(v   env))) |)), e)
           | None => None
         )
       else
@@ -411,10 +411,10 @@ function (sequential,domintros)  v_to_char_list  :: " v \<Rightarrow>((char)list
     Some []
   else
     None )"
-|" v_to_char_list (Conv (Some (cn,TypeId (Short tn))) [Litv (Char c1),v1]) = (
+|" v_to_char_list (Conv (Some (cn,TypeId (Short tn))) [Litv (Char c2),v2]) = (
   if (cn = (''::''))  \<and> (tn = (''list'')) then
-    (case  v_to_char_list v1 of
-        Some cs => Some (c1 # cs)
+    (case  v_to_char_list v2 of
+        Some cs => Some (c2 # cs)
       | None => None
     )
   else
@@ -457,7 +457,7 @@ definition ws_to_chars  :: "(8 word)list \<Rightarrow>(char)list "  where
 
 (*val chars_to_ws : list char -> list word8*)
 definition chars_to_ws  :: "(char)list \<Rightarrow>(8 word)list "  where 
-     " chars_to_ws cs = ( List.map (\<lambda> c1 .  word_of_int(int(nat_of_char c1))) cs )"
+     " chars_to_ws cs = ( List.map (\<lambda> c2 .  word_of_int(int(nat_of_char c2))) cs )"
 
 
 (*val opn_lookup : opn -> integer -> integer -> integer*)
@@ -526,100 +526,100 @@ type_synonym( 'ffi, 'v) store_ffi =" 'v store * 'ffi ffi_state "
 
 (*val do_app : forall 'ffi. store_ffi 'ffi v -> op -> list v -> maybe (store_ffi 'ffi v * result v v)*)
 fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(v)list \<Rightarrow>((((v)store_v)list*'ffi ffi_state)*((v),(v))result)option "  where 
-     " do_app ((s:: v store),(t:: 'ffi ffi_state)) op1 vs = (
+     " do_app ((s:: v store),(t1:: 'ffi ffi_state)) op1 vs = (
   (case  (op1, vs) of
       (Opn op1, [Litv (IntLit n1), Litv (IntLit n2)]) =>
         if ((op1 = Divide) \<or> (op1 = Modulo)) \<and> (n2 =( 0 :: int)) then
-          Some ((s,t), Rerr (Rraise (prim_exn (''Div''))))
+          Some ((s,t1), Rerr (Rraise (prim_exn (''Div''))))
         else
-          Some ((s,t), Rval (Litv (IntLit (opn_lookup op1 n1 n2))))
+          Some ((s,t1), Rval (Litv (IntLit (opn_lookup op1 n1 n2))))
     | (Opb op1, [Litv (IntLit n1), Litv (IntLit n2)]) =>
-        Some ((s,t), Rval (Boolv (opb_lookup op1 n1 n2)))
+        Some ((s,t1), Rval (Boolv (opb_lookup op1 n1 n2)))
     | (Opw W8 op1, [Litv (Word8 w1), Litv (Word8 w2)]) =>
-        Some ((s,t), Rval (Litv (Word8 (opw8_lookup op1 w1 w2))))
+        Some ((s,t1), Rval (Litv (Word8 (opw8_lookup op1 w1 w2))))
     | (Opw W64 op1, [Litv (Word64 w1), Litv (Word64 w2)]) =>
-        Some ((s,t), Rval (Litv (Word64 (opw64_lookup op1 w1 w2))))
+        Some ((s,t1), Rval (Litv (Word64 (opw64_lookup op1 w1 w2))))
     | (FP_bop bop, [Litv (Word64 w1), Litv (Word64 w2)]) =>
-        Some ((s,t),Rval (Litv (Word64 (fp_bop bop w1 w2))))
+        Some ((s,t1),Rval (Litv (Word64 (fp_bop bop w1 w2))))
     | (FP_uop uop, [Litv (Word64 w)]) =>
-        Some ((s,t),Rval (Litv (Word64 (fp_uop uop w))))
+        Some ((s,t1),Rval (Litv (Word64 (fp_uop uop w))))
     | (FP_cmp cmp, [Litv (Word64 w1), Litv (Word64 w2)]) =>
-        Some ((s,t),Rval (Boolv (fp_cmp cmp w1 w2)))
+        Some ((s,t1),Rval (Boolv (fp_cmp cmp w1 w2)))
     | (Shift W8 op1 n, [Litv (Word8 w)]) =>
-        Some ((s,t), Rval (Litv (Word8 (shift8_lookup op1 w n))))
+        Some ((s,t1), Rval (Litv (Word8 (shift8_lookup op1 w n))))
     | (Shift W64 op1 n, [Litv (Word64 w)]) =>
-        Some ((s,t), Rval (Litv (Word64 (shift64_lookup op1 w n))))
+        Some ((s,t1), Rval (Litv (Word64 (shift64_lookup op1 w n))))
     | (Equality, [v1, v2]) =>
         (case  do_eq v1 v2 of
             Eq_type_error => None
-          | Eq_val b => Some ((s,t), Rval (Boolv b))
+          | Eq_val b => Some ((s,t1), Rval (Boolv b))
         )
-    | (Opassign, [Loc lnum, v1]) =>
-        (case  store_assign lnum (Refv v1) s of
-            Some s' => Some ((s',t), Rval (Conv None []))
+    | (Opassign, [Loc lnum, v2]) =>
+        (case  store_assign lnum (Refv v2) s of
+            Some s' => Some ((s',t1), Rval (Conv None []))
           | None => None
         )
-    | (Opref, [v1]) =>
-        (let (s',n) = (store_alloc (Refv v1) s) in
-          Some ((s',t), Rval (Loc n)))
+    | (Opref, [v2]) =>
+        (let (s',n) = (store_alloc (Refv v2) s) in
+          Some ((s',t1), Rval (Loc n)))
     | (Opderef, [Loc n]) =>
         (case  store_lookup n s of
-            Some (Refv v1) => Some ((s,t),Rval v1)
+            Some (Refv v2) => Some ((s,t1),Rval v2)
           | _ => None
         )
     | (Aw8alloc, [Litv (IntLit n), Litv (Word8 w)]) =>
         if n <( 0 :: int) then
-          Some ((s,t), Rerr (Rraise (prim_exn (''Subscript''))))
+          Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
         else
           (let (s',lnum) =            
 (store_alloc (W8array (List.replicate (nat (abs ( n))) w)) s)
           in
-            Some ((s',t), Rval (Loc lnum)))
+            Some ((s',t1), Rval (Loc lnum)))
     | (Aw8sub, [Loc lnum, Litv (IntLit i)]) =>
         (case  store_lookup lnum s of
             Some (W8array ws) =>
               if i <( 0 :: int) then
-                Some ((s,t), Rerr (Rraise (prim_exn (''Subscript''))))
+                Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
               else
                 (let n = (nat (abs ( i))) in
                   if n \<ge> List.length ws then
-                    Some ((s,t), Rerr (Rraise (prim_exn (''Subscript''))))
+                    Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
                   else
-                    Some ((s,t), Rval (Litv (Word8 (List.nth ws n)))))
+                    Some ((s,t1), Rval (Litv (Word8 (List.nth ws n)))))
           | _ => None
         )
     | (Aw8length, [Loc n]) =>
         (case  store_lookup n s of
             Some (W8array ws) =>
-              Some ((s,t),Rval (Litv(IntLit(int(List.length ws)))))
+              Some ((s,t1),Rval (Litv(IntLit(int(List.length ws)))))
           | _ => None
          )
     | (Aw8update, [Loc lnum, Litv(IntLit i), Litv(Word8 w)]) =>
         (case  store_lookup lnum s of
           Some (W8array ws) =>
             if i <( 0 :: int) then
-              Some ((s,t), Rerr (Rraise (prim_exn (''Subscript''))))
+              Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
             else
               (let n = (nat (abs ( i))) in
                 if n \<ge> List.length ws then
-                  Some ((s,t), Rerr (Rraise (prim_exn (''Subscript''))))
+                  Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
                 else
                   (case  store_assign lnum (W8array (List.list_update ws n w)) s of
                       None => None
-                    | Some s' => Some ((s',t), Rval (Conv None []))
+                    | Some s' => Some ((s',t1), Rval (Conv None []))
                   ))
         | _ => None
       )
     | (WordFromInt W8, [Litv(IntLit i)]) =>
-        Some ((s,t), Rval (Litv (Word8 (word_of_int i))))
+        Some ((s,t1), Rval (Litv (Word8 (word_of_int i))))
     | (WordFromInt W64, [Litv(IntLit i)]) =>
-        Some ((s,t), Rval (Litv (Word64 (word_of_int i))))
+        Some ((s,t1), Rval (Litv (Word64 (word_of_int i))))
     | (WordToInt W8, [Litv (Word8 w)]) =>
-        Some ((s,t), Rval (Litv (IntLit (int(unat w)))))
+        Some ((s,t1), Rval (Litv (IntLit (int(unat w)))))
     | (WordToInt W64, [Litv (Word64 w)]) =>
-        Some ((s,t), Rval (Litv (IntLit (int(unat w)))))
+        Some ((s,t1), Rval (Litv (IntLit (int(unat w)))))
     | (CopyStrStr, [Litv(StrLit str),Litv(IntLit off),Litv(IntLit len)]) =>
-        Some ((s,t),
+        Some ((s,t1),
         (case  copy_array ( str,off) len None of
           None => Rerr (Rraise (prim_exn (''Subscript'')))
         | Some cs => Rval (Litv(StrLit((cs))))
@@ -629,10 +629,10 @@ fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(
         (case  store_lookup dst s of
           Some (W8array ws) =>
             (case  copy_array ( str,off) len (Some(ws_to_chars ws,dstoff)) of
-              None => Some ((s,t), Rerr (Rraise (prim_exn (''Subscript''))))
+              None => Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
             | Some cs =>
               (case  store_assign dst (W8array (chars_to_ws cs)) s of
-                Some s' =>  Some ((s',t), Rval (Conv None []))
+                Some s' =>  Some ((s',t1), Rval (Conv None []))
               | _ => None
               )
             )
@@ -641,7 +641,7 @@ fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(
     | (CopyAw8Str, [Loc src,Litv(IntLit off),Litv(IntLit len)]) =>
       (case  store_lookup src s of
         Some (W8array ws) =>
-        Some ((s,t),
+        Some ((s,t1),
           (case  copy_array (ws,off) len None of
             None => Rerr (Rraise (prim_exn (''Subscript'')))
           | Some ws => Rval (Litv(StrLit((ws_to_chars ws))))
@@ -653,121 +653,121 @@ fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(
       (case  (store_lookup src s, store_lookup dst s) of
         (Some (W8array ws), Some (W8array ds)) =>
           (case  copy_array (ws,off) len (Some(ds,dstoff)) of
-            None => Some ((s,t), Rerr (Rraise (prim_exn (''Subscript''))))
+            None => Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
           | Some ws =>
               (case  store_assign dst (W8array ws) s of
-                Some s' => Some ((s',t), Rval (Conv None []))
+                Some s' => Some ((s',t1), Rval (Conv None []))
               | _ => None
               )
           )
       | _ => None
       )
-    | (Ord, [Litv (Char c1)]) =>
-          Some ((s,t), Rval (Litv(IntLit(int(nat_of_char c1)))))
+    | (Ord, [Litv (Char c2)]) =>
+          Some ((s,t1), Rval (Litv(IntLit(int(nat_of_char c2)))))
     | (Chr, [Litv (IntLit i)]) =>
-        Some ((s,t),          
+        Some ((s,t1),          
 (if (i <( 0 :: int)) \<or> (i >( 255 :: int)) then
             Rerr (Rraise (prim_exn (''Chr'')))
           else
             Rval (Litv(Char(char_of_nat(nat (abs ( i))))))))
     | (Chopb op1, [Litv (Char c1), Litv (Char c2)]) =>
-        Some ((s,t), Rval (Boolv (opb_lookup op1 (int(nat_of_char c1)) (int(nat_of_char c2)))))
-    | (Implode, [v1]) =>
-          (case  v_to_char_list v1 of
+        Some ((s,t1), Rval (Boolv (opb_lookup op1 (int(nat_of_char c1)) (int(nat_of_char c2)))))
+    | (Implode, [v2]) =>
+          (case  v_to_char_list v2 of
             Some ls =>
-              Some ((s,t), Rval (Litv (StrLit ( ls))))
+              Some ((s,t1), Rval (Litv (StrLit ( ls))))
           | None => None
           )
     | (Strsub, [Litv (StrLit str), Litv (IntLit i)]) =>
         if i <( 0 :: int) then
-          Some ((s,t), Rerr (Rraise (prim_exn (''Subscript''))))
+          Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
         else
           (let n = (nat (abs ( i))) in
             if n \<ge> List.length str then
-              Some ((s,t), Rerr (Rraise (prim_exn (''Subscript''))))
+              Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
             else
-              Some ((s,t), Rval (Litv (Char (List.nth ( str) n)))))
+              Some ((s,t1), Rval (Litv (Char (List.nth ( str) n)))))
     | (Strlen, [Litv (StrLit str)]) =>
-        Some ((s,t), Rval (Litv(IntLit(int(List.length str)))))
-    | (Strcat, [v1]) =>
-        (case  v_to_list v1 of
+        Some ((s,t1), Rval (Litv(IntLit(int(List.length str)))))
+    | (Strcat, [v2]) =>
+        (case  v_to_list v2 of
           Some vs =>
             (case  vs_to_string vs of
               Some str =>
-                Some ((s,t), Rval (Litv(StrLit str)))
+                Some ((s,t1), Rval (Litv(StrLit str)))
             | _ => None
             )
         | _ => None
         )
-    | (VfromList, [v1]) =>
-          (case  v_to_list v1 of
+    | (VfromList, [v2]) =>
+          (case  v_to_list v2 of
               Some vs =>
-                Some ((s,t), Rval (Vectorv vs))
+                Some ((s,t1), Rval (Vectorv vs))
             | None => None
           )
     | (Vsub, [Vectorv vs, Litv (IntLit i)]) =>
         if i <( 0 :: int) then
-          Some ((s,t), Rerr (Rraise (prim_exn (''Subscript''))))
+          Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
         else
           (let n = (nat (abs ( i))) in
             if n \<ge> List.length vs then
-              Some ((s,t), Rerr (Rraise (prim_exn (''Subscript''))))
+              Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
             else
-              Some ((s,t), Rval (List.nth vs n)))
+              Some ((s,t1), Rval (List.nth vs n)))
     | (Vlength, [Vectorv vs]) =>
-        Some ((s,t), Rval (Litv (IntLit (int (List.length vs)))))
-    | (Aalloc, [Litv (IntLit n), v1]) =>
+        Some ((s,t1), Rval (Litv (IntLit (int (List.length vs)))))
+    | (Aalloc, [Litv (IntLit n), v2]) =>
         if n <( 0 :: int) then
-          Some ((s,t), Rerr (Rraise (prim_exn (''Subscript''))))
+          Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
         else
           (let (s',lnum) =            
-(store_alloc (Varray (List.replicate (nat (abs ( n))) v1)) s)
+(store_alloc (Varray (List.replicate (nat (abs ( n))) v2)) s)
           in
-            Some ((s',t), Rval (Loc lnum)))
+            Some ((s',t1), Rval (Loc lnum)))
     | (AallocEmpty, [Conv None []]) =>
         (let (s',lnum) = (store_alloc (Varray []) s) in
-          Some ((s',t), Rval (Loc lnum)))
+          Some ((s',t1), Rval (Loc lnum)))
     | (Asub, [Loc lnum, Litv (IntLit i)]) =>
         (case  store_lookup lnum s of
             Some (Varray vs) =>
               if i <( 0 :: int) then
-                Some ((s,t), Rerr (Rraise (prim_exn (''Subscript''))))
+                Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
               else
                 (let n = (nat (abs ( i))) in
                   if n \<ge> List.length vs then
-                    Some ((s,t), Rerr (Rraise (prim_exn (''Subscript''))))
+                    Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
                   else
-                    Some ((s,t), Rval (List.nth vs n)))
+                    Some ((s,t1), Rval (List.nth vs n)))
           | _ => None
         )
     | (Alength, [Loc n]) =>
         (case  store_lookup n s of
             Some (Varray ws) =>
-              Some ((s,t),Rval (Litv(IntLit(int(List.length ws)))))
+              Some ((s,t1),Rval (Litv(IntLit(int(List.length ws)))))
           | _ => None
          )
-    | (Aupdate, [Loc lnum, Litv (IntLit i), v1]) =>
+    | (Aupdate, [Loc lnum, Litv (IntLit i), v2]) =>
         (case  store_lookup lnum s of
           Some (Varray vs) =>
             if i <( 0 :: int) then
-              Some ((s,t), Rerr (Rraise (prim_exn (''Subscript''))))
+              Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
             else
               (let n = (nat (abs ( i))) in
                 if n \<ge> List.length vs then
-                  Some ((s,t), Rerr (Rraise (prim_exn (''Subscript''))))
+                  Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
                 else
-                  (case  store_assign lnum (Varray (List.list_update vs n v1)) s of
+                  (case  store_assign lnum (Varray (List.list_update vs n v2)) s of
                       None => None
-                    | Some s' => Some ((s',t), Rval (Conv None []))
+                    | Some s' => Some ((s',t1), Rval (Conv None []))
                   ))
         | _ => None
       )
     | (ConfigGC, [Litv (IntLit i), Litv (IntLit j)]) =>
-        Some ((s,t), Rval (Conv None []))
+        Some ((s,t1), Rval (Conv None []))
     | (FFI n, [Litv(StrLit conf), Loc lnum]) =>
         (case  store_lookup lnum s of
           Some (W8array ws) =>
-            (case  call_FFI t n (List.map (\<lambda> c1 .  of_nat(nat_of_char c1)) ( conf)) ws of
+            (case  call_FFI t1 n (List.map (\<lambda> c2 .  of_nat(nat_of_char c2)) ( conf)) ws of
               (t', ws') =>
                (case  store_assign lnum (W8array ws') s of
                  Some s' => Some ((s', t'), Rval (Conv None []))
@@ -783,15 +783,15 @@ fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(
 (* Do a logical operation *)
 (*val do_log : lop -> v -> exp -> maybe exp_or_val*)
 fun do_log  :: " lop \<Rightarrow> v \<Rightarrow> exp \<Rightarrow>(exp_or_val)option "  where 
-     " do_log And v1 e = ( 
-  (case  v1 of
+     " do_log And v2 e = ( 
+  (case  v2 of
       Litv _ => None
     | Conv m l2 => (case  m of
                        None => None
                      | Some p => (case  p of
-                                     (s1,t) =>
+                                     (s1,t1) =>
                                  if(s1 = (''true'')) then
-                                   ((case  t of
+                                   ((case  t1 of
                                         TypeId i => (case  i of
                                                         Short s2 =>
                                                     if(s2 = (''bool'')) then
@@ -805,13 +805,13 @@ fun do_log  :: " lop \<Rightarrow> v \<Rightarrow> exp \<Rightarrow>(exp_or_val)
                                     )) else
                                    (
                                    if(s1 = (''false'')) then
-                                     ((case  t of
+                                     ((case  t1 of
                                           TypeId i2 => (case  i2 of
                                                            Short s4 =>
                                                        if(s4 = (''bool'')) then
                                                          ((case  l2 of
                                                               [] => Some
-                                                                    (Val v1)
+                                                                    (Val v2)
                                                             | _ => None
                                                           )) else None
                                                          | Long _ _ => 
@@ -826,8 +826,8 @@ fun do_log  :: " lop \<Rightarrow> v \<Rightarrow> exp \<Rightarrow>(exp_or_val)
     | Loc _ => None
     | Vectorv _ => None
   ) )"
-|" do_log Or v1 e = ( 
-  (case  v1 of
+|" do_log Or v2 e = ( 
+  (case  v2 of
       Litv _ => None
     | Conv m0 l6 => (case  m0 of
                         None => None
@@ -856,7 +856,7 @@ fun do_log  :: " lop \<Rightarrow> v \<Rightarrow> exp \<Rightarrow>(exp_or_val)
                                                          if(s11 = (''bool'')) then
                                                            ((case  l6 of
                                                                 [] => 
-                                                            Some (Val v1)
+                                                            Some (Val v2)
                                                               | _ => 
                                                             None
                                                             )) else None
@@ -877,10 +877,10 @@ fun do_log  :: " lop \<Rightarrow> v \<Rightarrow> exp \<Rightarrow>(exp_or_val)
 (* Do an if-then-else *)
 (*val do_if : v -> exp -> exp -> maybe exp*)
 definition do_if  :: " v \<Rightarrow> exp \<Rightarrow> exp \<Rightarrow>(exp)option "  where 
-     " do_if v1 e1 e2 = (
-  if v1 = (Boolv True) then
+     " do_if v2 e1 e2 = (
+  if v2 = (Boolv True) then
     Some e1
-  else if v1 = (Boolv False) then
+  else if v2 = (Boolv False) then
     Some e2
   else
     None )"
@@ -970,9 +970,9 @@ definition prog_to_mods  :: "(top0)list \<Rightarrow>((string)list)list "  where
 
 (*val no_dup_mods : list top -> set (list modN) -> bool*)
 definition no_dup_mods  :: "(top0)list \<Rightarrow>((modN)list)set \<Rightarrow> bool "  where 
-     " no_dup_mods tops defined_mods1 = (
+     " no_dup_mods tops defined_mods2 = (
   Lem_list.allDistinct (prog_to_mods tops) \<and>
-  disjoint (List.set (prog_to_mods tops)) defined_mods1 )"
+  disjoint (List.set (prog_to_mods tops)) defined_mods2 )"
 
 
 (*val prog_to_top_types : list top -> list typeN*)
@@ -987,8 +987,8 @@ definition prog_to_top_types  :: "(top0)list \<Rightarrow>(string)list "  where
 
 (*val no_dup_top_types : list top -> set tid_or_exn -> bool*)
 definition no_dup_top_types  :: "(top0)list \<Rightarrow>(tid_or_exn)set \<Rightarrow> bool "  where 
-     " no_dup_top_types tops defined_types1 = (
+     " no_dup_top_types tops defined_types2 = (
   Lem_list.allDistinct (prog_to_top_types tops) \<and>
-  disjoint (List.set (List.map (\<lambda> tn .  TypeId (Short tn)) (prog_to_top_types tops))) defined_types1 )"
+  disjoint (List.set (List.map (\<lambda> tn .  TypeId (Short tn)) (prog_to_top_types tops))) defined_types2 )"
 
 end

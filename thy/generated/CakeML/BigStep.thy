@@ -44,10 +44,10 @@ evaluate ck env s (Lit l) (s, Rval (Litv l))"
 
 |
 
-"raise1" : " \<And> ck env e s1 s2 v0.
-evaluate ck s1 env e (s2, Rval v0)
+"raise1" : " \<And> ck env e s1 s2 v1.
+evaluate ck s1 env e (s2, Rval v1)
 ==>
-evaluate ck s1 env (Raise e) (s2, Rerr (Rraise v0))"
+evaluate ck s1 env (Raise e) (s2, Rerr (Rraise v1))"
 
 |
 
@@ -58,16 +58,16 @@ evaluate ck s1 env (Raise e) (s2, Rerr err)"
 
 |
 
-"handle1" : " \<And> ck s1 s2 env e v0 pes.
-evaluate ck s1 env e (s2, Rval v0)
+"handle1" : " \<And> ck s1 s2 env e v1 pes.
+evaluate ck s1 env e (s2, Rval v1)
 ==>
-evaluate ck s1 env (Handle e pes) (s2, Rval v0)"
+evaluate ck s1 env (Handle e pes) (s2, Rval v1)"
 
 |
 
-"handle2" : " \<And> ck s1 s2 env e pes v0 bv.
-evaluate ck env s1 e (s2, Rerr (Rraise v0)) \<and>
-evaluate_match ck env s2 v0 pes v0 bv
+"handle2" : " \<And> ck s1 s2 env e pes v1 bv.
+evaluate ck env s1 e (s2, Rerr (Rraise v1)) \<and>
+evaluate_match ck env s2 v1 pes v1 bv
 ==>
 evaluate ck env s1 (Handle e pes) bv "
 
@@ -80,12 +80,12 @@ evaluate ck env s1 (Handle e pes) (s2, Rerr (Rabort a))"
 
 |
 
-"con1" : " \<And> ck env cn es vs s s' v0.
+"con1" : " \<And> ck env cn es vs s s' v1.
 do_con_check(c   env) cn (List.length es) \<and>
-((build_conv(c   env) cn (List.rev vs) = Some v0) \<and>
+((build_conv(c   env) cn (List.rev vs) = Some v1) \<and>
 evaluate_list ck env s (List.rev es) (s', Rval vs))
 ==>
-evaluate ck env s (Con cn es) (s', Rval v0)"
+evaluate ck env s (Con cn es) (s', Rval v1)"
 
 |
 
@@ -104,10 +104,10 @@ evaluate ck env s (Con cn es) (s', Rerr err)"
 
 |
 
-"var1" : " \<And> ck env n v0 s.
-nsLookup(v   env) n = Some v0
+"var1" : " \<And> ck env n v1 s.
+nsLookup(v   env) n = Some v1
 ==>
-evaluate ck env s (Var n) (s, Rval v0)"
+evaluate ck env s (Var n) (s, Rval v1)"
 
 |
 
@@ -177,26 +177,26 @@ evaluate ck env s1 (App op0 es) (s2, Rerr err)"
 
 |
 
-"log1" : " \<And> ck env op0 e1 e2 v0 e' bv s1 s2.
-evaluate ck env s1 e1 (s2, Rval v0) \<and>
-((do_log op0 v0 e2 = Some (Exp e')) \<and>
+"log1" : " \<And> ck env op0 e1 e2 v1 e' bv s1 s2.
+evaluate ck env s1 e1 (s2, Rval v1) \<and>
+((do_log op0 v1 e2 = Some (Exp e')) \<and>
 evaluate ck env s2 e' bv)
 ==>
 evaluate ck env s1 (Log op0 e1 e2) bv "
 
 |
 
-"log2" : " \<And> ck env op0 e1 e2 v0 bv s1 s2.
-evaluate ck env s1 e1 (s2, Rval v0) \<and>
-(do_log op0 v0 e2 = Some (Val bv))
+"log2" : " \<And> ck env op0 e1 e2 v1 bv s1 s2.
+evaluate ck env s1 e1 (s2, Rval v1) \<and>
+(do_log op0 v1 e2 = Some (Val bv))
 ==>
 evaluate ck env s1 (Log op0 e1 e2) (s2, Rval bv)"
 
 |
 
-"log3" : " \<And> ck env op0 e1 e2 v0 s1 s2.
-evaluate ck env s1 e1 (s2, Rval v0) \<and>
-(do_log op0 v0 e2 = None)
+"log3" : " \<And> ck env op0 e1 e2 v1 s1 s2.
+evaluate ck env s1 e1 (s2, Rval v1) \<and>
+(do_log op0 v1 e2 = None)
 ==>
 evaluate ck env s1 (Log op0 e1 e2) (s2, Rerr (Rabort Rtype_error))"
 
@@ -209,18 +209,18 @@ evaluate ck env s (Log op0 e1 e2) (s', Rerr err)"
 
 |
 
-"if1" : " \<And> ck env e1 e2 e3 v0 e' bv s1 s2.
-evaluate ck env s1 e1 (s2, Rval v0) \<and>
-((do_if v0 e2 e3 = Some e') \<and>
+"if1" : " \<And> ck env e1 e2 e3 v1 e' bv s1 s2.
+evaluate ck env s1 e1 (s2, Rval v1) \<and>
+((do_if v1 e2 e3 = Some e') \<and>
 evaluate ck env s2 e' bv)
 ==>
 evaluate ck env s1 (If e1 e2 e3) bv "
 
 |
 
-"if2" : " \<And> ck env e1 e2 e3 v0 s1 s2.
-evaluate ck env s1 e1 (s2, Rval v0) \<and>
-(do_if v0 e2 e3 = None)
+"if2" : " \<And> ck env e1 e2 e3 v1 s1 s2.
+evaluate ck env s1 e1 (s2, Rval v1) \<and>
+(do_if v1 e2 e3 = None)
 ==>
 evaluate ck env s1 (If e1 e2 e3) (s2, Rerr (Rabort Rtype_error))"
 
@@ -233,9 +233,9 @@ evaluate ck env s (If e1 e2 e3) (s', Rerr err)"
 
 |
 
-"mat1" : " \<And> ck env e pes v0 bv s1 s2.
-evaluate ck env s1 e (s2, Rval v0) \<and>
-evaluate_match ck env s2 v0 pes (Conv (Some ((''Bind''), TypeExn (Short (''Bind'')))) []) bv
+"mat1" : " \<And> ck env e pes v1 bv s1 s2.
+evaluate ck env s1 e (s2, Rval v1) \<and>
+evaluate_match ck env s2 v1 pes (Conv (Some ((''Bind''), TypeExn (Short (''Bind'')))) []) bv
 ==>
 evaluate ck env s1 (Mat e pes) bv "
 
@@ -248,9 +248,9 @@ evaluate ck env s (Mat e pes) (s', Rerr err)"
 
 |
 
-"let1" : " \<And> ck env n e1 e2 v0 bv s1 s2.
-evaluate ck env s1 e1 (s2, Rval v0) \<and>
-evaluate ck ( env (| v := (nsOptBind n v0(v   env)) |)) s2 e2 bv
+"let1" : " \<And> ck env n e1 e2 v1 bv s1 s2.
+evaluate ck env s1 e1 (s2, Rval v1) \<and>
+evaluate ck ( env (| v := (nsOptBind n v1(v   env)) |)) s2 e2 bv
 ==>
 evaluate ck env s1 (Let n e1 e2) bv "
 
@@ -280,10 +280,10 @@ evaluate ck env s (Letrec funs e) (s, Rerr (Rabort Rtype_error))"
 
 |
 
-"tannot" : " \<And> ck env e t s bv.
+"tannot" : " \<And> ck env e t0 s bv.
 evaluate ck env s e bv
 ==>
-evaluate ck env s (Tannot e t) bv "
+evaluate ck env s (Tannot e t0) bv "
 
 |
 
@@ -300,11 +300,11 @@ evaluate_list ck env s [] (s, Rval [])"
 
 |
 
-"cons1" : " \<And> ck env e es v0 vs s1 s2 s3.
-evaluate ck env s1 e (s2, Rval v0) \<and>
+"cons1" : " \<And> ck env e es v1 vs s1 s2 s3.
+evaluate ck env s1 e (s2, Rval v1) \<and>
 evaluate_list ck env s2 es (s3, Rval vs)
 ==>
-evaluate_list ck env s1 (e # es) (s3, Rval (v0 # vs))"
+evaluate_list ck env s1 (e # es) (s3, Rval (v1 # vs))"
 
 |
 
@@ -315,77 +315,77 @@ evaluate_list ck env s (e # es) (s', Rerr err)"
 
 |
 
-"cons3" : " \<And> ck env e es v0 err s1 s2 s3.
-evaluate ck env s1 e (s2, Rval v0) \<and>
+"cons3" : " \<And> ck env e es v1 err s1 s2 s3.
+evaluate ck env s1 e (s2, Rval v1) \<and>
 evaluate_list ck env s2 es (s3, Rerr err)
 ==>
 evaluate_list ck env s1 (e # es) (s3, Rerr err)"
 
 |
 
-"mat_empty" : " \<And> ck env v0 err_v s.
+"mat_empty" : " \<And> ck env v1 err_v s.
 
-evaluate_match ck env s v0 [] err_v (s, Rerr (Rraise err_v))"
+evaluate_match ck env s v1 [] err_v (s, Rerr (Rraise err_v))"
 
 |
 
-"mat_cons1" : " \<And> ck env env' v0 p pes e bv err_v s.
+"mat_cons1" : " \<And> ck env env' v1 p pes e bv err_v s.
 Lem_list.allDistinct (pat_bindings p []) \<and>
-((pmatch(c   env)(refs   s) p v0 [] = Match env') \<and>
+((pmatch(c   env)(refs   s) p v1 [] = Match env') \<and>
 evaluate ck ( env (| v := (nsAppend (alist_to_ns env')(v   env)) |)) s e bv)
 ==>
-evaluate_match ck env s v0 ((p,e)# pes) err_v bv "
+evaluate_match ck env s v1 ((p,e)# pes) err_v bv "
 
 |
 
-"mat_cons2" : " \<And> ck env v0 p e pes bv s err_v.
+"mat_cons2" : " \<And> ck env v1 p e pes bv s err_v.
 Lem_list.allDistinct (pat_bindings p []) \<and>
-((pmatch(c   env)(refs   s) p v0 [] = No_match) \<and>
-evaluate_match ck env s v0 pes err_v bv)
+((pmatch(c   env)(refs   s) p v1 [] = No_match) \<and>
+evaluate_match ck env s v1 pes err_v bv)
 ==>
-evaluate_match ck env s v0 ((p,e)# pes) err_v bv "
+evaluate_match ck env s v1 ((p,e)# pes) err_v bv "
 
 |
 
-"mat_cons3" : " \<And> ck env v0 p e pes s err_v.
-pmatch(c   env)(refs   s) p v0 [] = Match_type_error
+"mat_cons3" : " \<And> ck env v1 p e pes s err_v.
+pmatch(c   env)(refs   s) p v1 [] = Match_type_error
 ==>
-evaluate_match ck env s v0 ((p,e)# pes) err_v (s, Rerr (Rabort Rtype_error))"
+evaluate_match ck env s v1 ((p,e)# pes) err_v (s, Rerr (Rabort Rtype_error))"
 
 |
 
-"mat_cons4" : " \<And> ck env v0 p e pes s err_v.
+"mat_cons4" : " \<And> ck env v1 p e pes s err_v.
 \<not> (Lem_list.allDistinct (pat_bindings p []))
 ==>
-evaluate_match ck env s v0 ((p,e)# pes) err_v (s, Rerr (Rabort Rtype_error))"
+evaluate_match ck env s v1 ((p,e)# pes) err_v (s, Rerr (Rabort Rtype_error))"
 
 (* The set tid_or_exn part of the state tracks all of the types and exceptions
  * that have been declared *)
 inductive
 evaluate_dec  :: " bool \<Rightarrow>(modN)list \<Rightarrow>(v)sem_env \<Rightarrow> 'ffi state \<Rightarrow> dec \<Rightarrow> 'ffi state*(((v)sem_env),(v))result \<Rightarrow> bool "  where
 
-"dlet1" : " \<And> ck mn env p e v0 env' s1 s2 locs.
-evaluate ck env s1 e (s2, Rval v0) \<and>
+"dlet1" : " \<And> ck mn env p e v1 env' s1 s2 locs.
+evaluate ck env s1 e (s2, Rval v1) \<and>
 (Lem_list.allDistinct (pat_bindings p []) \<and>
-(pmatch(c   env)(refs   s2) p v0 [] = Match env'))
+(pmatch(c   env)(refs   s2) p v1 [] = Match env'))
 ==>
 evaluate_dec ck mn env s1 (Dlet locs p e) (s2, Rval (| v = (alist_to_ns env'), c = nsEmpty |))"
 
 |
 
-"dlet2" : " \<And> ck mn env p e v0 s1 s2 locs.
-evaluate ck env s1 e (s2, Rval v0) \<and>
+"dlet2" : " \<And> ck mn env p e v1 s1 s2 locs.
+evaluate ck env s1 e (s2, Rval v1) \<and>
 (Lem_list.allDistinct (pat_bindings p []) \<and>
-(pmatch(c   env)(refs   s2) p v0 [] = No_match))
+(pmatch(c   env)(refs   s2) p v1 [] = No_match))
 ==>
 evaluate_dec ck mn env s1 (Dlet locs p e) (s2, Rerr (Rraise Bindv))"
 
 |
 
-"dlet3" : " \<And> ck mn env p e v0 s1 s2 locs.
-evaluate ck env s1 e (s2, Rval v0) \<and>
+"dlet3" : " \<And> ck mn env p e v1 s1 s2 locs.
+evaluate ck env s1 e (s2, Rval v1) \<and>
 (Lem_list.allDistinct (pat_bindings p []) \<and>
-(pmatch(c   env)(refs   s2) p v0 [] = Match_type_error))
+(pmatch(c   env)(refs   s2) p v1 [] = Match_type_error))
 ==>
 evaluate_dec ck mn env s1 (Dlet locs p e) (s2, Rerr (Rabort Rtype_error))"
 
@@ -443,9 +443,9 @@ evaluate_dec ck mn env s (Dtype locs tds) (s, Rerr (Rabort Rtype_error))"
 
 |
 
-"dtabbrev" : " \<And> ck mn env tvs tn t s locs.
+"dtabbrev" : " \<And> ck mn env tvs tn t0 s locs.
 
-evaluate_dec ck mn env s (Dtabbrev locs tvs tn t) (s, Rval (| v = nsEmpty, c = nsEmpty |))"
+evaluate_dec ck mn env s (Dtabbrev locs tvs tn t0) (s, Rval (| v = nsEmpty, c = nsEmpty |))"
 
 |
 
@@ -567,7 +567,7 @@ fun dec_diverges  :: "(v)sem_env \<Rightarrow> 'ffi state \<Rightarrow> dec \<Ri
      " dec_diverges env st (Dlet locs p e) = ( Lem_list.allDistinct (pat_bindings p []) \<and> e_diverges env ((refs   st),(ffi   st)) e )"
 |" dec_diverges env st (Dletrec locs funs) = ( False )"
 |" dec_diverges env st (Dtype locs tds) = ( False )"
-|" dec_diverges env st (Dtabbrev locs tvs tn t) = ( False )"
+|" dec_diverges env st (Dtabbrev locs tvs tn t1) = ( False )"
 |" dec_diverges env st (Dexn locs cn ts) = ( False )"
 
 
