@@ -10,9 +10,9 @@ imports
 	 "Lib" 
 	 "Namespace" 
 	 "FpSem" 
-	 "LEM.Lem_string_extra" 
 	 "Ast" 
 	 "Ffi" 
+	 "LEM.Lem_string_extra" 
 
 begin 
 
