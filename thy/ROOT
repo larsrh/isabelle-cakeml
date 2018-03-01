@@ -23,5 +23,6 @@ session CakeML = LEM +
     "generated/CakeML/LibAuxiliary"
     "generated/CakeML/Namespace"
     "generated/CakeML/NamespaceAuxiliary"
+    "generated/CakeML/PrimTypes"
     "generated/CakeML/SemanticPrimitives"
     "generated/CakeML/SemanticPrimitivesAuxiliary"

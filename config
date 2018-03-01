@@ -11,6 +11,7 @@ CAKEML_LEM_FILES=(
   "semantics/evaluate.lem"
   "semantics/fpSem.lem"
   "semantics/namespace.lem"
+  "semantics/primTypes.lem"
   "semantics/semanticPrimitives.lem"
   "semantics/alt_semantics/bigStep.lem"
   "semantics/alt_semantics/smallStep.lem"
