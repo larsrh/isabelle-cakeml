@@ -35,11 +35,13 @@ fi
 
 RAW_TARGET="download"
 TARGET="thy"
+GENERATED_TARGET="$TARGET/generated"
 
 echo "Cleaning ..."
 rm -rf "$RAW_TARGET"
 mkdir -p "$RAW_TARGET"
-git clean -dfxq "$TARGET"
+rm -rf "$GENERATED_TARGET"
+mkdir -p "$GENERATED_TARGET"
 
 echo "Unpacking Lem ..."
 unzip -oq lem.zip -d "$RAW_TARGET"
@@ -63,7 +65,7 @@ echo "Making Lem/Isabelle libraries ..."
 make -C "$LEM_RAW_TARGET/library" isa-libs
 
 echo "Copying Lem/Isabelle theories ..."
-cp "$LEM_RAW_TARGET/isabelle-lib/"*.thy "$TARGET"
+cp "$LEM_RAW_TARGET/isabelle-lib/"*.thy "$GENERATED_TARGET"
 
 echo "Building theories ..."
 "$ISABELLE_TOOL" build -v "${AFP_STRING[@]}" -D "$TARGET"
