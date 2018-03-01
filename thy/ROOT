@@ -13,6 +13,7 @@ session LEM = "Word_Lib" +
 
 session CakeML = LEM +
   sessions
+    Coinductive
     IEEE_Floating_Point
   theories
     "generated/CakeML/Ast"

@@ -24,7 +24,7 @@ datatype_record simpleIO =
 (*val isEof : oracle_function simpleIO*)
 fun isEof  :: " simpleIO \<Rightarrow>(8 word)list \<Rightarrow>(8 word)list \<Rightarrow>(simpleIO)oracle_result "  where 
      " isEof st conf ([]) = ( Oracle_fail )"
-|" isEof st conf (x # xs) = ( Oracle_return st ((if(input   st) = lnil' then of_nat (( 1 :: nat)) else of_nat (( 0 :: nat)))# xs))"
+|" isEof st conf (x # xs) = ( Oracle_return st ((if(input   st) = LNil then of_nat (( 1 :: nat)) else of_nat (( 0 :: nat)))# xs))"
 
 
 (*val getChar : oracle_function simpleIO*)
@@ -42,7 +42,7 @@ definition putChar  :: " simpleIO \<Rightarrow>(8 word)list \<Rightarrow>(8 word
      " putChar st conf input1 = (
   (case  input1 of
     [] => Oracle_fail
-  | x # _ => Oracle_return (( st (| output0 := (lcons' x(output0   st)) |))) input1
+  | x # _ => Oracle_return (( st (| output0 := (LCons x(output0   st)) |))) input1
   ))"
 
 

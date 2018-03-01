@@ -7,6 +7,7 @@ imports
 	 "LEM.Lem_pervasives" 
 	 "LEM.Lem_list_extra" 
 	 "LEM.Lem_string" 
+	 "Coinductive.Coinductive_List" 
 	 "Isabelle_Support" 
 	 "Lib" 
 

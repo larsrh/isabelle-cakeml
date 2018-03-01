@@ -1,7 +1,7 @@
 LEM_REPOSITORY="https://github.com/larsrh/lem"
 LEM_COMMIT="f4e624c24b0825948cab5823f98a493d8aa313b7"
 CAKEML_REPOSITORY="https://github.com/larsrh/cakeml"
-CAKEML_COMMIT="ff5581e05dfb82d5ed12d9ce9da4b5365f219f17"
+CAKEML_COMMIT="d952669a762f14df1b79540030d5a657dfcb55ae"
 #ISABELLE_TOOL="isabelle"
 #AFP="$HOME/afp"
 

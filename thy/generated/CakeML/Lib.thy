@@ -7,6 +7,7 @@ imports
 	 "LEM.Lem_pervasives" 
 	 "LEM.Lem_list_extra" 
 	 "LEM.Lem_string" 
+	 "Coinductive.Coinductive_List" 
 	 "Isabelle_Support" 
 
 begin 
@@ -71,6 +72,7 @@ by pat_completeness auto
 (* TODO: proper support for lazy lists *)
 
 (*open import {hol} `llistTheory`*)
+(*open import {isabelle} `Coinductive.Coinductive_List`*)
 (*type llist 'a*)
 (*val lhd : forall 'a. llist 'a -> maybe 'a*)
 (*val ltl : forall 'a. llist 'a -> maybe (llist 'a)*)
