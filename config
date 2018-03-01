@@ -17,4 +17,5 @@ CAKEML_LEM_FILES=(
   "semantics/alt_semantics/bigStep.lem"
   "semantics/alt_semantics/smallStep.lem"
   "semantics/ffi/ffi.lem"
+  "semantics/ffi/simpleIO.lem"
 )

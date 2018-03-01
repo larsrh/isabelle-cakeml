@@ -26,5 +26,6 @@ session CakeML = LEM +
     "generated/CakeML/PrimTypes"
     "generated/CakeML/SemanticPrimitives"
     "generated/CakeML/SemanticPrimitivesAuxiliary"
+    "generated/CakeML/SimpleIO"
     "generated/CakeML/TypeSystem"
     "generated/CakeML/TypeSystemAuxiliary"

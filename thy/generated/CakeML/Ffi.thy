@@ -96,10 +96,10 @@ datatype  behaviour =
 
 (*val trace_oracle : oracle (llist io_event)*)
 definition trace_oracle  :: " string \<Rightarrow>(io_event)llist \<Rightarrow>(8 word)list \<Rightarrow>(8 word)list \<Rightarrow>((io_event)llist)oracle_result "  where 
-     " trace_oracle s io_trace conf input = (
+     " trace_oracle s io_trace conf input1 = (
   (case  lhd' io_trace of
     Some (IO_event s' conf' bytes2) =>
-      if (s = s') \<and> ((List.map fst bytes2 = input) \<and> (conf = conf')) then
+      if (s = s') \<and> ((List.map fst bytes2 = input1) \<and> (conf = conf')) then
         Oracle_return (Option.the (ltl' io_trace)) (List.map snd bytes2)
       else Oracle_fail
   | _ => Oracle_fail
