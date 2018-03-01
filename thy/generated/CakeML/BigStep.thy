@@ -425,7 +425,7 @@ evaluate_dec ck mn env s (Dletrec locs funs) (s, Rerr (Rabort Rtype_error))"
 "dtype1" : " \<And> ck mn env tds s new_tdecs locs.
 check_dup_ctors tds \<and>
 ((new_tdecs = type_defs_to_new_tdecs mn tds) \<and>
-(disjoint new_tdecs(defined_types   s) \<and>
+((% M N. M \<inter> N = {}) new_tdecs(defined_types   s) \<and>
 Lem_list.allDistinct (List.map ( \<lambda>x .  
   (case  x of (tvs,tn,ctors) => tn )) tds)))
 ==>
@@ -435,7 +435,7 @@ evaluate_dec ck mn env s (Dtype locs tds) (( s (| defined_types := (new_tdecs \<
 
 "dtype2" : " \<And> ck mn env tds s locs.
 \<not> (check_dup_ctors tds) \<or>
-(\<not> (disjoint (type_defs_to_new_tdecs mn tds)(defined_types   s)) \<or>
+(\<not> ((% M N. M \<inter> N = {}) (type_defs_to_new_tdecs mn tds)(defined_types   s)) \<or>
 \<not> (Lem_list.allDistinct (List.map ( \<lambda>x .  
   (case  x of (tvs,tn,ctors) => tn )) tds)))
 ==>

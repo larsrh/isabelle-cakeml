@@ -4,9 +4,6 @@ imports
   "IEEE_Floating_Point.FP64"
 begin
 
-abbreviation disjoint :: "'a set \<Rightarrow> 'a set \<Rightarrow> bool" where
-"disjoint M N \<equiv> M \<inter> N = {}"
-
 subsection \<open>Words\<close>
 
 consts word_lsl::"'a word \<Rightarrow> nat \<Rightarrow> 'a word"

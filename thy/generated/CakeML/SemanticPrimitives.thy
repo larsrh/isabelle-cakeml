@@ -972,7 +972,7 @@ definition prog_to_mods  :: "(top0)list \<Rightarrow>((string)list)list "  where
 definition no_dup_mods  :: "(top0)list \<Rightarrow>((modN)list)set \<Rightarrow> bool "  where 
      " no_dup_mods tops defined_mods2 = (
   Lem_list.allDistinct (prog_to_mods tops) \<and>
-  disjoint (List.set (prog_to_mods tops)) defined_mods2 )"
+  (% M N. M \<inter> N = {}) (List.set (prog_to_mods tops)) defined_mods2 )"
 
 
 (*val prog_to_top_types : list top -> list typeN*)
@@ -989,6 +989,6 @@ definition prog_to_top_types  :: "(top0)list \<Rightarrow>(string)list "  where
 definition no_dup_top_types  :: "(top0)list \<Rightarrow>(tid_or_exn)set \<Rightarrow> bool "  where 
      " no_dup_top_types tops defined_types2 = (
   Lem_list.allDistinct (prog_to_top_types tops) \<and>
-  disjoint (List.set (List.map (\<lambda> tn .  TypeId (Short tn)) (prog_to_top_types tops))) defined_types2 )"
+  (% M N. M \<inter> N = {}) (List.set (List.map (\<lambda> tn .  TypeId (Short tn)) (prog_to_top_types tops))) defined_types2 )"
 
 end
