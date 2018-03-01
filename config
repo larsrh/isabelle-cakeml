@@ -1,6 +1,17 @@
 LEM_REPOSITORY="https://github.com/larsrh/lem"
 LEM_COMMIT="f4e624c24b0825948cab5823f98a493d8aa313b7"
 CAKEML_REPOSITORY="https://github.com/larsrh/cakeml"
-CAKEML_COMMIT="0b7197a3eeeccad25727f909bf9a1db4d704e902"
+CAKEML_COMMIT="628362a23e7879d6db1eefd460acf16d49a83727"
 #ISABELLE_TOOL="isabelle"
 #AFP="$HOME/afp"
+
+CAKEML_LEM_FILES=(
+  "misc/lem_lib_stub/lib.lem"
+  "semantics/ast.lem"
+  "semantics/fpSem.lem"
+  "semantics/namespace.lem"
+  "semantics/semanticPrimitives.lem"
+  "semantics/alt_semantics/bigStep.lem"
+  "semantics/alt_semantics/smallStep.lem"
+  "semantics/ffi/ffi.lem"
+)

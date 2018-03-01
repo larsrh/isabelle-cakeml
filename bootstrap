@@ -61,11 +61,31 @@ fi
 echo "Making Lem ..."
 make -C "$LEM_RAW_TARGET" bin/lem
 
-echo "Making Lem/Isabelle libraries ..."
-make -C "$LEM_RAW_TARGET/library" isa-libs
+echo "Generating Lem/Isabelle libraries ..."
+make -C "$LEM_RAW_TARGET/library"
+
+echo "Checking Lem ..."
+LEM_BINARY="$LEM_RAW_TARGET/bin/lem"
+if [ ! -x "$LEM_BINARY" ]; then
+  echo "Failed to produce Lem binary"
+  exit 1
+fi
 
 echo "Copying Lem/Isabelle theories ..."
 cp "$LEM_RAW_TARGET/isabelle-lib/"*.thy "$GENERATED_TARGET"
+
+echo "Generating CakeML/Isabelle theories ..."
+(
+  LEM_BINARY="$(readlink -f "$LEM_BINARY")"
+  GENERATED_TARGET="$(readlink -f "$GENERATED_TARGET")/CakeML"
+  cd "$CAKEML_RAW_TARGET"
+  mkdir -p "$GENERATED_TARGET"
+  "$LEM_BINARY" -isa -outdir "$GENERATED_TARGET" "${CAKEML_LEM_FILES[@]}"
+)
+
+echo "Patching theories ..."
+ln -s "../../Isabelle_Support.thy" "$GENERATED_TARGET/CakeML/Isabelle_Support.thy"
+find "$GENERATED_TARGET/CakeML" -name "*.thy" -exec sed -i -e 's/"Lem/"LEM.Lem/' {} \;
 
 echo "Building theories ..."
 "$ISABELLE_TOOL" build -v "${AFP_STRING[@]}" -D "$TARGET"

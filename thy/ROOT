@@ -6,3 +6,21 @@ session LEM = "HOL-Word" +
   theories
     "generated/Lem_pervasives"
     "generated/Lem_pervasives_extra"
+    "generated/Lem_list_extra"
+    "generated/Lem_set_extra"
+    "generated/Lem_string"
+    "generated/Lem_string_extra"
+
+session CakeML = LEM +
+  sessions
+    IEEE_Floating_Point
+  theories
+    "generated/CakeML/Ast"
+    "generated/CakeML/AstAuxiliary"
+    "generated/CakeML/BigStep"
+    "generated/CakeML/Lib"
+    "generated/CakeML/LibAuxiliary"
+    "generated/CakeML/Namespace"
+    "generated/CakeML/NamespaceAuxiliary"
+    "generated/CakeML/SemanticPrimitives"
+    "generated/CakeML/SemanticPrimitivesAuxiliary"
