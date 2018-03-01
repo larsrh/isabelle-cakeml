@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+
+set -e
+
+cd "$(dirname "$0")"
+
+source config
+
+echo "Checking Isabelle ..."
+if [ -x "$ISABELLE_TOOL" ]; then
+  echo "Isabelle present at $ISABELLE_TOOL"
+else
+  echo "Isabelle not present. Set \$ISABELLE_TOOL in config."
+  exit 1
+fi
+
+echo "Checking AFP ..."
+if [ -d "$AFP" ]; then
+  echo "AFP present at $AFP"
+  AFP_STRING=("-d" "$AFP")
+else
+  echo "AFP not present. Either set \$AFP in config, or make sure that the AFP is otherwise registered as session root."
+  AFP_STRING=("")
+fi
+
+if [ ! -f lem.zip ]; then
+  echo "Downloading Lem ..."
+  curl -sLo lem.zip "$LEM_REPOSITORY/archive/$LEM_COMMIT.zip"
+fi
+
+if [ ! -f cakeml.zip ]; then
+  echo "Downloading CakeML ..."
+  curl -sLo cakeml.zip "$CAKEML_REPOSITORY/archive/$CAKEML_COMMIT.zip"
+fi
+
+RAW_TARGET="download"
+TARGET="thy"
+
+echo "Cleaning ..."
+rm -rf "$RAW_TARGET"
+mkdir -p "$RAW_TARGET"
+git clean -dfxq "$TARGET"
+
+echo "Unpacking Lem ..."
+unzip -oq lem.zip -d "$RAW_TARGET"
+
+echo "Unpacking CakeML ..."
+unzip -oq cakeml.zip -d "$RAW_TARGET"
+
+LEM_RAW_TARGET="download/lem-$LEM_COMMIT"
+CAKEML_RAW_TARGET="download/cakeml-$CAKEML_COMMIT"
+
+echo "Checking download ..."
+if [ ! -d "$LEM_RAW_TARGET" ] || [ ! -d "$CAKEML_RAW_TARGET" ]; then
+  echo "Outdated download, clean and try again"
+  exit 1
+fi
+
+echo "Making Lem ..."
+make -C "$LEM_RAW_TARGET" bin/lem
+
+echo "Making Lem/Isabelle libraries ..."
+make -C "$LEM_RAW_TARGET/library" isa-libs
+
+echo "Copying Lem/Isabelle theories ..."
+cp "$LEM_RAW_TARGET/isabelle-lib/"*.thy "$TARGET"
+
+echo "Building theories ..."
+"$ISABELLE_TOOL" build -v "${AFP_STRING[@]}" -D "$TARGET"

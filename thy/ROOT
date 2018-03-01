@@ -1,0 +1,8 @@
+chapter CakeML
+
+session LEM = "HOL-Word" +
+  sessions
+    "HOL-Library"
+  theories
+    Lem_pervasives
+    Lem_pervasives_extra
