@@ -25,13 +25,13 @@ begin
 (*val prim_types_program : prog*)
 definition prim_types_program  :: "(top0)list "  where 
      " prim_types_program = (
-  [Tdec  (Dexn unknown_loc (''Bind'') []),
-   Tdec  (Dexn unknown_loc (''Chr'') []),
-   Tdec  (Dexn unknown_loc (''Div'') []),
-   Tdec  (Dexn unknown_loc (''Subscript'') []),
-   Tdec  (Dtype unknown_loc [([], (''bool''), [((''false''), []), ((''true''), [])])]),
-   Tdec  (Dtype unknown_loc [([([(char_of_nat 39), (CHR ''a'')])], (''list''), [((''nil''), []), ((''::''), [Tvar ([(char_of_nat 39), (CHR ''a'')]), Tapp [Tvar ([(char_of_nat 39), (CHR ''a'')])] (TC_name (Short (''list'')))]) ])]),
-   Tdec (Dtype unknown_loc [([([(char_of_nat 39), (CHR ''a'')])], (''option''), [((''NONE''), []),((''SOME''), [Tvar ([(char_of_nat 39), (CHR ''a'')])]) ])]) ])"
+  [Tdec  (Dexn undefined (''Bind'') []),
+   Tdec  (Dexn undefined (''Chr'') []),
+   Tdec  (Dexn undefined (''Div'') []),
+   Tdec  (Dexn undefined (''Subscript'') []),
+   Tdec  (Dtype undefined [([], (''bool''), [((''false''), []), ((''true''), [])])]),
+   Tdec  (Dtype undefined [([([(char_of_nat 39), (CHR ''a'')])], (''list''), [((''nil''), []), ((''::''), [Tvar ([(char_of_nat 39), (CHR ''a'')]), Tapp [Tvar ([(char_of_nat 39), (CHR ''a'')])] (TC_name (Short (''list'')))]) ])]),
+   Tdec (Dtype undefined [([([(char_of_nat 39), (CHR ''a'')])], (''option''), [((''NONE''), []),((''SOME''), [Tvar ([(char_of_nat 39), (CHR ''a'')])]) ])]) ])"
 
 
 (*val add_to_sem_env :

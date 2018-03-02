@@ -497,18 +497,18 @@ fun opw64_lookup  :: " opw \<Rightarrow> 64 word \<Rightarrow> 64 word \<Rightar
 
 (*val shift8_lookup : shift -> word8 -> nat -> word8*)
 fun shift8_lookup  :: " shift \<Rightarrow> 8 word \<Rightarrow> nat \<Rightarrow> 8 word "  where 
-     " shift8_lookup Lsl = ( word_lsl )"
-|" shift8_lookup Lsr = ( word_lsr )"
-|" shift8_lookup Asr = ( word_asr )"
-|" shift8_lookup Ror = ( word_ror )"
+     " shift8_lookup Lsl = ( shiftl )"
+|" shift8_lookup Lsr = ( shiftr )"
+|" shift8_lookup Asr = ( sshiftr )"
+|" shift8_lookup Ror = ( (% a b. word_rotr b a) )"
 
 
 (*val shift64_lookup : shift -> word64 -> nat -> word64*)
 fun shift64_lookup  :: " shift \<Rightarrow> 64 word \<Rightarrow> nat \<Rightarrow> 64 word "  where 
-     " shift64_lookup Lsl = ( word_lsl )"
-|" shift64_lookup Lsr = ( word_lsr )"
-|" shift64_lookup Asr = ( word_asr )"
-|" shift64_lookup Ror = ( word_ror )"
+     " shift64_lookup Lsl = ( shiftl )"
+|" shift64_lookup Lsr = ( shiftr )"
+|" shift64_lookup Asr = ( sshiftr )"
+|" shift64_lookup Ror = ( (% a b. word_rotr b a) )"
 
 
 (*val Boolv : bool -> v*)

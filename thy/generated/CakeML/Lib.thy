@@ -8,7 +8,6 @@ imports
 	 "LEM.Lem_list_extra" 
 	 "LEM.Lem_string" 
 	 "Coinductive.Coinductive_List" 
-	 "Isabelle_Support" 
 
 begin 
 
@@ -23,7 +22,6 @@ begin
 
 (*val rtc : forall 'a. ('a -> 'a -> bool) -> ('a -> 'a -> bool)*)
 
-(*open import {isabelle} `Isabelle_Support`*)
 (*val disjoint : forall 'a. set 'a -> set 'a -> bool*)
 
 (*val all2 : forall 'a 'b. ('a -> 'b -> bool) -> list 'a -> list 'b -> bool*)

@@ -6,6 +6,7 @@ imports
  	 Main
 	 "LEM.Lem_pervasives" 
 	 "Lib" 
+	 "IEEE_Floating_Point.FP64" 
 
 begin 
 
@@ -13,6 +14,7 @@ begin
 (*open import Lib*)
 
 (*open import {hol} `machine_ieeeTheory`*)
+(*open import {isabelle} `IEEE_Floating_Point.FP64`*)
 
 (*type rounding*)
 

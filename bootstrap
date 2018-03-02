@@ -85,7 +85,6 @@ echo "Generating CakeML/Isabelle theories ..."
 
 echo "Patching theories ..."
 find "$GENERATED_TARGET/CakeML" -name "*.thy" -exec sed -i -e 's/"Lem/"LEM.Lem/' {} \;
-ln -s "../../Isabelle_Support.thy" "$GENERATED_TARGET/CakeML/Isabelle_Support.thy"
 
 echo "Building theories ..."
 "$ISABELLE_TOOL" build -v "${AFP_STRING[@]}" -D "$TARGET"
