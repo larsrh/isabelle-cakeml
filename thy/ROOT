@@ -30,3 +30,7 @@ session CakeML = LEM +
     "generated/CakeML/SimpleIO"
     "generated/CakeML/TypeSystem"
     "generated/CakeML/TypeSystemAuxiliary"
+
+session CakeML_Extras = CakeML +
+  theories
+    Evaluate_Termination
