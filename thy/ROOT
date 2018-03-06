@@ -19,7 +19,7 @@ session CakeML = LEM +
     "generated/CakeML/Ast"
     "generated/CakeML/AstAuxiliary"
     "generated/CakeML/BigStep"
-    "generated/CakeML/Evaluate" (* EvaluateAuxiliary has a failing termination proof *)
+    "generated/CakeML/Evaluate"
     "generated/CakeML/Lib"
     "generated/CakeML/LibAuxiliary"
     "generated/CakeML/Namespace"
