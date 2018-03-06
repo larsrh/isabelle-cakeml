@@ -19,7 +19,7 @@ After the specification has been exported, it builds the theories with `isabelle
 The export script and hand-written source files have been written by Lars Hupel.
 
 Lem is a project by Peter Sewell et.al.
-Contributrs can be found on [its project page](https://www.cl.cam.ac.uk/~pes20/lem/) and on [GitHub](https://github.com/rems-project/lem/graphs/contributors).
+Contributors can be found on [its project page](https://www.cl.cam.ac.uk/~pes20/lem/) and on [GitHub](https://github.com/rems-project/lem/graphs/contributors).
 
 CakeML is a project with many developers and contributors that can be found on [its project page](https://cakeml.org/) and on [GitHub](https://github.com/CakeML/cakeml/graphs/contributors).
 
