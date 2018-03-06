@@ -91,3 +91,5 @@ find "$GENERATED_TARGET/CakeML" -name "*.thy" -exec sed -i -e 's/"Lem/"LEM.Lem/'
 
 echo "Building theories ..."
 "$ISABELLE_TOOL" build -v "${AFP_STRING[@]}" -D "$TARGET"
+
+echo "Success."
