@@ -33,4 +33,5 @@ session CakeML = LEM +
 
 session CakeML_Extras = CakeML +
   theories
+    Evaluate_Clock
     Evaluate_Termination
