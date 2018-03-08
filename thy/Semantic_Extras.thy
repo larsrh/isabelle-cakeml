@@ -1,8 +1,17 @@
 theory Semantic_Extras
-imports CakeML.BigStep "HOL-Library.Simps_Case_Conv"
+imports
+  CakeML.BigStep
+  CakeML.SemanticPrimitivesAuxiliary
+  CakeML.AstAuxiliary
+  "HOL-Library.Simps_Case_Conv"
 begin
 
 hide_const (open) sem_env.v
+
+code_pred
+  (modes: evaluate: i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> o \<Rightarrow> bool as compute
+      and evaluate_list: i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> o \<Rightarrow> bool
+      and evaluate_match: i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> o \<Rightarrow> bool) evaluate .
 
 case_of_simps do_log_alt_def: do_log.simps
 
@@ -25,6 +34,8 @@ lemma do_log_exp: "do_log op v e = Some (Exp e') \<Longrightarrow> e = e'"
 by (erule do_logE)
    (auto split: v.splits option.splits if_splits tid_or_exn.splits id0.splits list.splits)
 
+end
+
 lemma do_log_cases:
   obtains
     (none) "do_log op v e = None"
@@ -39,11 +50,31 @@ next
     by (cases res) (metis do_log_exp)+
 qed
 
-end
+context begin
 
-code_pred
-  (modes: evaluate: i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> o \<Rightarrow> bool as compute
-      and evaluate_list: i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> o \<Rightarrow> bool
-      and evaluate_match: i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> o \<Rightarrow> bool) evaluate .
+private fun_cases do_opappE: "do_opapp vs = Some res"
+
+lemma do_opapp_cases:
+  assumes "do_opapp vs = Some (env', exp')"
+  obtains (closure) env n v0
+            where "vs = [Closure env n exp', v0]"
+                  "env' = (env \<lparr> sem_env.v := nsBind n v0 (sem_env.v env) \<rparr> )"
+        | (recclosure) env funs name n v0
+            where "vs = [Recclosure env funs name, v0]"
+              and "allDistinct (map (\<lambda>(f, _, _). f) funs)"
+              and "find_recfun name funs = Some (n, exp')"
+              and "env' = (env \<lparr> sem_env.v := nsBind n v0 (build_rec_env funs env (sem_env.v env)) \<rparr> )"
+proof -
+  show thesis
+    using assms
+    apply (rule do_opappE)
+    apply (rule closure; auto)
+    apply (auto split: if_splits option.splits)
+    apply (rule recclosure)
+    apply auto
+    done
+qed
+
+end
 
 end
