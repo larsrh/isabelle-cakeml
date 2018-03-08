@@ -1,4 +1,4 @@
-theory Big_Step_Extras
+theory Big_Step_Total
 imports Semantic_Extras
 begin
 
@@ -90,5 +90,8 @@ next
         unfolding \<open>pe = _\<close> by (metis mat_cons4)
     qed
 qed
+
+axiomatization where
+  evaluate_total: "\<exists>s' r. evaluate True env s e (s', r)" for s :: "'a state"
 
 end

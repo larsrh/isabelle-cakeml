@@ -35,3 +35,4 @@ session CakeML_Extras = CakeML +
   theories
     Evaluate_Clock
     Evaluate_Termination
+    Big_Step_Total
