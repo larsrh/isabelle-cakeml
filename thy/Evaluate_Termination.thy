@@ -1,12 +1,8 @@
 theory Evaluate_Termination
-  imports CakeML.Evaluate "HOL-Library.Simps_Case_Conv"
+  imports CakeML.Evaluate Semantic_Extras
 begin
 
 case_of_simps fix_clock_alt_def: fix_clock.simps
-case_of_simps do_log_alt_def: do_log.simps
-
-lemma size_list_rev[simp]: "size_list f (rev xs) = size_list f xs"
-by (auto simp: size_list_conv_sum_list rev_map[symmetric])
 
 context begin
 
