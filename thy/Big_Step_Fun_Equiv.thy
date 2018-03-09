@@ -19,6 +19,12 @@ begin
 
 lemmas eval_all = eval eval_list eval_match
 
+lemma evaluate_iff:
+  "evaluate True env st e r \<longleftrightarrow> (eval env e st = r)"
+  "evaluate_list True env st es r' \<longleftrightarrow> (eval_list env es st = r')"
+  "evaluate_match True env st v pes v' r'' \<longleftrightarrow> (eval_match env v pes v' st = r'')"
+by (metis eval_all evaluate_determ)+
+
 end
 
 lemma run_eval: "\<exists>run_eval. \<forall>env e s. evaluate True env s e (run_eval env e s)"
@@ -97,11 +103,5 @@ qed
 hide_fact run_eval
 hide_fact run_eval_list
 hide_fact run_eval_match
-
-lemma evaluate_iff:
-  "evaluate True env st e r \<longleftrightarrow> (run_eval env e st = r)"
-  "evaluate_list True env st es r' \<longleftrightarrow> (run_eval_list env es st = r')"
-  "evaluate_match True env st v pes v' r'' \<longleftrightarrow> (run_eval_match env v pes v' st = r'')"
-by (metis run.eval_all evaluate_determ)+
 
 end
