@@ -77,4 +77,15 @@ qed
 
 end
 
+
+lemmas evaluate_induct =
+  evaluate_match_evaluate_list_evaluate.inducts[split_format(complete)]
+
+lemma evaluate_clock_mono:
+  "evaluate_match ck env s v pes v' (s', r1) \<Longrightarrow> ck \<Longrightarrow> clock s' \<le> clock s"
+  "evaluate_list ck env s es (s', r2) \<Longrightarrow> ck \<Longrightarrow> clock s' \<le> clock s"
+  "evaluate ck env s e (s', r3) \<Longrightarrow> ck \<Longrightarrow> clock s' \<le> clock s"
+by (induction rule: evaluate_induct)
+   (auto simp del: do_app.simps simp: datatype_record_update split: state.splits)
+
 end

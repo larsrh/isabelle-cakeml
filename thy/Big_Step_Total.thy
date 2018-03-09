@@ -2,16 +2,6 @@ theory Big_Step_Total
 imports Semantic_Extras
 begin
 
-lemmas evaluate_induct =
-  evaluate_match_evaluate_list_evaluate.inducts[split_format(complete)]
-
-lemma evaluate_clock_mono:
-  "evaluate_match ck env s v pes v' (s', r1) \<Longrightarrow> ck \<Longrightarrow> clock s' \<le> clock s"
-  "evaluate_list ck env s es (s', r2) \<Longrightarrow> ck \<Longrightarrow> clock s' \<le> clock s"
-  "evaluate ck env s e (s', r3) \<Longrightarrow> ck \<Longrightarrow> clock s' \<le> clock s"
-by (induction rule: evaluate_induct)
-   (auto simp del: do_app.simps simp: datatype_record_update split: state.splits)
-
 lemma evaluate_list_total:
   fixes s :: "'a state"
   assumes "\<And>e env s'::'a state. e \<in> set es \<Longrightarrow> clock s' \<le> clock s \<Longrightarrow> \<exists>s'' r. evaluate True env s' e (s'', r)"
