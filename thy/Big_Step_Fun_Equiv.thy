@@ -20,10 +20,52 @@ begin
 lemmas eval_all = eval eval_list eval_match
 
 lemma evaluate_iff:
+  "evaluate True env st e r \<longleftrightarrow> (r = eval env e st)"
+  "evaluate_list True env st es r' \<longleftrightarrow> (r' = eval_list env es st)"
+  "evaluate_match True env st v pes v' r \<longleftrightarrow> (r = eval_match env v pes v' st)"
+by (metis eval_all evaluate_determ)+
+
+lemma evaluate_iff_sym:
   "evaluate True env st e r \<longleftrightarrow> (eval env e st = r)"
   "evaluate_list True env st es r' \<longleftrightarrow> (eval_list env es st = r')"
-  "evaluate_match True env st v pes v' r'' \<longleftrightarrow> (eval_match env v pes v' st = r'')"
-by (metis eval_all evaluate_determ)+
+  "evaluate_match True env st v pes v' r \<longleftrightarrow> (eval_match env v pes v' st = r)"
+by (auto simp: evaluate_iff)
+
+lemma eval_list_singleton:
+  "eval_list env [e] st = map_prod id (map_result (\<lambda>x. [x]) id) (eval env e st)"
+proof -
+  define res where "res = eval_list env [e] st"
+  then have e: "evaluate_list True env st [e] res"
+    by (metis evaluate_iff)
+  then obtain st' r where "res = (st', r)"
+    by (metis surj_pair)
+  then have "map_prod id (map_result (\<lambda>x. [x]) id) (eval env e st) = (st', r)"
+    proof (cases r)
+      case (Rval vs)
+      with e obtain v where "vs = [v]" "evaluate True env st e (st', Rval v)"
+        unfolding \<open>res = (st', r)\<close> by (metis evaluate_list_singleton_valE)
+      then have "eval env e st = (st', Rval v)"
+        by (metis evaluate_iff_sym)
+      then show ?thesis
+        unfolding \<open>r = _\<close> \<open>vs = _\<close> by auto
+    next
+      case (Rerr err)
+      with e have "evaluate True env st e (st', Rerr err)"
+        unfolding \<open>res = (st', r)\<close> by (metis evaluate_list_singleton_errD)
+      then have "eval env e st = (st', Rerr err)"
+        by (metis evaluate_iff_sym)
+      then show ?thesis
+        unfolding \<open>r = _\<close> by (cases err) auto
+    qed
+  then show ?thesis
+    using res_def \<open>res = (st', r)\<close>
+    by metis
+qed
+
+lemma eval_eqI:
+  assumes "\<And>r. evaluate True env st1 e1 r \<longleftrightarrow> evaluate True env st2 e2 r"
+  shows "eval env e1 st1 = eval env e2 st2"
+  using assms by (metis evaluate_iff)
 
 end
 

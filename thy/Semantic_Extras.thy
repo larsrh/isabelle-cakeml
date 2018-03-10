@@ -26,6 +26,8 @@ lemma do_if_cases:
 unfolding do_if_def
 by meson
 
+case_of_simps do_con_check_alt_def: do_con_check.simps
+
 context begin
 
 private fun_cases do_logE: "do_log op v e = res"
@@ -87,5 +89,17 @@ lemma evaluate_clock_mono:
   "evaluate ck env s e (s', r3) \<Longrightarrow> ck \<Longrightarrow> clock s' \<le> clock s"
 by (induction rule: evaluate_induct)
    (auto simp del: do_app.simps simp: datatype_record_update split: state.splits)
+
+lemma evaluate_list_singleton_valE:
+  assumes "evaluate_list ck env s [e] (s', Rval vs)"
+  obtains v where "vs = [v]" "evaluate ck env s e (s', Rval v)"
+using assms
+by (auto elim: evaluate_list.cases)
+
+lemma evaluate_list_singleton_errD:
+  assumes "evaluate_list ck env s [e] (s', Rerr err)"
+  shows "evaluate ck env s e (s', Rerr err)"
+using assms
+by (auto elim: evaluate_list.cases)
 
 end

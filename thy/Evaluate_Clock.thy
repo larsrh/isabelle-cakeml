@@ -161,7 +161,10 @@ unfolding fix_clock_alt_def
 apply (auto simp: datatype_record_update split: state.splits prod.splits)
 using fun_evaluate_clock by fastforce
 
-lemmas fun_evaluate_simps =
+declare fun_evaluate.simps[simp del]
+declare fun_evaluate_match.simps[simp del]
+
+lemmas fun_evaluate_simps[simp] =
   fun_evaluate.simps[unfolded fix_clock_evaluate]
   fun_evaluate_match.simps[unfolded fix_clock_evaluate]
 
