@@ -53,16 +53,15 @@ proof -
     by (metis evaluate_determ)
 qed
 
-
 lemma eval_list_singleton:
-  "eval_list env [e] st = map_prod id (map_result (\<lambda>x. [x]) id) (eval env e st)"
+  "eval_list env [e] st = map_prod id list_result (eval env e st)"
 proof -
   define res where "res = eval_list env [e] st"
   then have e: "evaluate_list True env st [e] res"
     by (metis evaluate_iff)
   then obtain st' r where "res = (st', r)"
     by (metis surj_pair)
-  then have "map_prod id (map_result (\<lambda>x. [x]) id) (eval env e st) = (st', r)"
+  then have "map_prod id list_result (eval env e st) = (st', r)"
     proof (cases r)
       case (Rval vs)
       with e obtain v where "vs = [v]" "evaluate True env st e (st', Rval v)"
