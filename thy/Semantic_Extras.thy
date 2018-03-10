@@ -3,6 +3,7 @@ imports
   CakeML.BigStep
   CakeML.SemanticPrimitivesAuxiliary
   CakeML.AstAuxiliary
+  CakeML.Evaluate
   "HOL-Library.Simps_Case_Conv"
 begin
 
@@ -27,6 +28,7 @@ unfolding do_if_def
 by meson
 
 case_of_simps do_con_check_alt_def: do_con_check.simps
+case_of_simps list_result_alt_def: list_result.simps
 
 context begin
 
@@ -79,7 +81,6 @@ qed
 
 end
 
-
 lemmas evaluate_induct =
   evaluate_match_evaluate_list_evaluate.inducts[split_format(complete)]
 
@@ -101,5 +102,36 @@ lemma evaluate_list_singleton_errD:
   shows "evaluate ck env s e (s', Rerr err)"
 using assms
 by (auto elim: evaluate_list.cases)
+
+lemma evaluate_list_singleton_cases:
+  assumes "evaluate_list ck env s [e] res"
+  obtains (val) s' v where "res = (s', Rval [v])" "evaluate ck env s e (s', Rval v)"
+        | (err) s' err where "res = (s', Rerr err)" "evaluate ck env s e (s', Rerr err)"
+using assms
+apply -
+apply (ind_cases "evaluate_list ck env s [e] res")
+apply auto
+apply (ind_cases "evaluate_list ck env s2 [] (s3, Rval vs)" for s2 s3 vs)
+apply auto
+apply (ind_cases " evaluate_list ck env s2 [] (s3, Rerr err) " for s2 s3 err)
+done
+
+lemma evaluate_list_singletonI:
+  assumes "evaluate ck env s e (s', r)"
+  shows "evaluate_list ck env s [e] (s', list_result r)"
+using assms
+by (cases r) (auto intro: evaluate_match_evaluate_list_evaluate.intros)
+
+lemma prod_result_cases:
+  obtains (val) s v where "r = (s, Rval v)"
+        | (err) s err where "r = (s, Rerr err)"
+apply (cases r)
+subgoal for _ b
+  apply (cases b)
+  by auto
+done
+
+lemma do_con_check_build_conv: "do_con_check (c env) cn (length es) \<Longrightarrow> build_conv (c env) cn vs \<noteq> None"
+by (cases cn) (auto split: option.splits)
 
 end
