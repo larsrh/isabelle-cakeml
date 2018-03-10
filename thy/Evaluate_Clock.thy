@@ -171,4 +171,25 @@ lemmas fun_evaluate_simps[simp] =
 lemmas fun_evaluate_induct =
   fun_evaluate_match_fun_evaluate.induct[unfolded fix_clock_evaluate]
 
+lemma fun_evaluate_length:
+  "fun_evaluate_match s env v pes err_v = (s', res) \<Longrightarrow> (case res of Rval vs \<Rightarrow> length vs = 1 | _ \<Rightarrow> True)"
+  "fun_evaluate s env es = (s', res) \<Longrightarrow> (case res of Rval vs \<Rightarrow> length vs = length es | _ \<Rightarrow> True)"
+proof (induction arbitrary: s' res and s' res rule: fun_evaluate_match_fun_evaluate.induct)
+  case (9 st env op1 es)
+  then show ?case
+    supply do_app.simps[simp del]
+    apply (fastforce
+        split: if_splits prod.splits result.splits option.splits exp_or_val.splits match_result.splits error_result.splits
+        simp: list_result_alt_def)
+    done
+qed (fastforce
+      split: if_splits prod.splits result.splits option.splits exp_or_val.splits
+             match_result.splits error_result.splits)+
+
+lemma fun_evaluate_matchE:
+  assumes "fun_evaluate_match s env v pes err_v = (s', Rval vs)"
+  obtains v where "vs = [v]"
+using fun_evaluate_length(1)[OF assms]
+by (cases vs) auto
+
 end
