@@ -85,11 +85,11 @@ lemmas evaluate_induct =
   evaluate_match_evaluate_list_evaluate.inducts[split_format(complete)]
 
 lemma evaluate_clock_mono:
-  "evaluate_match ck env s v pes v' (s', r1) \<Longrightarrow> ck \<Longrightarrow> clock s' \<le> clock s"
-  "evaluate_list ck env s es (s', r2) \<Longrightarrow> ck \<Longrightarrow> clock s' \<le> clock s"
-  "evaluate ck env s e (s', r3) \<Longrightarrow> ck \<Longrightarrow> clock s' \<le> clock s"
-by (induction rule: evaluate_induct)
-   (auto simp del: do_app.simps simp: datatype_record_update split: state.splits)
+  "evaluate_match ck env s v pes v' (s', r1) \<Longrightarrow> clock s' \<le> clock s"
+  "evaluate_list ck env s es (s', r2) \<Longrightarrow> clock s' \<le> clock s"
+  "evaluate ck env s e (s', r3) \<Longrightarrow> clock s' \<le> clock s"
+ by (induction rule: evaluate_induct)
+    (auto simp del: do_app.simps simp: datatype_record_update split: state.splits if_splits)
 
 lemma evaluate_list_singleton_valE:
   assumes "evaluate_list ck env s [e] (s', Rval vs)"
