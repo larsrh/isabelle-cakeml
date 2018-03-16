@@ -134,4 +134,49 @@ done
 lemma do_con_check_build_conv: "do_con_check (c env) cn (length es) \<Longrightarrow> build_conv (c env) cn vs \<noteq> None"
 by (cases cn) (auto split: option.splits)
 
+fun match_result :: "(v)sem_env \<Rightarrow> 'ffi state \<Rightarrow> v \<Rightarrow>(pat*exp)list \<Rightarrow> v \<Rightarrow> (exp \<times> (char list \<times> v) list, v)result" where
+"match_result _ _ _ [] err_v = Rerr (Rraise err_v)" |
+"match_result env s v0 ((p, e) # pes) err_v =
+  (if Lem_list.allDistinct (pat_bindings p []) then
+    (case pmatch (sem_env.c env) (refs s) p v0 [] of
+      Match env' \<Rightarrow> Rval (e, env') |
+      No_match \<Rightarrow> match_result env s v0 pes err_v |
+      Match_type_error \<Rightarrow> Rerr (Rabort Rtype_error))
+   else
+      Rerr (Rabort Rtype_error))"
+
+lemma match_result_sound:
+  "case match_result env s v0 pes err_v of
+    Rerr err \<Rightarrow> evaluate_match ck env s v0 pes err_v (s, Rerr err)
+  | Rval (e, env') \<Rightarrow>
+      \<forall>bv.
+        evaluate ck (env \<lparr> sem_env.v := nsAppend (alist_to_ns env')(sem_env.v env) \<rparr>) s e bv \<longrightarrow>
+             evaluate_match ck env s v0 pes err_v bv"
+by (induction rule: match_result.induct)
+   (auto intro: evaluate_match_evaluate_list_evaluate.intros split: match_result.splits result.splits)
+
+lemma match_result_correct:
+  assumes "evaluate_match ck env s v0 pes err_v (s', bv)"
+  shows "case bv of
+          Rval v \<Rightarrow>
+            \<exists>e env'. match_result env s v0 pes err_v = Rval (e, env') \<and> evaluate ck (env \<lparr> sem_env.v := nsAppend (alist_to_ns env') (sem_env.v env) \<rparr>) s e (s', Rval v)
+        | Rerr err \<Rightarrow>
+            (match_result env s v0 pes err_v = Rerr err) \<or>
+            (\<exists>e env'. match_result env s v0 pes err_v = Rval (e, env') \<and> evaluate ck (env \<lparr> sem_env.v := nsAppend (alist_to_ns env') (sem_env.v env) \<rparr>) s e (s', Rerr err))"
+using assms
+proof (induction pes)
+  case (Cons pe pes)
+  from Cons.prems show ?case
+    proof cases
+      case (mat_cons1 env' p e)
+      then show ?thesis
+        by (cases bv) auto
+    next
+      case (mat_cons2 p e)
+      then show ?thesis
+        using Cons.IH
+        by (cases bv) auto
+    qed auto
+qed (auto elim: evaluate_match.cases)
+
 end
