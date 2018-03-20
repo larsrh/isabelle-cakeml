@@ -4,7 +4,7 @@ set -e
 
 cd "$(dirname "$0")"
 
-source config
+source versions
 
 echo "Checking Isabelle ..."
 if [ -x "$ISABELLE_TOOL" ]; then
