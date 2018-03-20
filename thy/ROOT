@@ -12,11 +12,19 @@ session LEM (AFP) = "Word_Lib" +
     "generated/Lem_string"
     "generated/Lem_string_extra"
 
-session CakeML (AFP) = LEM +
-  options [timeout = 300]
+session CakeML_Prelim (AFP) = LEM +
+  options [timeout = 120]
   sessions
     Coinductive
     IEEE_Floating_Point
+  theories
+    "Coinductive.Coinductive_List"
+    "IEEE_Floating_Point.FP64"
+
+session CakeML (AFP) = CakeML_Prelim +
+  options [timeout = 300]
+  theories
+    "doc/Doc_Generated"
   theories
     "generated/CakeML/Ast"
     "generated/CakeML/AstAuxiliary"
@@ -33,8 +41,11 @@ session CakeML (AFP) = LEM +
     "generated/CakeML/TypeSystem"
     "generated/CakeML/TypeSystemAuxiliary"
   theories
-    Evaluate_Clock
+    "doc/Doc_Proofs"
+  theories
+    Semantic_Extras
     Evaluate_Termination
+    Evaluate_Clock
     Big_Step_Determ
     Big_Step_Total
     Big_Step_Fun_Equiv
