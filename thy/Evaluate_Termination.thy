@@ -1,5 +1,5 @@
 theory Evaluate_Termination
-  imports CakeML.Evaluate Semantic_Extras
+  imports Semantic_Extras
 begin
 
 case_of_simps fix_clock_alt_def: fix_clock.simps

@@ -1,6 +1,7 @@
-chapter CakeML
+chapter AFP
 
-session LEM = "Word_Lib" +
+session LEM (AFP) = "Word_Lib" +
+  options [timeout = 120]
   sessions
     "HOL-Library"
   theories
@@ -11,7 +12,8 @@ session LEM = "Word_Lib" +
     "generated/Lem_string"
     "generated/Lem_string_extra"
 
-session CakeML = LEM +
+session CakeML (AFP) = LEM +
+  options [timeout = 300]
   sessions
     Coinductive
     IEEE_Floating_Point
@@ -30,8 +32,6 @@ session CakeML = LEM +
     "generated/CakeML/SimpleIO"
     "generated/CakeML/TypeSystem"
     "generated/CakeML/TypeSystemAuxiliary"
-
-session CakeML_Extras = CakeML +
   theories
     Evaluate_Clock
     Evaluate_Termination

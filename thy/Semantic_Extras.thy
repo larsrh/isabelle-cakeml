@@ -1,9 +1,9 @@
 theory Semantic_Extras
 imports
-  CakeML.BigStep
-  CakeML.SemanticPrimitivesAuxiliary
-  CakeML.AstAuxiliary
-  CakeML.Evaluate
+  "generated/CakeML/BigStep"
+  "generated/CakeML/SemanticPrimitivesAuxiliary"
+  "generated/CakeML/AstAuxiliary"
+  "generated/CakeML/Evaluate"
   "HOL-Library.Simps_Case_Conv"
 begin
 
