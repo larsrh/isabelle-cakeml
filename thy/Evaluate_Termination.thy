@@ -1,3 +1,7 @@
+chapter "Functional big-step semantics"
+
+section "Termination proof"
+
 theory Evaluate_Termination
   imports Semantic_Extras
 begin
@@ -44,7 +48,6 @@ apply auto
 done
 
 private definition fun_evaluate_relation where
-\<comment> \<open>Ported from \<^url>\<open>https://github.com/CakeML/cakeml/blob/120c3f18b89f91ef6697c1f29d2025cbe2369b9a/semantics/terminationScript.sml#L247-L250\<close>\<close>
 "fun_evaluate_relation = inv_image (less_than <*lex*> less_than) (\<lambda>x.
   case x of
     Inr (s, _, es) \<Rightarrow> (clock s, size_list size_exp' es)

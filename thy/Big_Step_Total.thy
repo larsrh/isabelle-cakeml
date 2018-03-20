@@ -1,3 +1,5 @@
+section "Totality"
+
 theory Big_Step_Total
 imports Semantic_Extras
 begin

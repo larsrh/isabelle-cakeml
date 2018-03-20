@@ -1,3 +1,5 @@
+section "Equivalence to the functional semantics"
+
 theory Big_Step_Fun_Equiv
 imports
   Big_Step_Determ
@@ -421,5 +423,6 @@ qed
 
 lemmas big_fun_equivalence =
   fun.other_eval_eq[OF run.eval_axioms]
+\<comment> \<open>@{thm [display] big_fun_equivalence}\<close>
 
 end

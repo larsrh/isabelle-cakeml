@@ -1,3 +1,5 @@
+chapter "Adaptations for Isabelle"
+
 theory Semantic_Extras
 imports
   "generated/CakeML/BigStep"

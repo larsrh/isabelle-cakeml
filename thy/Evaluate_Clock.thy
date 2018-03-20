@@ -1,3 +1,5 @@
+section "Simplifiying the definition"
+
 theory Evaluate_Clock
 imports Evaluate_Termination
 begin

@@ -1,3 +1,7 @@
+chapter "Relational big-step semantics"
+
+section "Determinism"
+
 theory Big_Step_Determ
 imports Semantic_Extras
 begin

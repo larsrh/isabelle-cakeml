@@ -49,3 +49,5 @@ session CakeML (AFP) = CakeML_Prelim +
     Big_Step_Determ
     Big_Step_Total
     Big_Step_Fun_Equiv
+  document_files
+    "root.tex"
