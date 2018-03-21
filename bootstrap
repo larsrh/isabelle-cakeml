@@ -4,24 +4,7 @@ set -e
 
 cd "$(dirname "$0")"
 
-source versions
-
-echo "Checking Isabelle ..."
-if [ -x "$ISABELLE_TOOL" ]; then
-  echo "Isabelle present at $ISABELLE_TOOL"
-else
-  echo "Isabelle not present. Set \$ISABELLE_TOOL in config."
-  exit 1
-fi
-
-echo "Checking AFP ..."
-if [ -d "$AFP" ]; then
-  echo "AFP present at $AFP"
-  AFP_STRING=("-d" "$AFP")
-else
-  echo "AFP not present. Either set \$AFP in config, or make sure that the AFP is otherwise registered as session root."
-  AFP_STRING=("")
-fi
+source setup
 
 if [ ! -f lem.zip ]; then
   echo "Downloading Lem ..."

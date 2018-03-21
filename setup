@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+source versions
+
+echo "Checking Isabelle ..."
+if [ -x "$ISABELLE_TOOL" ]; then
+  echo "Isabelle present at $ISABELLE_TOOL"
+else
+  echo "Isabelle not present. Set \$ISABELLE_TOOL in config."
+  exit 1
+fi
+
+DEPENDENCIES=("Coinductive" "IEEE_Floating_Point" "Word_Lib")
+
+echo "Checking AFP ..."
+if [ -d "$AFP" ]; then
+  echo "AFP present at $AFP"
+  AFP_STRING=()
+  for DEP in "${DEPENDENCIES[@]}"; do
+    AFP_STRING+=("-d" "$AFP/$DEP")
+  done
+else
+  echo "AFP not present."
+  exit 1
+fi
