@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+set -e
+
+cd "$(dirname "$0")"
+
+source setup
+
+echo "Checking cleanliness of AFP ..."
+
+( hg -R "$AFP/.." summary | grep -q 'commit: (clean)' ) || (
+  echo "AFP not clean"
+  exit 1
+)
+
+echo "AFP clean"
+
+echo "Checking that the working directory is clean ..."
+git diff --exit-code > /dev/null
+git diff --cached --exit-code > /dev/null
+
+echo "Working directory is clean"
+
+echo "Transferring files to AFP ..."
+
+rm -rf "$AFP/CakeML"
+TEMP="$(mktemp "afp-cakeml-XXXXX.zip")"
+git archive --format=zip -o "$TEMP" --prefix=CakeML/ HEAD:thy
+unzip -d "$AFP" -q "$TEMP"
+
+echo "Success."
