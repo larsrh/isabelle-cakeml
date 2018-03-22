@@ -2,6 +2,7 @@
 
 Exporting CakeML to Isabelle with Lem
 
+[![CakeML](badge.png)](https://cakeml.org/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1204863.svg)](https://doi.org/10.5281/zenodo.1204863)
 [![AFP](https://img.shields.io/badge/AFP-CakeML-yellow.svg)](https://devel.isa-afp.org/entries/CakeML.html)
 
