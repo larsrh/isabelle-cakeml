@@ -21,11 +21,11 @@ git diff --cached --exit-code > /dev/null
 
 echo "Working directory is clean"
 
-echo "Transferring files to AFP ..."
+echo "Transferring files from AFP ..."
 
-rm -rf "$AFP/CakeML"
-TEMP="$(mktemp --suffix=.zip)"
-git archive --format=zip -o "$TEMP" --prefix=CakeML/ HEAD:thy
-unzip -d "$AFP" -q "$TEMP"
+rm -rf "thy"
+TEMP="$(mktemp -d)"
+hg -R "$AFP/.." archive -t files "$TEMP"
+cp -r "$TEMP/thys/CakeML" "thy"
 
 echo "Success."
