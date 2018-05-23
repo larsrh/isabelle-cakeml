@@ -59,11 +59,12 @@ cp "$LEM_RAW_TARGET/isabelle-lib/"*.thy "$GENERATED_TARGET"
 
 echo "Generating CakeML/Isabelle theories ..."
 (
+  LEM_LIBRARY="$(readlink -f "$LEM_RAW_TARGET/library")"
   LEM_BINARY="$(readlink -f "$LEM_BINARY")"
   GENERATED_TARGET="$(readlink -f "$GENERATED_TARGET")/CakeML"
   cd "$CAKEML_RAW_TARGET"
   mkdir -p "$GENERATED_TARGET"
-  "$LEM_BINARY" -isa -outdir "$GENERATED_TARGET" "${CAKEML_LEM_FILES[@]}"
+  LEMLIB="$LEM_LIBRARY" "$LEM_BINARY" -isa -outdir "$GENERATED_TARGET" "${CAKEML_LEM_FILES[@]}"
 )
 
 echo "Patching theories ..."
