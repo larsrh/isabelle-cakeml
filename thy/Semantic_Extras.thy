@@ -179,6 +179,8 @@ fun match_result :: "(v)sem_env \<Rightarrow> 'ffi state \<Rightarrow> v \<Right
    else
       Rerr (Rabort Rtype_error))"
 
+case_of_simps match_result_alt_def: match_result.simps
+
 lemma match_result_sound:
   "case match_result env s v0 pes err_v of
     Rerr err \<Rightarrow> evaluate_match ck env s v0 pes err_v (s, Rerr err)
@@ -229,20 +231,5 @@ proof (induction pes)
         by (cases bv) auto
     qed auto
 qed (auto elim: evaluate_match.cases)
-
-(* FIXME fix the simpset produced by datatype_record *)
-lemma state_simps[simp]:
-  "s \<lparr> clock := clock s \<rparr> = s"
-  "clock (update_clock a s) = a (clock s)"
-  "clock (update_defined_types f s) = clock s"
-  "clock (update_ffi g s) = clock s"
-  "clock (update_refs h s) = clock s"
-  "clock (update_defined_mods i s) = clock s"
-  "defined_types (update_clock a s) = defined_types s"
-  "refs (update_clock a s) = refs s"
-  "ffi (update_clock a s) = ffi s"
-  "defined_mods (update_clock a s) = defined_mods s"
-  "update_clock (\<lambda>_. m) (update_clock a s) = update_clock (\<lambda>_. m) s"
-by (auto simp: datatype_record_update split: state.splits)
 
 end
