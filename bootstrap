@@ -64,7 +64,7 @@ echo "Generating CakeML/Isabelle theories ..."
   GENERATED_TARGET="$(readlink -f "$GENERATED_TARGET")/CakeML"
   cd "$CAKEML_RAW_TARGET"
   mkdir -p "$GENERATED_TARGET"
-  LEMLIB="$LEM_LIBRARY" "$LEM_BINARY" -isa -outdir "$GENERATED_TARGET" "${CAKEML_LEM_FILES[@]}"
+  LEMLIB="$LEM_LIBRARY" "$LEM_BINARY" -isa -use_datatype_record -outdir "$GENERATED_TARGET" "${CAKEML_LEM_FILES[@]}"
 )
 
 echo "Patching theories ..."
