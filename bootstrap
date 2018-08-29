@@ -71,7 +71,6 @@ echo "Patching theories ..."
 for THEORY in "${CAKEML_IGNORE_THEORIES[@]}"; do
   rm "$GENERATED_TARGET/CakeML/$THEORY"
 done
-find "$GENERATED_TARGET/CakeML" -name "*.thy" -exec sed -i -e 's/"Lem/"LEM.Lem/' {} \;
 
 echo "Building theories ..."
 "$ISABELLE_TOOL" build -v "${AFP_STRING[@]}" -D "$TARGET"
