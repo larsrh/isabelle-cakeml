@@ -76,6 +76,6 @@ for THEORY in "${CAKEML_IGNORE_THEORIES[@]}"; do
 done
 
 echo "Building theories ..."
-"$ISABELLE_TOOL" build -v "${AFP_STRING[@]}" -D "$TARGET"
+"$ISABELLE_TOOL" build -c -o document=pdf -v "${AFP_STRING[@]}" -D "$TARGET"
 
 echo "Success."
