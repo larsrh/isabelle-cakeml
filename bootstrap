@@ -6,14 +6,17 @@ cd "$(dirname "$0")"
 
 source setup
 
-if [ ! -f lem.zip ]; then
+LEM_ZIP="lem-$LEM_COMMIT.zip"
+CAKEML_ZIP="cakeml-$CAKEML_COMMIT.zip"
+
+if [ ! -f "$LEM_ZIP" ]; then
   echo "Downloading Lem ..."
-  curl -sLo lem.zip "$LEM_REPOSITORY/archive/$LEM_COMMIT.zip"
+  curl -sLo "$LEM_ZIP" "$LEM_REPOSITORY/archive/$LEM_COMMIT.zip"
 fi
 
-if [ ! -f cakeml.zip ]; then
+if [ ! -f  "$CAKEML_ZIP" ]; then
   echo "Downloading CakeML ..."
-  curl -sLo cakeml.zip "$CAKEML_REPOSITORY/archive/$CAKEML_COMMIT.zip"
+  curl -sLo "$CAKEML_ZIP" "$CAKEML_REPOSITORY/archive/$CAKEML_COMMIT.zip"
 fi
 
 RAW_TARGET="download"
@@ -27,17 +30,17 @@ rm -rf "$GENERATED_TARGET"
 mkdir -p "$GENERATED_TARGET"
 
 echo "Unpacking Lem ..."
-unzip -oq lem.zip -d "$RAW_TARGET"
+unzip -oq "$LEM_ZIP" -d "$RAW_TARGET"
 
 echo "Unpacking CakeML ..."
-unzip -oq cakeml.zip -d "$RAW_TARGET"
+unzip -oq "$CAKEML_ZIP" -d "$RAW_TARGET"
 
 LEM_RAW_TARGET="download/lem-$LEM_COMMIT"
 CAKEML_RAW_TARGET="download/cakeml-$CAKEML_COMMIT"
 
 echo "Checking download ..."
 if [ ! -d "$LEM_RAW_TARGET" ] || [ ! -d "$CAKEML_RAW_TARGET" ]; then
-  echo "Outdated download, clean and try again"
+  echo "Malformed download"
   exit 1
 fi
 
