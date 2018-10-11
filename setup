@@ -10,7 +10,24 @@ else
   exit 1
 fi
 
-DEPENDENCIES=("Coinductive" "IEEE_Floating_Point" "Word_Lib")
+DEPENDENCIES=(
+  "Coinductive"
+  "IEEE_Floating_Point"
+  "Word_Lib"
+  "Show"
+  "Datatype_Order_Generator"
+  "Deriving"
+  "Native_Word"
+  "Collections"
+  "Binomial-Heaps"
+  "Finger-Trees"
+  "Trie"
+  "Refine_Monadic"
+  "Automatic_Refinement"
+  "CAVA_Automata"
+  "Containers"
+  "Regular-Sets"
+)
 
 echo "Checking AFP ..."
 if [ -d "$AFP" ]; then
