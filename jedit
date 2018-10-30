@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -e
+
+cd "$(dirname "$0")"
+
+source setup
+
+LOGIC=()
+if [ -n "$1" ]; then
+  LOGIC+=("-l" "$1")
+  shift
+fi
+
+echo "Launching jEdit ..."
+
+set -x
+
+exec "$ISABELLE_TOOL" jedit "${AFP_STRING[@]}" -d thy "${LOGIC[@]}" "$@"
