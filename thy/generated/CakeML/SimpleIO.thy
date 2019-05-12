@@ -12,6 +12,9 @@ imports
 
 begin 
 
+\<comment> \<open>\<open>
+  A simple instantiation of the ffi type.
+\<close>\<close>
 \<comment> \<open>\<open>open import Pervasives\<close>\<close>
 \<comment> \<open>\<open>open import Pervasives_extra\<close>\<close>
 \<comment> \<open>\<open>open import Lib\<close>\<close>
@@ -24,17 +27,17 @@ datatype_record simpleIO =
 
 \<comment> \<open>\<open>val isEof : oracle_function simpleIO\<close>\<close>
 fun isEof  :: " simpleIO \<Rightarrow>(8 word)list \<Rightarrow>(8 word)list \<Rightarrow>(simpleIO)oracle_result "  where 
-     " isEof st conf ([]) = ( Oracle_fail )"
+     " isEof st conf ([]) = ( Oracle_final FFI_failed )"
 |" isEof st conf (x # xs) = ( Oracle_return st ((if(input   st) = LNil then of_nat (( 1 :: nat)) else of_nat (( 0 :: nat)))# xs))"
 
 
 \<comment> \<open>\<open>val getChar : oracle_function simpleIO\<close>\<close>
 fun getChar  :: " simpleIO \<Rightarrow>(8 word)list \<Rightarrow>(8 word)list \<Rightarrow>(simpleIO)oracle_result "  where 
-     " getChar st conf ([]) = ( Oracle_fail )"
+     " getChar st conf ([]) = ( Oracle_final FFI_failed )"
 |" getChar st conf (x # xs) = (
       (case  lhd'(input   st) of
         Some y => Oracle_return (( st (| input := (Option.the (ltl'(input   st))) |))) (y # xs)
-      | _ => Oracle_fail
+      | _ => Oracle_final FFI_failed
       ))"
 
 
@@ -42,14 +45,14 @@ fun getChar  :: " simpleIO \<Rightarrow>(8 word)list \<Rightarrow>(8 word)list \
 definition putChar  :: " simpleIO \<Rightarrow>(8 word)list \<Rightarrow>(8 word)list \<Rightarrow>(simpleIO)oracle_result "  where 
      " putChar st conf input1 = (
   (case  input1 of
-    [] => Oracle_fail
+    [] => Oracle_final FFI_failed
   | x # _ => Oracle_return (( st (| output0 := (LCons x(output0   st)) |))) input1
   ))"
 
 
 \<comment> \<open>\<open>val exit : oracle_function simpleIO\<close>\<close>
 definition exit0  :: " simpleIO \<Rightarrow>(8 word)list \<Rightarrow>(8 word)list \<Rightarrow>(simpleIO)oracle_result "  where 
-     " exit0 st conf input1 = ( Oracle_diverge )"
+     " exit0 st conf input1 = ( Oracle_final FFI_diverged )"
 
 
 \<comment> \<open>\<open>val simpleIO_oracle : oracle simpleIO\<close>\<close>
@@ -64,6 +67,6 @@ definition simpleIO_oracle  :: " string \<Rightarrow> simpleIO \<Rightarrow>(8 w
   else if s = (''exit'') then
     exit0 st conf input1
   else
-    Oracle_fail )"
+    Oracle_final FFI_failed )"
 
 end

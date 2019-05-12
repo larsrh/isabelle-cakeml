@@ -10,6 +10,10 @@ imports
 
 begin 
 
+\<comment> \<open>\<open>
+  Defines a datatype for nested namespaces where names can be either
+  short (e.g. foo) or long (e.g. ModuleA.InnerB.bar).
+\<close>\<close>
 \<comment> \<open>\<open>open import Pervasives\<close>\<close>
 \<comment> \<open>\<open>open import Set_extra\<close>\<close>
 

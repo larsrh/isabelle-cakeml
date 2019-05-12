@@ -6,12 +6,18 @@ imports
   Main
   "HOL-Library.Datatype_Records"
   "LEM.Lem_pervasives"
+  "LEM.Lem_pervasives_extra"
   "Lib"
   "Namespace"
   "FpSem"
 
 begin 
 
+\<comment> \<open>\<open>
+  Definition of CakeML abstract syntax (AST).
+\<close>\<close>
+
+\<comment> \<open>\<open>open import Pervasives_extra\<close>\<close>
 \<comment> \<open>\<open>open import Pervasives\<close>\<close>
 \<comment> \<open>\<open>open import Lib\<close>\<close>
 \<comment> \<open>\<open>open import Namespace\<close>\<close>
@@ -98,6 +104,8 @@ datatype op0 =
   | Asub
   | Alength
   | Aupdate
+  \<comment> \<open>\<open> List operations \<close>\<close>
+  | ListAppend
   \<comment> \<open>\<open> Configure the GC \<close>\<close>
   | ConfigGC
   \<comment> \<open>\<open> Call a given foreign function \<close>\<close>
@@ -108,70 +116,17 @@ datatype lop =
     And
   | Or
 
-\<comment> \<open>\<open> Type constructors.
- * 0-ary type applications represent unparameterised types (e.g., num or string)
- \<close>\<close>
-datatype tctor =
-  \<comment> \<open>\<open> User defined types \<close>\<close>
-    TC_name " (modN, typeN) id0 "
-  \<comment> \<open>\<open> Built-in types \<close>\<close>
-  | TC_int
-  | TC_char
-  | TC_string
-  | TC_ref
-  | TC_word8
-  | TC_word64
-  | TC_word8array
-  | TC_fn
-  | TC_tup
-  | TC_exn
-  | TC_vector
-  | TC_array
-
 \<comment> \<open>\<open> Types \<close>\<close>
-datatype t =
+datatype ast_t =
   \<comment> \<open>\<open> Type variables that the user writes down ('a, 'b, etc.) \<close>\<close>
-    Tvar " tvarN "
-  \<comment> \<open>\<open> deBruijn indexed type variables.
-     The type system uses these internally. \<close>\<close>
-  | Tvar_db " nat "
-  | Tapp " t list " " tctor "
-
-\<comment> \<open>\<open> Some abbreviations \<close>\<close>
-definition Tint  :: " t "  where 
-     " Tint = ( Tapp [] TC_int )"
-
-definition Tchar  :: " t "  where 
-     " Tchar = ( Tapp [] TC_char )"
-
-definition Tstring  :: " t "  where 
-     " Tstring = ( Tapp [] TC_string )"
-
-definition Tref  :: " t \<Rightarrow> t "  where 
-     " Tref t1 = ( Tapp [t1] TC_ref )"
-
-fun  TC_word  :: " word_size \<Rightarrow> tctor "  where 
-     " TC_word W8 = ( TC_word8 )"
-|"     TC_word W64 = ( TC_word64 )"
-
-definition Tword  :: " word_size \<Rightarrow> t "  where 
-     " Tword wz = ( Tapp [] (TC_word wz))"
-
-definition Tword8  :: " t "  where 
-     " Tword8 = ( Tword W8 )"
-
-definition Tword64  :: " t "  where 
-     " Tword64 = ( Tword W64 )"
-
-definition Tword8array  :: " t "  where 
-     " Tword8array = ( Tapp [] TC_word8array )"
-
-definition Tfn  :: " t \<Rightarrow> t \<Rightarrow> t "  where 
-     " Tfn t1 t2 = ( Tapp [t1,t2] TC_fn )"
-
-definition Texn  :: " t "  where 
-     " Texn = ( Tapp [] TC_exn )"
-
+    Atvar " tvarN "
+  \<comment> \<open>\<open> Function type \<close>\<close>
+  | Atfun " ast_t " " ast_t "
+  \<comment> \<open>\<open> Tuple type \<close>\<close>
+  | Attup " ast_t list "
+  \<comment> \<open>\<open> Type constructor applications.
+    0-ary type applications represent unparameterised types (e.g., num or string) \<close>\<close>
+  | Atapp " ast_t list " " (modN, typeN) id0 "
 
 \<comment> \<open>\<open> Patterns \<close>\<close>
 datatype pat =
@@ -182,7 +137,7 @@ datatype pat =
      A Nothing constructor indicates a tuple pattern. \<close>\<close>
   | Pcon "  ( (modN, conN)id0)option " " pat list "
   | Pref " pat "
-  | Ptannot " pat " " t "
+  | Ptannot " pat " " ast_t "
 
 \<comment> \<open>\<open> Expressions \<close>\<close>
 datatype exp0 =
@@ -211,11 +166,11 @@ datatype exp0 =
      The first varN is the function's name, and the second varN
      is its parameter. \<close>\<close>
   | Letrec " (varN * varN * exp0) list " " exp0 "
-  | Tannot " exp0 " " t "
+  | Tannot " exp0 " " ast_t "
   \<comment> \<open>\<open> Location annotated expressions, not expected in source programs \<close>\<close>
   | Lannot " exp0 " " locs "
 
-type_synonym type_def =" ( tvarN list * typeN * (conN * t list) list) list "
+type_synonym type_def =" ( tvarN list * typeN * (conN * ast_t list) list) list "
 
 \<comment> \<open>\<open> Declarations \<close>\<close>
 datatype dec =
@@ -230,28 +185,27 @@ datatype dec =
    \<close>\<close>
   | Dtype " locs " " type_def "
   \<comment> \<open>\<open> Type abbreviations \<close>\<close>
-  | Dtabbrev " locs " " tvarN list " " typeN " " t "
+  | Dtabbrev " locs " " tvarN list " " typeN " " ast_t "
   \<comment> \<open>\<open> New exceptions \<close>\<close>
-  | Dexn " locs " " conN " " t list "
+  | Dexn " locs " " conN " " ast_t list "
+  \<comment> \<open>\<open> Module \<close>\<close>
+  | Dmod " modN " " dec list "
+  \<comment> \<open>\<open> Local: local part, visible part \<close>\<close>
+  | Dlocal " dec list " " dec list "
 
-type_synonym decs =" dec list "
+\<comment> \<open>\<open>
+\<open> Specifications
+   For giving the signature of a module \<close>
+type spec =
+  | Sval of varN * ast_t
+  | Stype of type_def
+  | Stabbrev of list tvarN * typeN * ast_t
+  | Stype_opq of list tvarN * typeN
+  | Sexn of conN * list ast_t
 
-\<comment> \<open>\<open> Specifications
-   For giving the signature of a module \<close>\<close>
-datatype spec =
-    Sval " varN " " t "
-  | Stype " type_def "
-  | Stabbrev " tvarN list " " typeN " " t "
-  | Stype_opq " tvarN list " " typeN "
-  | Sexn " conN " " t list "
+type specs = list spec
 
-type_synonym specs =" spec list "
-
-datatype top0 =
-    Tmod " modN " "  specs option " " decs "
-  | Tdec " dec "
-
-type_synonym prog =" top0 list "
+\<close>\<close>
 
 \<comment> \<open>\<open> Accumulates the bindings of a pattern \<close>\<close>
 \<comment> \<open>\<open>val pat_bindings : pat -> list varN -> list varN\<close>\<close>

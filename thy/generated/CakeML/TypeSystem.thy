@@ -13,11 +13,122 @@ imports
 
 begin 
 
+\<comment> \<open>\<open>
+  Specification of CakeML's type system.
+\<close>\<close>
 \<comment> \<open>\<open>open import Pervasives_extra\<close>\<close>
 \<comment> \<open>\<open>open import Lib\<close>\<close>
 \<comment> \<open>\<open>open import Ast\<close>\<close>
 \<comment> \<open>\<open>open import Namespace\<close>\<close>
 \<comment> \<open>\<open>open import SemanticPrimitives\<close>\<close>
+
+
+type_synonym type_ident =" nat "
+
+\<comment> \<open>\<open> Types \<close>\<close>
+datatype t =
+  \<comment> \<open>\<open> Type variables that the user writes down ('a, 'b, etc.) \<close>\<close>
+    Tvar " tvarN "
+  \<comment> \<open>\<open> deBruijn indexed type variables. \<close>\<close>
+  | Tvar_db " nat "
+  \<comment> \<open>\<open> The two numbers represent the identity of the type constructor. The first
+     is the identity of the compilation unit that it was defined in, and the
+     second is its identity inside of that unit \<close>\<close>
+  | Tapp " t list " " type_ident "
+
+\<comment> \<open>\<open> Some abbreviations \<close>\<close>
+definition Tarray_num  :: " nat "  where 
+     " Tarray_num = (( 0 :: nat))"
+
+definition Tbool_num  :: " nat "  where 
+     " Tbool_num = (( 1 :: nat))"
+
+definition Tchar_num  :: " nat "  where 
+     " Tchar_num = (( 2 :: nat))"
+
+definition Texn_num  :: " nat "  where 
+     " Texn_num = (( 3 :: nat))"
+
+definition Tfn_num  :: " nat "  where 
+     " Tfn_num = (( 4 :: nat))"
+
+definition Tint_num  :: " nat "  where 
+     " Tint_num = (( 5 :: nat))"
+
+definition Tlist_num  :: " nat "  where 
+     " Tlist_num = (( 6 :: nat))"
+
+definition Tref_num  :: " nat "  where 
+     " Tref_num = (( 7 :: nat))"
+
+definition Tstring_num  :: " nat "  where 
+     " Tstring_num = (( 8 :: nat))"
+
+definition Ttup_num  :: " nat "  where 
+     " Ttup_num = (( 9 :: nat))"
+
+definition Tvector_num  :: " nat "  where 
+     " Tvector_num = (( 10 :: nat))"
+
+definition Tword64_num  :: " nat "  where 
+     " Tword64_num = (( 11 :: nat))"
+
+definition Tword8_num  :: " nat "  where 
+     " Tword8_num = (( 12 :: nat))"
+
+definition Tword8array_num  :: " nat "  where 
+     " Tword8array_num = (( 13 :: nat))"
+
+
+\<comment> \<open>\<open> The numbers for the primitive types \<close>\<close>
+definition prim_type_nums  :: "(nat)list "  where 
+     " prim_type_nums = (
+  [Tarray_num, Tchar_num, Texn_num, Tfn_num, Tint_num, Tref_num, Tstring_num, Ttup_num,
+   Tvector_num, Tword64_num, Tword8_num, Tword8array_num])"
+
+
+definition Tarray  :: " t \<Rightarrow> t "  where 
+     " Tarray t1 = ( Tapp [t1] Tarray_num )"
+
+definition Tbool  :: " t "  where 
+     " Tbool = ( Tapp [] Tbool_num )"
+
+definition Tchar  :: " t "  where 
+     " Tchar = ( Tapp [] Tchar_num )"
+
+definition Texn  :: " t "  where 
+     " Texn = ( Tapp [] Texn_num )"
+
+definition Tfn  :: " t \<Rightarrow> t \<Rightarrow> t "  where 
+     " Tfn t1 t2 = ( Tapp [t1,t2] Tfn_num )"
+
+definition Tint  :: " t "  where 
+     " Tint = ( Tapp [] Tint_num )"
+
+definition Tlist  :: " t \<Rightarrow> t "  where 
+     " Tlist t1 = ( Tapp [t1] Tlist_num )"
+
+definition Tref  :: " t \<Rightarrow> t "  where 
+     " Tref t1 = ( Tapp [t1] Tref_num )"
+
+definition Tstring  :: " t "  where 
+     " Tstring = ( Tapp [] Tstring_num )"
+
+definition Ttup  :: "(t)list \<Rightarrow> t "  where 
+     " Ttup ts = ( Tapp ts Ttup_num )"
+
+definition Tvector  :: " t \<Rightarrow> t "  where 
+     " Tvector t1 = ( Tapp [t1] Tvector_num )"
+
+definition Tword64  :: " t "  where 
+     " Tword64 = ( Tapp [] Tword64_num )"
+
+definition Tword8  :: " t "  where 
+     " Tword8 = ( Tapp [] Tword8_num )"
+
+definition Tword8array  :: " t "  where 
+     " Tword8array = ( Tapp [] Tword8array_num )"
+
 
 \<comment> \<open>\<open> Check that the free type variables are in the given list. Every deBruijn
  * variable must be smaller than the first argument. So if it is 0, no deBruijn
@@ -34,6 +145,25 @@ check_freevars dbmax tvs (Tapp ts tn) = (
 |"
 check_freevars dbmax tvs (Tvar_db n) = ( n < dbmax )" 
 by pat_completeness auto
+
+
+\<comment> \<open>\<open>val check_freevars_ast : list tvarN -> ast_t -> bool\<close>\<close>
+function (sequential,domintros) 
+check_freevars_ast  :: "(string)list \<Rightarrow> ast_t \<Rightarrow> bool "  where 
+     "
+check_freevars_ast tvs (Atvar tv) = (
+  Set.member tv (set tvs))"
+|"
+check_freevars_ast tvs (Attup ts) = (
+  ((\<forall> x \<in> (set ts).  (check_freevars_ast tvs) x)))"
+|"
+check_freevars_ast tvs (Atfun t1 t2) = (
+  check_freevars_ast tvs t1 \<and> check_freevars_ast tvs t2 )"
+|"
+check_freevars_ast tvs (Atapp ts tn) = (
+  ((\<forall> x \<in> (set ts).  (check_freevars_ast tvs) x)))" 
+by pat_completeness auto
+
 
 
 \<comment> \<open>\<open> Simultaneous substitution of types for type variables in a type \<close>\<close>
@@ -127,7 +257,7 @@ tveLookup n inc (Bind_name n' tvs t1 tenvE) = (
 
 
 type_synonym tenv_abbrev =" (modN, typeN, ( tvarN list * t)) namespace "
-type_synonym tenv_ctor =" (modN, conN, ( tvarN list * t list * tid_or_exn)) namespace "
+type_synonym tenv_ctor =" (modN, conN, ( tvarN list * t list * type_ident)) namespace "
 type_synonym tenv_val =" (modN, varN, (nat * t)) namespace "
 
 datatype_record type_env =
@@ -200,533 +330,113 @@ bind_var_list tvs ((n,t1)# binds) tenvE = (
  * represents the functions \<close>\<close>
 \<comment> \<open>\<open>val type_funs : type_env -> tenv_val_exp -> list (varN * varN * exp) -> list (varN * t) -> bool\<close>\<close>
 
-datatype_record decls =
-  
- defined_mods0 ::" ( modN list) set " 
-
-     defined_types0 ::" ( (modN, typeN)id0) set " 
-
-     defined_exns ::" ( (modN, conN)id0) set " 
-
-
-\<comment> \<open>\<open>val empty_decls : decls\<close>\<close>
-definition empty_decls  :: " decls "  where 
-     " empty_decls = ( (| defined_mods0 = ({}), defined_types0 = ({}), defined_exns = ({})|) )"
-
-
-\<comment> \<open>\<open>val union_decls : decls -> decls -> decls\<close>\<close>
-definition union_decls  :: " decls \<Rightarrow> decls \<Rightarrow> decls "  where 
-     " union_decls d1 d2 = (
-  (| defined_mods0 = ((defined_mods0   d1) \<union>(defined_mods0   d2)),
-     defined_types0 = ((defined_types0   d1) \<union>(defined_types0   d2)),
-     defined_exns = ((defined_exns   d1) \<union>(defined_exns   d2)) |) )"
-
-
 \<comment> \<open>\<open> Check a declaration and update the top-level environments
  * The arguments are in order:
- * - the module that the declaration is in
- * - the set of all modules, and types, and exceptions that have been previously declared
+ * - whether to do extra checks
  * - the type environment
  * - the declaration
- * - the set of all modules, and types, and exceptions that are declared here
+ * - the set of type identity stamps defined here
  * - the environment of new stuff declared here \<close>\<close>
 
-\<comment> \<open>\<open>val type_d : bool -> list modN -> decls -> type_env -> dec -> decls -> type_env -> bool\<close>\<close>
-
-\<comment> \<open>\<open>val type_ds : bool -> list modN -> decls -> type_env -> list dec -> decls -> type_env -> bool\<close>\<close>
-\<comment> \<open>\<open>val check_signature : list modN -> tenv_abbrev -> decls -> type_env -> maybe specs -> decls -> type_env -> bool\<close>\<close>
-\<comment> \<open>\<open>val type_specs : list modN -> tenv_abbrev -> specs -> decls -> type_env -> bool\<close>\<close>
-\<comment> \<open>\<open>val type_prog : bool -> decls -> type_env -> list top -> decls -> type_env -> bool\<close>\<close>
+\<comment> \<open>\<open>val type_d : bool -> type_env -> dec -> set nat -> type_env -> bool\<close>\<close>
+\<comment> \<open>\<open>val type_ds : bool -> type_env -> list dec -> set nat -> type_env -> bool\<close>\<close>
 
 \<comment> \<open>\<open> Check that the operator can have type (t1 -> ... -> tn -> t) \<close>\<close>
 \<comment> \<open>\<open>val type_op : op -> list t -> t -> bool\<close>\<close>
-fun type_op  :: " op0 \<Rightarrow>(t)list \<Rightarrow> t \<Rightarrow> bool "  where 
-     " type_op (Opn o0) ts t1 = ( 
-  (case (o0,ts) of
-      ( _, [Tapp [] TC_int, Tapp [] TC_int]) => (t1 = Tint)
-    | (_,_) => False
-  ) )"
-|" type_op (Opb o1) ts t1 = ( 
-  (case (o1,ts) of
-      ( _, [Tapp [] TC_int, Tapp [] TC_int]) => (t1 =
-                                                   Tapp []
-                                                     (TC_name
-                                                        (Short (''bool''))))
-    | (_,_) => False
-  ) )"
-|" type_op (Opw w o2) ts t1 = ( 
-  (case (w,o2,ts) of
-      ( W8, _, [Tapp [] TC_word8, Tapp [] TC_word8]) => (t1 =
-                                                           Tapp [] TC_word8)
-    | ( W64, _, [Tapp [] TC_word64, Tapp [] TC_word64]) => (t1 =
-                                                              Tapp []
-                                                                TC_word64)
-    | (_,_,_) => False
-  ) )"
-|" type_op (Shift w0 s n0) ts t1 = ( 
-  (case (w0,s,n0,ts) of
-      ( W8, _, _, [Tapp [] TC_word8]) => (t1 = Tapp [] TC_word8)
-    | ( W64, _, _, [Tapp [] TC_word64]) => (t1 = Tapp [] TC_word64)
-    | (_,_,_,_) => False
-  ) )"
-|" type_op Equality ts t1 = ( 
-  (case  ts of
-      [t11, t2] => (t11 = t2) \<and>
-                     (t1 = Tapp [] (TC_name (Short (''bool''))))
+definition type_op  :: " op0 \<Rightarrow>(t)list \<Rightarrow> t \<Rightarrow> bool "  where 
+     " type_op op1 ts t1 = (
+  (case  (op1,ts) of
+      (Opapp, [t11, t2]) => t11 = Tfn t2 t1
+    | (Opn _, [t11, t2]) => (t11 = Tint) \<and> ((t2 = Tint) \<and> (t1 = Tint))
+    | (Opb _, [t11, t2]) => (t11 = Tint) \<and> ((t2 = Tint) \<and> (t1 = Tbool))
+    | (Opw W8 _, [t11, t2]) => (t11 = Tword8) \<and> ((t2 = Tword8) \<and> (t1 = Tword8))
+    | (Opw W64 _, [t11, t2]) => (t11 = Tword64) \<and> ((t2 = Tword64) \<and> (t1 = Tword64))
+    | (FP_bop _, [t11, t2]) => (t11 = Tword64) \<and> ((t2 = Tword64) \<and> (t1 = Tword64))
+    | (FP_uop _, [t11]) =>  (t11 = Tword64) \<and> (t1 = Tword64)
+    | (FP_cmp _, [t11, t2]) =>  (t11 = Tword64) \<and> ((t2 = Tword64) \<and> (t1 = Tbool))
+    | (Shift W8 _ _, [t11]) => (t11 = Tword8) \<and> (t1 = Tword8)
+    | (Shift W64 _ _, [t11]) => (t11 = Tword64) \<and> (t1 = Tword64)
+    | (Equality, [t11, t2]) => (t11 = t2) \<and> (t1 = Tbool)
+    | (Opassign, [t11, t2]) => (t11 = Tref t2) \<and> (t1 = Ttup [])
+    | (Opref, [t11]) => t1 = Tref t11
+    | (Opderef, [t11]) => t11 = Tref t1
+    | (Aw8alloc, [t11, t2]) => (t11 = Tint) \<and> ((t2 = Tword8) \<and> (t1 = Tword8array))
+    | (Aw8sub, [t11, t2]) => (t11 = Tword8array) \<and> ((t2 = Tint) \<and> (t1 = Tword8))
+    | (Aw8length, [t11]) => (t11 = Tword8array) \<and> (t1 = Tint)
+    | (Aw8update, [t11, t2, t3]) => (t11 = Tword8array) \<and> ((t2 = Tint) \<and> ((t3 = Tword8) \<and> (t1 = Ttup [])))
+    | (WordFromInt W8, [t11]) => (t11 = Tint) \<and> (t1 = Tword8)
+    | (WordToInt W8, [t11]) => (t11 = Tword8) \<and> (t1 = Tint)
+    | (WordFromInt W64, [t11]) => (t11 = Tint) \<and> (t1 = Tword64)
+    | (WordToInt W64, [t11]) => (t11 = Tword64) \<and> (t1 = Tint)
+    | (CopyStrStr, [t11, t2, t3]) => (t11 = Tstring) \<and> ((t2 = Tint) \<and> ((t3 = Tint) \<and> (t1 = Tstring)))
+    | (CopyStrAw8, [t11, t2, t3, t4, t5]) =>
+      (t11 = Tstring) \<and> ((t2 = Tint) \<and> ((t3 = Tint) \<and> ((t4 = Tword8array) \<and> ((t5 = Tint) \<and> (t1 = Ttup [])))))
+    | (CopyAw8Str, [t11, t2, t3]) => (t11 = Tword8array) \<and> ((t2 = Tint) \<and> ((t3 = Tint) \<and> (t1 = Tstring)))
+    | (CopyAw8Aw8, [t11, t2, t3, t4, t5]) =>
+      (t11 = Tword8array) \<and> ((t2 = Tint) \<and> ((t3 = Tint) \<and> ((t4 = Tword8array) \<and> ((t5 = Tint) \<and> (t1 = Ttup [])))))
+    | (Chr, [t11]) => (t11 = Tint) \<and> (t1 = Tchar)
+    | (Ord, [t11]) => (t11 = Tchar) \<and> (t1 = Tint)
+    | (Chopb _, [t11, t2]) => (t11 = Tchar) \<and> ((t2 = Tchar) \<and> (t1 = Tbool))
+    | (Implode, [t11]) => (t11 = Tlist Tchar) \<and> (t1 = Tstring)
+    | (Strsub, [t11, t2]) => (t11 = Tstring) \<and> ((t2 = Tint) \<and> (t1 = Tchar))
+    | (Strlen, [t11]) => (t11 = Tstring) \<and> (t1 = Tint)
+    | (Strcat, [t11]) => (t11 = Tlist Tstring) \<and> (t1 = Tstring)
+    | (VfromList, [Tapp [t11] ctor]) => (ctor = Tlist_num) \<and> (t1 = Tvector t11)
+    | (Vsub, [t11, t2]) => (t2 = Tint) \<and> (Tvector t1 = t11)
+    | (Vlength, [Tapp [t11] ctor]) => (ctor = Tvector_num) \<and> (t1 = Tint)
+    | (Aalloc, [t11, t2]) => (t11 = Tint) \<and> (t1 = Tarray t2)
+    | (AallocEmpty, [t11]) => (t11 = Ttup []) \<and> ((\<exists> t2.  t1 = Tarray t2))
+    | (Asub, [t11, t2]) => (t2 = Tint) \<and> (Tarray t1 = t11)
+    | (Alength, [Tapp [t11] ctor]) => (ctor = Tarray_num) \<and> (t1 = Tint)
+    | (Aupdate, [t11, t2, t3]) => (t11 = Tarray t3) \<and> ((t2 = Tint) \<and> (t1 = Ttup []))
+    | (ConfigGC, [t11,t2]) => (t11 = Tint) \<and> ((t2 = Tint) \<and> (t1 = Ttup []))
+    | (FFI n, [t11,t2]) => (t11 = Tstring) \<and> ((t2 = Tword8array) \<and> (t1 = Ttup []))
+    | (ListAppend, [Tapp [t11] ctor, t2]) => (ctor = Tlist_num) \<and> ((t2 = Tapp [t11] ctor) \<and> (t1 = t2))
     | _ => False
-  ) )"
-|" type_op (FP_cmp f) ts t1 = ( 
-  (case (f,ts) of
-      ( _, [Tapp [] TC_word64, Tapp [] TC_word64]) => (t1 =
-                                                         Tapp []
-                                                           (TC_name
-                                                              (Short
-                                                                 (''bool''))))
-    | (_,_) => False
-  ) )"
-|" type_op (FP_uop f0) ts t1 = ( 
-  (case (f0,ts) of
-      ( _, [Tapp [] TC_word64]) => (t1 = Tapp [] TC_word64)
-    | (_,_) => False
-  ) )"
-|" type_op (FP_bop f1) ts t1 = ( 
-  (case (f1,ts) of
-      ( _, [Tapp [] TC_word64, Tapp [] TC_word64]) => (t1 = Tapp [] TC_word64)
-    | (_,_) => False
-  ) )"
-|" type_op Opapp ts t1 = ( 
-  (case  ts of
-      [Tapp [t2', t3'] TC_fn, t2] => (t2 = t2') \<and> (t1 = t3')
-    | _ => False
-  ) )"
-|" type_op Opassign ts t1 = ( 
-  (case  ts of
-      [Tapp [t11] TC_ref, t2] => (t11 = t2) \<and> (t1 = Tapp [] TC_tup)
-    | _ => False
-  ) )"
-|" type_op Opref ts t1 = ( 
-  (case  ts of [t11] => (t1 = Tapp [t11] TC_ref) | _ => False ) )"
-|" type_op Opderef ts t1 = ( 
-  (case  ts of [Tapp [t11] TC_ref] => (t1 = t11) | _ => False ) )"
-|" type_op Aw8alloc ts t1 = ( 
-  (case  ts of
-      [Tapp [] TC_int, Tapp [] TC_word8] => (t1 = Tapp [] TC_word8array)
-    | _ => False
-  ) )"
-|" type_op Aw8sub ts t1 = ( 
-  (case  ts of
-      [Tapp [] TC_word8array, Tapp [] TC_int] => (t1 = Tapp [] TC_word8)
-    | _ => False
-  ) )"
-|" type_op Aw8length ts t1 = ( 
-  (case  ts of [Tapp [] TC_word8array] => (t1 = Tapp [] TC_int) | _ => False ) )"
-|" type_op Aw8update ts t1 = ( 
-  (case  ts of
-      [Tapp [] TC_word8array, Tapp [] TC_int, Tapp [] TC_word8] => t1 =
-                                                                    Tapp 
-                                                                    [] 
-                                                                    TC_tup
-    | _ => False
-  ) )"
-|" type_op (WordFromInt w1) ts t1 = ( 
-  (case (w1,ts) of
-      ( W8, [Tapp [] TC_int]) => t1 = Tapp [] TC_word8
-    | ( W64, [Tapp [] TC_int]) => t1 = Tapp [] TC_word64
-    | (_,_) => False
-  ) )"
-|" type_op (WordToInt w2) ts t1 = ( 
-  (case (w2,ts) of
-      ( W8, [Tapp [] TC_word8]) => t1 = Tapp [] TC_int
-    | ( W64, [Tapp [] TC_word64]) => t1 = Tapp [] TC_int
-    | (_,_) => False
-  ) )"
-|" type_op CopyStrStr ts t1 = ( 
-  (case  ts of
-      [Tapp [] TC_string, Tapp [] TC_int, Tapp [] TC_int] => t1 =
-                                                               Tapp []
-                                                                 TC_string
-    | _ => False
-  ) )"
-|" type_op CopyStrAw8 ts t1 = ( 
-  (case  ts of
-      [Tapp [] TC_string, Tapp [] TC_int, Tapp [] TC_int, Tapp [] TC_word8array, Tapp [] TC_int] => 
-  t1 = Tapp [] TC_tup
-    | _ => False
-  ) )"
-|" type_op CopyAw8Str ts t1 = ( 
-  (case  ts of
-      [Tapp [] TC_word8array, Tapp [] TC_int, Tapp [] TC_int] => t1 =
-                                                                   Tapp 
-                                                                   []
-                                                                    TC_string
-    | _ => False
-  ) )"
-|" type_op CopyAw8Aw8 ts t1 = ( 
-  (case  ts of
-      [Tapp [] TC_word8array, Tapp [] TC_int, Tapp [] TC_int, Tapp [] TC_word8array, Tapp [] TC_int] => 
-  t1 = Tapp [] TC_tup
-    | _ => False
-  ) )"
-|" type_op Ord ts t1 = ( 
-  (case  ts of [Tapp [] TC_char] => (t1 = Tint) | _ => False ) )"
-|" type_op Chr ts t1 = ( 
-  (case  ts of [Tapp [] TC_int] => (t1 = Tchar) | _ => False ) )"
-|" type_op (Chopb o3) ts t1 = ( 
-  (case (o3,ts) of
-      ( _, [Tapp [] TC_char, Tapp [] TC_char]) => (t1 =
-                                                     Tapp []
-                                                       (TC_name
-                                                          (Short (''bool''))))
-    | (_,_) => False
-  ) )"
-|" type_op Implode ts t1 = ( 
-  (case  ts of
-      [] => False
-    | t0 # l0 => (case  t0 of
-                     Tvar _ => False
-                   | Tvar_db _ => False
-                   | Tapp l1 t4 => (case  l1 of
-                                       [] => False
-                                     | t5 # l2 => (case  t5 of
-                                                      Tvar _ => False
-                                                    | Tvar_db _ => False
-                                                    | Tapp l3 t7 => (case  l3 of
-                                                                    [] => 
-                                                                    (case  t7 of
-                                                                    TC_name _ => 
-                                                                    False
-                                                                    | TC_int => 
-                                                                    False
-                                                                    | TC_char => 
-                                                                    (case  l2 of
-                                                                    [] => 
-                                                                    (case  t4 of
-                                                                    TC_name i0 => 
-                                                                    (case  i0 of
-                                                                    Short s1 =>
-                                                                    if
-                                                                    (
-                                                                    s1 =
-                                                                    (''list'')) then
-                                                                    (
-                                                                    (case  l0 of
-                                                                    [] => 
-                                                                    t1 =
-                                                                    Tapp 
-                                                                    []
-                                                                    TC_string
-                                                                    | _ => 
-                                                                    False
-                                                                    )) else
-                                                                    False
-                                                                    | Long _ _ => 
-                                                                    False
-                                                                    )
-                                                                    | TC_int => 
-                                                                    False
-                                                                    | TC_char => 
-                                                                    False
-                                                                    | TC_string => 
-                                                                    False
-                                                                    | TC_ref => 
-                                                                    False
-                                                                    | TC_word8 => 
-                                                                    False
-                                                                    | TC_word64 => 
-                                                                    False
-                                                                    | TC_word8array => 
-                                                                    False
-                                                                    | TC_fn => 
-                                                                    False
-                                                                    | TC_tup => 
-                                                                    False
-                                                                    | TC_exn => 
-                                                                    False
-                                                                    | TC_vector => 
-                                                                    False
-                                                                    | TC_array => 
-                                                                    False
-                                                                    )
-                                                                    | _ # _ => 
-                                                                    False
-                                                                    )
-                                                                    | TC_string => 
-                                                                    False
-                                                                    | TC_ref => 
-                                                                    False
-                                                                    | TC_word8 => 
-                                                                    False
-                                                                    | TC_word64 => 
-                                                                    False
-                                                                    | TC_word8array => 
-                                                                    False
-                                                                    | TC_fn => 
-                                                                    False
-                                                                    | TC_tup => 
-                                                                    False
-                                                                    | TC_exn => 
-                                                                    False
-                                                                    | TC_vector => 
-                                                                    False
-                                                                    | TC_array => 
-                                                                    False
-                                                                    )
-                                                                    | _ # _ => 
-                                                                    False
-                                                                    )
-                                                  )
-                                   )
-                 )
-  ) )"
-|" type_op Strsub ts t1 = ( 
-  (case  ts of
-      [Tapp [] TC_string, Tapp [] TC_int] => t1 = Tchar
-    | _ => False
-  ) )"
-|" type_op Strlen ts t1 = ( 
-  (case  ts of [Tapp [] TC_string] => t1 = Tint | _ => False ) )"
-|" type_op Strcat ts t1 = ( 
-  (case  ts of
-      [] => False
-    | t10 # l6 => (case  t10 of
-                      Tvar _ => False
-                    | Tvar_db _ => False
-                    | Tapp l7 t12 => (case  l7 of
-                                         [] => False
-                                       | t13 # l8 => (case  t13 of
-                                                         Tvar _ => False
-                                                       | Tvar_db _ => 
-                                                     False
-                                                       | Tapp l9 t15 => 
-                                                     (case  l9 of
-                                                         [] => (case  t15 of
-                                                                   TC_name _ => 
-                                                               False
-                                                                 | TC_int => 
-                                                               False
-                                                                 | TC_char => 
-                                                               False
-                                                                 | TC_string => 
-                                                               (case  l8 of
-                                                                   [] => 
-                                                               (case  t12 of
-                                                                   TC_name i3 => 
-                                                               (case  i3 of
-                                                                   Short s3 =>
-                                                               if(s3 =
-                                                                    (''list'')) then
-                                                                 ((case  l6 of
-                                                                    [] => 
-                                                                  t1 =
-                                                                    Tapp 
-                                                                    []
-                                                                    TC_string
-                                                                    | _ => 
-                                                                  False
-                                                                  )) else
-                                                                 False
-                                                                 | Long _ _ => 
-                                                               False
-                                                               )
-                                                                 | TC_int => 
-                                                               False
-                                                                 | TC_char => 
-                                                               False
-                                                                 | TC_string => 
-                                                               False
-                                                                 | TC_ref => 
-                                                               False
-                                                                 | TC_word8 => 
-                                                               False
-                                                                 | TC_word64 => 
-                                                               False
-                                                                 | TC_word8array => 
-                                                               False
-                                                                 | TC_fn => 
-                                                               False
-                                                                 | TC_tup => 
-                                                               False
-                                                                 | TC_exn => 
-                                                               False
-                                                                 | TC_vector => 
-                                                               False
-                                                                 | TC_array => 
-                                                               False
-                                                               )
-                                                                 | _ # _ => 
-                                                               False
-                                                               )
-                                                                 | TC_ref => 
-                                                               False
-                                                                 | TC_word8 => 
-                                                               False
-                                                                 | TC_word64 => 
-                                                               False
-                                                                 | TC_word8array => 
-                                                               False
-                                                                 | TC_fn => 
-                                                               False
-                                                                 | TC_tup => 
-                                                               False
-                                                                 | TC_exn => 
-                                                               False
-                                                                 | TC_vector => 
-                                                               False
-                                                                 | TC_array => 
-                                                               False
-                                                               )
-                                                       | _ # _ => False
-                                                     )
-                                                     )
-                                     )
-                  )
-  ) )"
-|" type_op VfromList ts t1 = ( 
-  (case  ts of
-      [] => False
-    | t18 # l12 => (case  t18 of
-                       Tvar _ => False
-                     | Tvar_db _ => False
-                     | Tapp l13 t20 => (case  l13 of
-                                           [] => False
-                                         | t21 # l14 => (case  l14 of
-                                                            [] => (case  t20 of
-                                                                    TC_name i5 => 
-                                                                  (case  i5 of
-                                                                    Short s5 =>
-                                                                  if(
-                                                                    s5 =
-                                                                    (''list'')) then
-                                                                    (
-                                                                    (case 
-                                                                    (t21,l12) of
-                                                                    (_,[]) => 
-                                                                    t1 =
-                                                                    Tapp
-                                                                    [t21]
-                                                                    TC_vector
-                                                                    | (_,_) => 
-                                                                    False
-                                                                    )) else
-                                                                    False
-                                                                    | Long _ _ => 
-                                                                  False
-                                                                  )
-                                                                    | TC_int => 
-                                                                  False
-                                                                    | TC_char => 
-                                                                  False
-                                                                    | TC_string => 
-                                                                  False
-                                                                    | TC_ref => 
-                                                                  False
-                                                                    | TC_word8 => 
-                                                                  False
-                                                                    | TC_word64 => 
-                                                                  False
-                                                                    | TC_word8array => 
-                                                                  False
-                                                                    | TC_fn => 
-                                                                  False
-                                                                    | TC_tup => 
-                                                                  False
-                                                                    | TC_exn => 
-                                                                  False
-                                                                    | TC_vector => 
-                                                                  False
-                                                                    | TC_array => 
-                                                                  False
-                                                                  )
-                                                          | _ # _ => 
-                                                        False
-                                                        )
-                                       )
-                   )
-  ) )"
-|" type_op Vsub ts t1 = ( 
-  (case  ts of
-      [Tapp [t11] TC_vector, Tapp [] TC_int] => t1 = t11
-    | _ => False
-  ) )"
-|" type_op Vlength ts t1 = ( 
-  (case  ts of [Tapp [t11] TC_vector] => (t1 = Tapp [] TC_int) | _ => False ) )"
-|" type_op Aalloc ts t1 = ( 
-  (case  ts of
-      [Tapp [] TC_int, t11] => t1 = Tapp [t11] TC_array
-    | _ => False
-  ) )"
-|" type_op AallocEmpty ts t1 = ( 
-  (case  ts of
-      [Tapp [] TC_tup] =>( \<exists> t10. t1 = Tapp [t10] TC_array)
-    | _ => False
-  ) )"
-|" type_op Asub ts t1 = ( 
-  (case  ts of
-      [Tapp [t11] TC_array, Tapp [] TC_int] => t1 = t11
-    | _ => False
-  ) )"
-|" type_op Alength ts t1 = ( 
-  (case  ts of [Tapp [t11] TC_array] => t1 = Tapp [] TC_int | _ => False ) )"
-|" type_op Aupdate ts t1 = ( 
-  (case  ts of
-      [Tapp [t11] TC_array, Tapp [] TC_int, t2] => (t11 = t2) \<and>
-                                                     (t1 = Tapp [] TC_tup)
-    | _ => False
-  ) )"
-|" type_op ConfigGC ts t1 = ( 
-  (case  ts of
-      [Tapp [] TC_int, Tapp [] TC_int] => t1 = Tapp [] TC_tup
-    | _ => False
-  ) )"
-|" type_op (FFI s0) ts t1 = ( 
-  (case (s0,ts) of
-      (_, [Tapp [] TC_string, Tapp [] TC_word8array]) => t1 = Tapp [] TC_tup
-    | (_,_) => False
-  ) )"
+  ))"
 
 
-\<comment> \<open>\<open>val check_type_names : tenv_abbrev -> t -> bool\<close>\<close>
+\<comment> \<open>\<open>val check_type_names : tenv_abbrev -> ast_t -> bool\<close>\<close>
 function (sequential,domintros) 
-check_type_names  :: "((string),(string),((string)list*t))namespace \<Rightarrow> t \<Rightarrow> bool "  where 
+check_type_names  :: "((string),(string),((string)list*t))namespace \<Rightarrow> ast_t \<Rightarrow> bool "  where 
      "
-check_type_names tenvT (Tvar tv) = (
+check_type_names tenvT (Atvar tv) = (
   True )"
 |"
-check_type_names tenvT (Tapp ts tn) = (
-  (case  tn of
-     TC_name tn =>
-       (case  nsLookup tenvT tn of
-           Some (tvs, t1) => List.length tvs = List.length ts
-         | None => False
-       )
-   | _ => True
-  ) \<and>
+check_type_names tenvT (Attup ts) = (
   ((\<forall> x \<in> (set ts).  (check_type_names tenvT) x)))"
 |"
-check_type_names tenvT (Tvar_db n) = (
-  True )" 
+check_type_names tenvT (Atfun t1 t2) = (
+  check_type_names tenvT t1 \<and> check_type_names tenvT t2 )"
+|"
+check_type_names tenvT (Atapp ts tn) = (
+  (case  nsLookup tenvT tn of
+    Some (tvs, _) => List.length tvs = List.length ts
+  | None => False
+  ) \<and>
+  ((\<forall> x \<in> (set ts).  (check_type_names tenvT) x)))" 
 by pat_completeness auto
 
 
 \<comment> \<open>\<open> Substitution of type names for the type they abbreviate \<close>\<close>
-\<comment> \<open>\<open>val type_name_subst : tenv_abbrev -> t -> t\<close>\<close>
+\<comment> \<open>\<open>val type_name_subst : tenv_abbrev -> ast_t -> t\<close>\<close>
 function (sequential,domintros) 
-type_name_subst  :: "((string),(string),((string)list*t))namespace \<Rightarrow> t \<Rightarrow> t "  where 
+type_name_subst  :: "((string),(string),((string)list*t))namespace \<Rightarrow> ast_t \<Rightarrow> t "  where 
      "
-type_name_subst tenvT (Tvar tv) = ( Tvar tv )"
+type_name_subst tenvT (Atvar tv) = ( Tvar tv )"
 |"
-type_name_subst tenvT (Tapp ts tc) = (
+type_name_subst tenvT (Attup ts) = (
+  Ttup (List.map (type_name_subst tenvT) ts))"
+|"
+type_name_subst tenvT (Atfun t1 t2) = (
+  Tfn (type_name_subst tenvT t1) (type_name_subst tenvT t2))"
+|"
+type_name_subst tenvT (Atapp ts tc) = (
   (let args = (List.map (type_name_subst tenvT) ts) in
-    (case  tc of
-        TC_name tn =>
-          (case  nsLookup tenvT tn of
-              Some (tvs, t1) => type_subst (map_of (Lem_list_extra.zipSameLength tvs args)) t1
-            | None => Tapp args tc
-          )
-      | _ => Tapp args tc
-    )))"
-|"
-type_name_subst tenvT (Tvar_db n) = ( Tvar_db n )" 
+  (case  nsLookup tenvT tc of
+    Some (tvs, t1) => type_subst (map_of (Lem_list_extra.zipSameLength tvs args)) t1
+  | None => Ttup args \<comment> \<open>\<open> can't happen, for a type that passes the check \<close>\<close>
+  )))" 
 by pat_completeness auto
 
 
@@ -734,52 +444,36 @@ by pat_completeness auto
  * constructors, and that the free type variables of each constructor argument
  * type are included in the type's type parameters. Also check that all of the
  * types mentioned are in scope. \<close>\<close>
-\<comment> \<open>\<open>val check_ctor_tenv : tenv_abbrev -> list (list tvarN * typeN * list (conN * list t)) -> bool\<close>\<close>
-definition check_ctor_tenv  :: "((modN),(typeN),((tvarN)list*t))namespace \<Rightarrow>((tvarN)list*typeN*(conN*(t)list)list)list \<Rightarrow> bool "  where 
-     " check_ctor_tenv tenvT tds = (
-  check_dup_ctors tds \<and>
-  (((\<forall> x \<in> (set tds).  ( \<lambda>x .  
+\<comment> \<open>\<open>val check_ctor_tenv : tenv_abbrev -> list (list tvarN * typeN * list (conN * list ast_t)) -> bool\<close>\<close>
+fun  check_ctor_tenv  :: "((modN),(typeN),((tvarN)list*t))namespace \<Rightarrow>((tvarN)list*string*(conN*(ast_t)list)list)list \<Rightarrow> bool "  where 
+     " check_ctor_tenv tenvT [] = ( True )"
+|" check_ctor_tenv tenvT ((tvs,tn,ctors)# tds) = (
+  check_dup_ctors (tvs,tn,ctors) \<and>
+  (Lem_list.allDistinct tvs \<and>
+  (((\<forall> x \<in> (set ctors).  ( \<lambda>x .  
   (case  x of
-      (tvs,tn,ctors) =>
-  Lem_list.allDistinct tvs \<and>
-    ((\<forall> x \<in> (set ctors).
-       ( \<lambda>x .  (case  x of
-                           (cn,ts) => ((\<forall> x \<in> (set ts).
-                                         (check_freevars (( 0 :: nat)) tvs) x))
-                                        \<and>
-                                        ((\<forall> x \<in> (set ts).
-                                           (check_type_names tenvT) x))
-                       )) x))
+      (cn,ts) => ((\<forall> x \<in> (set ts). (check_freevars_ast tvs) x))
+                   \<and>
+                   ((\<forall> x \<in> (set ts). (check_type_names tenvT) x))
   )) x)) \<and>
-  Lem_list.allDistinct (List.map ( \<lambda>x .  
-  (case  x of (_,tn,_) => tn )) tds)))"
+  (\<not> (Set.member tn (set (List.map ( \<lambda>x .  
+  (case  x of (_,tn,_) => tn )) tds))) \<and>
+  check_ctor_tenv tenvT tds))))"
 
 
-\<comment> \<open>\<open>val build_ctor_tenv : list modN -> tenv_abbrev -> list (list tvarN * typeN * list (conN * list t)) -> tenv_ctor\<close>\<close>
-definition build_ctor_tenv  :: "(string)list \<Rightarrow>((modN),(typeN),((tvarN)list*t))namespace \<Rightarrow>((tvarN)list*string*(string*(t)list)list)list \<Rightarrow>((string),(string),((tvarN)list*(t)list*tid_or_exn))namespace "  where 
-     " build_ctor_tenv mn tenvT tds = (
-  alist_to_ns
-    (List.rev
-      (List.concat
+\<comment> \<open>\<open>val build_ctor_tenv : tenv_abbrev -> list (list tvarN * typeN * list (conN * list ast_t)) -> list nat -> tenv_ctor\<close>\<close>
+fun  build_ctor_tenv  :: "((modN),(typeN),((tvarN)list*t))namespace \<Rightarrow>((tvarN)list*string*(string*(ast_t)list)list)list \<Rightarrow>(nat)list \<Rightarrow>((string),(string),((tvarN)list*(t)list*nat))namespace "  where 
+     " build_ctor_tenv tenvT [] [] = ( alist_to_ns [])"
+|" build_ctor_tenv tenvT ((tvs,tn,ctors)# tds) (id1 # ids) = (
+  nsAppend
+    (build_ctor_tenv tenvT tds ids)
+    (alist_to_ns
+      (List.rev
         (List.map
-           ( \<lambda>x .  
-  (case  x of
-      (tvs,tn,ctors) =>
-  List.map
-    ( \<lambda>x .  (case  x of
-                        (cn,ts) => (cn,(tvs,List.map (type_name_subst tenvT)
-                                              ts, TypeId (mk_id mn tn)))
-                    )) ctors
-  ))
-           tds))))"
-
-
-\<comment> \<open>\<open> Check that an exception definition defines no already defined (or duplicate)
- * constructors, and that the arguments have no free type variables. \<close>\<close>
-\<comment> \<open>\<open>val check_exn_tenv : list modN -> conN -> list t -> bool\<close>\<close>
-definition check_exn_tenv  :: "(modN)list \<Rightarrow> string \<Rightarrow>(t)list \<Rightarrow> bool "  where 
-     " check_exn_tenv mn cn ts = (
-  ((\<forall> x \<in> (set ts).  (check_freevars(( 0 :: nat)) []) x)))"
+          ( \<lambda>x .  
+  (case  x of (cn,ts) => (cn,(tvs,List.map (type_name_subst tenvT) ts, id1)) ))
+          ctors))))"
+|" build_ctor_tenv tenvT _ _ = ( alist_to_ns [])"
 
 
 \<comment> \<open>\<open> For the value restriction on let-based polymorphism \<close>\<close>
@@ -801,12 +495,6 @@ is_value (Lannot e _) = ( is_value e )"
 |"
 is_value _ = ( False )" 
 by pat_completeness auto
-
-
-\<comment> \<open>\<open>val tid_exn_to_tc : tid_or_exn -> tctor\<close>\<close>
-fun tid_exn_to_tc  :: " tid_or_exn \<Rightarrow> tctor "  where 
-     " tid_exn_to_tc (TypeId tid) = ( TC_name tid )"
-|" tid_exn_to_tc (TypeExn _) = ( TC_exn )"
 
 
 inductive
@@ -864,14 +552,14 @@ type_p tvs tenv (Plit (Word64 w)) Tword64 []"
 (type_ps tvs tenv ps (List.map (type_subst (map_of (Lem_list_extra.zipSameLength tvs' ts'))) ts) bindings \<and>
 (nsLookup(c0   tenv) cn = Some (tvs', ts, tn))))
 ==>
-type_p tvs tenv (Pcon (Some cn) ps) (Tapp ts' (tid_exn_to_tc tn)) bindings "
+type_p tvs tenv (Pcon (Some cn) ps) (Tapp ts' tn) bindings "
 
 |
 
 "pcon_none" : " \<And> tvs tenv ps ts bindings.
 type_ps tvs tenv ps ts bindings
 ==>
-type_p tvs tenv (Pcon None ps) (Tapp ts TC_tup) bindings "
+type_p tvs tenv (Pcon None ps) (Ttup ts) bindings "
 
 |
 
@@ -883,7 +571,7 @@ type_p tvs tenv (Pref p) (Tref t0) bindings "
 |
 
 "ptypeannot" : " \<And> tvs tenv p t0 bindings.
-check_freevars(( 0 :: nat)) [] t0 \<and>
+check_freevars_ast [] t0 \<and>
 (check_type_names(t   tenv) t0 \<and>
 type_p tvs tenv p (type_name_subst(t   tenv) t0) bindings)
 ==>
@@ -967,14 +655,14 @@ type_e tenv tenvE (Handle e pes) t0 "
 (type_es tenv tenvE es (List.map (type_subst (map_of (Lem_list_extra.zipSameLength tvs ts'))) ts) \<and>
 (nsLookup(c0   tenv) cn = Some (tvs, ts, tn))))
 ==>
-type_e tenv tenvE (Con (Some cn) es) (Tapp ts' (tid_exn_to_tc tn))"
+type_e tenv tenvE (Con (Some cn) es) (Tapp ts' tn)"
 
 |
 
 "con_none" : " \<And> tenv tenvE es ts.
 type_es tenv tenvE es ts
 ==>
-type_e tenv tenvE (Con None es) (Tapp ts TC_tup)"
+type_e tenv tenvE (Con None es) (Ttup ts)"
 
 |
 
@@ -1005,15 +693,15 @@ type_e tenv tenvE (App op0 es) t0 "
 |
 
 "log" : " \<And> tenv tenvE l e1 e2.
-type_e tenv tenvE e1 (Tapp [] (TC_name (Short (''bool'')))) \<and>
-type_e tenv tenvE e2 (Tapp [] (TC_name (Short (''bool''))))
+type_e tenv tenvE e1 Tbool \<and>
+type_e tenv tenvE e2 Tbool
 ==>
-type_e tenv tenvE (Log l e1 e2) (Tapp [] (TC_name (Short (''bool''))))"
+type_e tenv tenvE (Log l e1 e2) Tbool "
 
 |
 
 "if'" : " \<And> tenv tenvE e1 e2 e3 t0.
-type_e tenv tenvE e1 (Tapp [] (TC_name (Short (''bool'')))) \<and>
+type_e tenv tenvE e1 Tbool \<and>
 (type_e tenv tenvE e2 t0 \<and>
 type_e tenv tenvE e3 t0)
 ==>
@@ -1071,7 +759,7 @@ type_e tenv tenvE (Letrec funs e) t0 "
 |
 
 "typeannot": " \<And> tenv tenvE e t0.
-check_freevars(( 0 :: nat)) [] t0 \<and>
+check_freevars_ast [] t0 \<and>
 (check_type_names(t   tenv) t0 \<and>
 type_e tenv tenvE e (type_name_subst(t   tenv) t0))
 ==>
@@ -1144,10 +832,17 @@ fun tscheme_inst  :: " nat*t \<Rightarrow> nat*t \<Rightarrow> bool "  where
     (deBruijn_subst(( 0 :: nat)) subst t_impl = t_spec)))))"
 
 
-inductive
-type_d  :: " bool \<Rightarrow>(modN)list \<Rightarrow> decls \<Rightarrow> type_env \<Rightarrow> dec \<Rightarrow> decls \<Rightarrow> type_env \<Rightarrow> bool "  where
+definition tenvLift  :: " string \<Rightarrow> type_env \<Rightarrow> type_env "  where 
+     " tenvLift mn tenv = (
+  (| v0 = (nsLift mn(v0   tenv)), c0 = (nsLift mn(c0   tenv)), t = (nsLift mn(t   tenv))  |) )"
 
-"dlet_poly" : " \<And> extra_checks tvs mn tenv p e t0 bindings decls locs.
+
+inductive
+type_ds  :: " bool \<Rightarrow> type_env \<Rightarrow>(dec)list \<Rightarrow>(nat)set \<Rightarrow> type_env \<Rightarrow> bool "  
+      and
+type_d  :: " bool \<Rightarrow> type_env \<Rightarrow> dec \<Rightarrow>(nat)set \<Rightarrow> type_env \<Rightarrow> bool "  where
+
+"dlet_poly" : " \<And> extra_checks tvs tenv p e t0 bindings locs.
 is_value e \<and>
 (Lem_list.allDistinct (pat_bindings p []) \<and>
 (type_p tvs tenv p t0 bindings \<and>
@@ -1158,12 +853,13 @@ is_value e \<and>
     type_e tenv (bind_tvar tvs' Empty) e t') \<longrightarrow>
       list_all2 tscheme_inst (List.map snd (tenv_add_tvs tvs' bindings')) (List.map snd (tenv_add_tvs tvs bindings))))))))
 ==>
-type_d extra_checks mn decls tenv (Dlet locs p e)
-  empty_decls (| v0 = (alist_to_ns (tenv_add_tvs tvs bindings)), c0 = nsEmpty, t = nsEmpty |) "
+type_d extra_checks tenv (Dlet locs p e)
+  {}
+  (| v0 = (alist_to_ns (tenv_add_tvs tvs bindings)), c0 = nsEmpty, t = nsEmpty |) "
 
 |
 
-"dlet_mono" : " \<And> extra_checks mn tenv p e t0 bindings decls locs.
+"dlet_mono" : " \<And> extra_checks tenv p e t0 bindings locs.
 \<comment> \<open>\<open> The following line makes sure that when the value restriction prohibits
    generalisation, a type error is given rather than picking an arbitrary
    instantiation. However, we should only do the check when the extra_checks
@@ -1173,178 +869,193 @@ type_d extra_checks mn decls tenv (Dlet locs p e)
 (type_p(( 0 :: nat)) tenv p t0 bindings \<and>
 type_e tenv Empty e t0))
 ==>
-type_d extra_checks mn decls tenv (Dlet locs p e)
-  empty_decls (| v0 = (alist_to_ns (tenv_add_tvs(( 0 :: nat)) bindings)), c0 = nsEmpty, t = nsEmpty |) "
+type_d extra_checks tenv (Dlet locs p e)
+  {} (| v0 = (alist_to_ns (tenv_add_tvs(( 0 :: nat)) bindings)), c0 = nsEmpty, t = nsEmpty |) "
 
 |
 
-"dletrec" : " \<And> extra_checks mn tenv funs bindings tvs decls locs.
+"dletrec" : " \<And> extra_checks tenv funs bindings tvs locs.
 type_funs tenv (bind_var_list(( 0 :: nat)) bindings (bind_tvar tvs Empty)) funs bindings \<and>
 (extra_checks \<longrightarrow>
   ((\<forall> tvs'. \<forall> bindings'. 
     type_funs tenv (bind_var_list(( 0 :: nat)) bindings' (bind_tvar tvs' Empty)) funs bindings' \<longrightarrow>
       list_all2 tscheme_inst (List.map snd (tenv_add_tvs tvs' bindings')) (List.map snd (tenv_add_tvs tvs bindings)))))
 ==>
-type_d extra_checks mn decls tenv (Dletrec locs funs)
-  empty_decls (| v0 = (alist_to_ns (tenv_add_tvs tvs bindings)), c0 = nsEmpty, t = nsEmpty |) "
+type_d extra_checks tenv (Dletrec locs funs)
+  {} (| v0 = (alist_to_ns (tenv_add_tvs tvs bindings)), c0 = nsEmpty, t = nsEmpty |) "
 
 |
 
-"dtype" : " \<And> extra_checks mn tenv tdefs decls defined_types' decls' tenvT locs.
-check_ctor_tenv (nsAppend tenvT(t   tenv)) tdefs \<and>
-((defined_types' = List.set (List.map ( \<lambda>x .  
-  (case  x of (tvs,tn,ctors) => (mk_id mn tn) )) tdefs)) \<and>
-(disjnt defined_types'(defined_types0   decls) \<and>
-((tenvT = alist_to_ns (List.map ( \<lambda>x .  
+"dtype" : " \<And> extra_checks tenv tdefs type_identities tenvT locs.
+Lem_list.allDistinct type_identities \<and>
+(disjnt (List.set type_identities)
+         (List.set (Tlist_num # (Tbool_num # prim_type_nums))) \<and>
+(check_ctor_tenv (nsAppend tenvT(t   tenv)) tdefs \<and>
+((List.length type_identities = List.length tdefs) \<and>
+(tenvT = alist_to_ns (map2
+                      ( \<lambda>x .  
   (case  x of
-      (tvs,tn,ctors) => (tn, (tvs, Tapp (List.map Tvar tvs)
-                                     (TC_name (mk_id mn tn))))
-  )) tdefs)) \<and>
-(decls' = (| defined_mods0 = ({}), defined_types0 = defined_types', defined_exns = ({}) |)))))
+      (tvs,tn,ctors) => \<lambda> i . 
+                          (tn, (tvs, Tapp (List.map Tvar tvs) i))
+  ))
+                      tdefs type_identities)))))
 ==>
-type_d extra_checks mn decls tenv (Dtype locs tdefs)
-  decls' (| v0 = nsEmpty, c0 = (build_ctor_tenv mn (nsAppend tenvT(t   tenv)) tdefs), t = tenvT |) "
+type_d extra_checks tenv (Dtype locs tdefs)
+  (List.set type_identities)
+  (| v0 = nsEmpty, c0 = (build_ctor_tenv (nsAppend tenvT(t   tenv)) tdefs type_identities), t = tenvT |) "
 
 |
 
-"dtabbrev" : " \<And> extra_checks mn decls tenv tvs tn t0 locs.
-check_freevars(( 0 :: nat)) tvs t0 \<and>
+"dtabbrev" : " \<And> extra_checks tenv tvs tn t0 locs.
+check_freevars_ast tvs t0 \<and>
 (check_type_names(t   tenv) t0 \<and>
 Lem_list.allDistinct tvs)
 ==>
-type_d extra_checks mn decls tenv (Dtabbrev locs tvs tn t0)
-  empty_decls (| v0 = nsEmpty, c0 = nsEmpty,
-                 t = (nsSing tn (tvs,type_name_subst(t   tenv) t0)) |) "
+type_d extra_checks tenv (Dtabbrev locs tvs tn t0)
+  {}
+  (| v0 = nsEmpty, c0 = nsEmpty, t = (nsSing tn (tvs,type_name_subst(t   tenv) t0)) |) "
 
 |
 
-"dexn" : " \<And> extra_checks mn tenv cn ts decls decls' locs.
-check_exn_tenv mn cn ts \<and>
-(\<not> (mk_id mn cn \<in>(defined_exns   decls)) \<and>
-(((\<forall> x \<in> (set ts).  (check_type_names(t   tenv)) x)) \<and>
-(decls' = (| defined_mods0 = ({}), defined_types0 = ({}), defined_exns = ({mk_id mn cn}) |))))
+"dexn" : " \<And> extra_checks tenv cn ts locs.
+((\<forall> x \<in> (set ts).  (check_freevars_ast []) x)) \<and>
+((\<forall> x \<in> (set ts).  (check_type_names(t   tenv)) x))
 ==>
-type_d extra_checks mn decls tenv (Dexn locs cn ts)
-  decls' (| v0 = nsEmpty,
-            c0 = (nsSing cn ([], List.map (type_name_subst(t   tenv)) ts, TypeExn (mk_id mn cn))),
-            t = nsEmpty |) "
-
-inductive
-type_ds  :: " bool \<Rightarrow>(modN)list \<Rightarrow> decls \<Rightarrow> type_env \<Rightarrow>(dec)list \<Rightarrow> decls \<Rightarrow> type_env \<Rightarrow> bool "  where
-
-"empty" : " \<And> extra_checks mn tenv decls.
-
-type_ds extra_checks mn decls tenv []
-  empty_decls (| v0 = nsEmpty, c0 = nsEmpty, t = nsEmpty |) "
+type_d extra_checks tenv (Dexn locs cn ts)
+  {}
+  (| v0 = nsEmpty,
+     c0 = (nsSing cn ([], List.map (type_name_subst(t   tenv)) ts, Texn_num)),
+     t = nsEmpty |) "
 
 |
 
-"cons" : " \<And> extra_checks mn tenv d ds tenv1 tenv2 decls decls1 decls2.
-type_d extra_checks mn decls tenv d decls1 tenv1 \<and>
-type_ds extra_checks mn (union_decls decls1 decls) (extend_dec_tenv tenv1 tenv) ds decls2 tenv2
+"dmod" : " \<And> extra_checks tenv mn ds decls tenv'.
+type_ds extra_checks tenv ds decls tenv'
 ==>
-type_ds extra_checks mn decls tenv (d # ds)
-  (union_decls decls2 decls1) (extend_dec_tenv tenv2 tenv1)"
+type_d extra_checks tenv (Dmod mn ds) decls (tenvLift mn tenv')"
 
-inductive
-type_specs  :: "(modN)list \<Rightarrow> tenv_abbrev \<Rightarrow> specs \<Rightarrow> decls \<Rightarrow> type_env \<Rightarrow> bool "  where
+|
 
-"empty" : " \<And> mn tenvT.
+"dlocal" : " \<And> extra_checks tenv lds ds tenv1 tenv2 decls1 decls2.
+type_ds extra_checks tenv lds decls1 tenv1 \<and>
+(type_ds extra_checks (extend_dec_tenv tenv1 tenv) ds decls2 tenv2 \<and>
+disjnt decls1 decls2)
+==>
+type_d extra_checks tenv (Dlocal lds ds) (decls1 \<union> decls2) tenv2 "
 
+
+|
+
+"empty" : " \<And> extra_checks tenv.
+
+type_ds extra_checks tenv []
+  {}
+  (| v0 = nsEmpty, c0 = nsEmpty, t = nsEmpty |) "
+
+|
+
+"cons" : " \<And> extra_checks tenv d ds tenv1 tenv2 decls1 decls2.
+type_d extra_checks tenv d decls1 tenv1 \<and>
+(type_ds extra_checks (extend_dec_tenv tenv1 tenv) ds decls2 tenv2 \<and>
+disjnt decls1 decls2)
+==>
+type_ds extra_checks tenv (d # ds)
+  (decls1 \<union> decls2) (extend_dec_tenv tenv2 tenv1)"
+
+\<comment> \<open>\<open>
+indreln [type_specs : list modN -> tenv_abbrev -> specs -> decls -> type_env -> bool]
+
+empty : forall mn tenvT.
+true
+==>
 type_specs mn tenvT []
-  empty_decls (| v0 = nsEmpty, c0 = nsEmpty, t = nsEmpty |) "
+  empty_decls <| v = nsEmpty; c = nsEmpty; t = nsEmpty |>
 
-|
+and
 
-"sval" : " \<And> mn tenvT x t0 specs tenv fvs decls subst.
-check_freevars(( 0 :: nat)) fvs t0 \<and>
-(check_type_names tenvT t0 \<and>
-(type_specs mn tenvT specs decls tenv \<and>
-(subst = map_of (Lem_list_extra.zipSameLength fvs (List.map Tvar_db (genlist (\<lambda> x .  x) (List.length fvs)))))))
+sval : forall mn tenvT x t specs tenv fvs decls subst.
+check_freevars 0 fvs t &&
+check_type_names tenvT t &&
+type_specs mn tenvT specs decls tenv &&
+subst = alistToFmap (List_extra.zipSameLength fvs (List.map Tvar_db (genlist (fun x -> x) (List.length fvs))))
 ==>
-type_specs mn tenvT (Sval x t0 # specs)
+type_specs mn tenvT (Sval x t :: specs)
   decls
   (extend_dec_tenv tenv
-    (| v0 = (nsSing x (List.length fvs, type_subst subst (type_name_subst tenvT t0))),
-       c0 = nsEmpty,
-       t = nsEmpty |))"
+    <| v = nsSing x (List.length fvs, type_subst subst (type_name_subst tenvT t));
+       c = nsEmpty;
+       t = nsEmpty |>)
 
-|
+and
 
-"stype" : " \<And> mn tenvT tenv td specs decls' decls tenvT'.
-(tenvT' = alist_to_ns (List.map ( \<lambda>x .  
-  (case  x of
-      (tvs,tn,ctors) => (tn, (tvs, Tapp (List.map Tvar tvs)
-                                     (TC_name (mk_id mn tn))))
-  )) td)) \<and>
-(check_ctor_tenv (nsAppend tenvT' tenvT) td \<and>
-(type_specs mn (nsAppend tenvT' tenvT) specs decls tenv \<and>
-(decls' = (| defined_mods0 = ({}),
-            defined_types0 = (List.set (List.map ( \<lambda>x .  
-  (case  x of (tvs,tn,ctors) => (mk_id mn tn) )) td)),
-            defined_exns = ({}) |))))
+stype : forall mn tenvT tenv td specs decls' decls tenvT'.
+tenvT' = alist_to_ns (List.map (fun (tvs,tn,ctors) -> (tn, (tvs, Tapp (List.map Tvar tvs) (TC_name (mk_id mn tn))))) td) &&
+check_ctor_tenv (nsAppend tenvT' tenvT) td &&
+type_specs mn (nsAppend tenvT' tenvT) specs decls tenv &&
+decls' = <| defined_mods = {};
+            defined_types = Set.fromList (List.map (fun (tvs,tn,ctors) -> (mk_id mn tn)) td);
+            defined_exns = {} |>
 ==>
-type_specs mn tenvT (Stype td # specs)
+type_specs mn tenvT (Stype td :: specs)
   (union_decls decls decls')
   (extend_dec_tenv tenv
-   (| v0 = nsEmpty,
-      c0 = (build_ctor_tenv mn (nsAppend tenvT' tenvT) td),
-      t = tenvT' |))"
+   <| v = nsEmpty;
+      c = build_ctor_tenv mn (nsAppend tenvT' tenvT) td;
+      t = tenvT' |>)
 
-|
+and
 
-"stabbrev" : " \<And> mn tenvT tenvT' tvs tn t0 specs decls tenv.
-Lem_list.allDistinct tvs \<and>
-(check_freevars(( 0 :: nat)) tvs t0 \<and>
-(check_type_names tenvT t0 \<and>
-((tenvT' = nsSing tn (tvs,type_name_subst tenvT t0)) \<and>
-type_specs mn (nsAppend tenvT' tenvT) specs decls tenv)))
+stabbrev : forall mn tenvT tenvT' tvs tn t specs decls tenv.
+List.allDistinct tvs &&
+check_freevars 0 tvs t &&
+check_type_names tenvT t &&
+tenvT' = nsSing tn (tvs,type_name_subst tenvT t) &&
+type_specs mn (nsAppend tenvT' tenvT) specs decls tenv
 ==>
-type_specs mn tenvT (Stabbrev tvs tn t0 # specs)
-  decls (extend_dec_tenv tenv (| v0 = nsEmpty, c0 = nsEmpty, t = tenvT' |))"
+type_specs mn tenvT (Stabbrev tvs tn t :: specs)
+  decls (extend_dec_tenv tenv <| v = nsEmpty; c = nsEmpty; t = tenvT' |>)
 
-|
+and
 
-"sexn" : " \<And> mn tenvT tenv cn ts specs decls.
-check_exn_tenv mn cn ts \<and>
-(type_specs mn tenvT specs decls tenv \<and>
-((\<forall> x \<in> (set ts).  (check_type_names tenvT) x)))
+sexn : forall mn tenvT tenv cn ts specs decls.
+check_exn_tenv mn cn ts &&
+type_specs mn tenvT specs decls tenv &&
+List.all (check_type_names tenvT) ts
 ==>
-type_specs mn tenvT (Sexn cn ts # specs)
-  (union_decls decls (| defined_mods0 = ({}), defined_types0 = ({}), defined_exns = ({mk_id mn cn}) |))
+type_specs mn tenvT (Sexn cn ts :: specs)
+  (union_decls decls <| defined_mods = {}; defined_types = {}; defined_exns = {mk_id mn cn} |>)
   (extend_dec_tenv tenv
-   (| v0 = nsEmpty,
-      c0 = (nsSing cn ([], List.map (type_name_subst tenvT) ts, TypeExn (mk_id mn cn))),
-      t = nsEmpty |))"
+   <| v = nsEmpty;
+      c = nsSing cn ([], List.map (type_name_subst tenvT) ts, TypeExn (mk_id mn cn));
+      t = nsEmpty |>)
 
-|
+and
 
-"stype_opq" : " \<And> mn tenvT tenv tn specs tvs decls tenvT'.
-Lem_list.allDistinct tvs \<and>
-((tenvT' = nsSing tn (tvs, Tapp (List.map Tvar tvs) (TC_name (mk_id mn tn)))) \<and>
-type_specs mn (nsAppend tenvT' tenvT) specs decls tenv)
+stype_opq : forall mn tenvT tenv tn specs tvs decls tenvT'.
+List.allDistinct tvs &&
+tenvT' = nsSing tn (tvs, Tapp (List.map Tvar tvs) (TC_name (mk_id mn tn))) &&
+type_specs mn (nsAppend tenvT' tenvT) specs decls tenv
 ==>
-type_specs mn tenvT (Stype_opq tvs tn # specs)
-  (union_decls decls (| defined_mods0 = ({}), defined_types0 = ({mk_id mn tn}), defined_exns = ({}) |))
-  (extend_dec_tenv tenv (| v0 = nsEmpty, c0 = nsEmpty, t = tenvT' |))"
+type_specs mn tenvT (Stype_opq tvs tn :: specs)
+  (union_decls decls <| defined_mods = {}; defined_types = {mk_id mn tn}; defined_exns = {} |>)
+  (extend_dec_tenv tenv <| v = nsEmpty; c = nsEmpty; t = tenvT' |>)
 
-\<comment> \<open>\<open>val weak_decls : decls -> decls -> bool\<close>\<close>
-definition weak_decls  :: " decls \<Rightarrow> decls \<Rightarrow> bool "  where 
-     " weak_decls decls_impl decls_spec = (
-  ((defined_mods0   decls_impl) =(defined_mods0   decls_spec)) \<and>
-  (((defined_types0   decls_spec) \<subseteq>(defined_types0   decls_impl)) \<and>
-  ((defined_exns   decls_spec) \<subseteq>(defined_exns   decls_impl))))"
+val weak_decls : decls -> decls -> bool
+let weak_decls decls_impl decls_spec =
+  decls_impl.defined_mods = decls_spec.defined_mods &&
+  decls_spec.defined_types subset decls_impl.defined_types &&
+  decls_spec.defined_exns subset decls_impl.defined_exns
+   \<close>\<close>
 
-
-\<comment> \<open>\<open>val weak_tenvT : id modN typeN -> (list tvarN * t) -> (list tvarN * t) -> bool\<close>\<close>
-fun weak_tenvT  :: "((modN),(typeN))id0 \<Rightarrow>(string)list*t \<Rightarrow>(string)list*t \<Rightarrow> bool "  where 
-     " weak_tenvT n (tvs_spec, t_spec) (tvs_impl, t_impl) = (
-  (
-  \<comment> \<open>\<open> For simplicity, we reject matches that differ only by renaming of bound type variables \<close>\<close>tvs_spec = tvs_impl) \<and>
-  ((t_spec = t_impl) \<or>
-   (
-   \<comment> \<open>\<open> The specified type is opaque \<close>\<close>t_spec = Tapp (List.map Tvar tvs_spec) (TC_name n))))"
-
+\<comment> \<open>\<open>
+val weak_tenvT : id modN typeN -> (list tvarN * t) -> (list tvarN * t) -> bool
+let weak_tenvT n (tvs_spec, t_spec) (tvs_impl, t_impl) =
+  \<open> For simplicity, we reject matches that differ only by renaming of bound type variables \<close>
+  tvs_spec = tvs_impl &&
+  (t_spec = t_impl ||
+   \<open> The specified type is opaque \<close>
+   t_spec = Tapp (List.map Tvar tvs_spec) (TC_name n))
+   \<close>\<close>
 
 definition tscheme_inst2  :: " 'a \<Rightarrow> nat*t \<Rightarrow> nat*t \<Rightarrow> bool "  where 
      " tscheme_inst2 _ ts1 ts2 = ( tscheme_inst ts1 ts2 )"
@@ -1354,64 +1065,63 @@ definition tscheme_inst2  :: " 'a \<Rightarrow> nat*t \<Rightarrow> nat*t \<Righ
 definition weak_tenv  :: " type_env \<Rightarrow> type_env \<Rightarrow> bool "  where 
      " weak_tenv tenv_impl tenv_spec = (
   nsSub tscheme_inst2(v0   tenv_spec)(v0   tenv_impl) \<and>
-  (nsSub ( \<lambda>x .  
-  (case  x of _ => \<lambda> x y .  x = y ))(c0   tenv_spec)(c0   tenv_impl) \<and>
-  nsSub weak_tenvT(t   tenv_spec)(t   tenv_impl)))"
+  nsSub ( \<lambda>x .  
+  (case  x of _ => \<lambda> x y .  x = y ))(c0   tenv_spec)(c0   tenv_impl))"
+\<comment> \<open>\<open> &&
+  nsSub weak_tenvT tenv_spec.t tenv_impl.t\<close>\<close>
 
+\<comment> \<open>\<open>
+indreln [check_signature : list modN -> tenv_abbrev -> decls -> type_env -> maybe specs -> decls -> type_env -> bool]
 
-inductive
-check_signature  :: "(modN)list \<Rightarrow> tenv_abbrev \<Rightarrow> decls \<Rightarrow> type_env \<Rightarrow>(specs)option \<Rightarrow> decls \<Rightarrow> type_env \<Rightarrow> bool "  where
-
-"none" : " \<And> mn tenvT decls tenv.
-
-check_signature mn tenvT decls tenv None decls tenv "
-
-|
-
-"some" : " \<And> mn specs tenv_impl tenv_spec decls_impl decls_spec tenvT.
-weak_tenv tenv_impl tenv_spec \<and>
-(weak_decls decls_impl decls_spec \<and>
-type_specs mn tenvT specs decls_spec tenv_spec)
+none : forall mn tenvT decls tenv.
+true
 ==>
-check_signature mn tenvT decls_impl tenv_impl (Some specs) decls_spec tenv_spec "
+check_signature mn tenvT decls tenv Nothing decls tenv
 
-definition tenvLift  :: " string \<Rightarrow> type_env \<Rightarrow> type_env "  where 
-     " tenvLift mn tenv = (
-  (| v0 = (nsLift mn(v0   tenv)), c0 = (nsLift mn(c0   tenv)), t = (nsLift mn(t   tenv))  |) )"
+and
 
+some : forall mn specs tenv_impl tenv_spec decls_impl decls_spec tenvT.
+weak_tenv tenv_impl tenv_spec &&
+weak_decls decls_impl decls_spec &&
+type_specs mn tenvT specs decls_spec tenv_spec
+==>
+check_signature mn tenvT decls_impl tenv_impl (Just specs) decls_spec tenv_spec
 
-inductive
-type_top  :: " bool \<Rightarrow> decls \<Rightarrow> type_env \<Rightarrow> top0 \<Rightarrow> decls \<Rightarrow> type_env \<Rightarrow> bool "  where
+let tenvLift mn tenv =
+  <| v = nsLift mn tenv.v; c = nsLift mn tenv.c; t = nsLift mn tenv.t; |>
 
-"tdec" : " \<And> extra_checks tenv d tenv' decls decls'.
+indreln [type_top : bool -> decls -> type_env -> top -> decls -> type_env -> bool]
+
+tdec : forall extra_checks tenv d tenv' decls decls'.
 type_d extra_checks [] decls tenv d decls' tenv'
 ==>
-type_top extra_checks decls tenv (Tdec d) decls' tenv' "
+type_top extra_checks decls tenv (Tdec d) decls' tenv'
 
-|
+and
 
-"tmod" : " \<And> extra_checks tenv mn spec ds tenv_impl tenv_spec decls decls_impl decls_spec.
-\<not> ([mn] \<in>(defined_mods0   decls)) \<and>
-(type_ds extra_checks [mn] decls tenv ds decls_impl tenv_impl \<and>
-check_signature [mn](t   tenv) decls_impl tenv_impl spec decls_spec tenv_spec)
+tmod : forall extra_checks tenv mn spec ds tenv_impl tenv_spec decls decls_impl decls_spec.
+not ([mn] IN decls.defined_mods) &&
+type_ds extra_checks [mn] decls tenv ds decls_impl tenv_impl &&
+check_signature [mn] tenv.t decls_impl tenv_impl spec decls_spec tenv_spec
 ==>
 type_top extra_checks decls tenv (Tmod mn spec ds)
-  (union_decls (| defined_mods0 = ({[mn]}), defined_types0 = ({}), defined_exns = ({}) |) decls_spec)
-  (tenvLift mn tenv_spec)"
+  (union_decls <| defined_mods = {[mn]}; defined_types = {}; defined_exns = {} |> decls_spec)
+  (tenvLift mn tenv_spec)
 
-inductive
-type_prog  :: " bool \<Rightarrow> decls \<Rightarrow> type_env \<Rightarrow>(top0)list \<Rightarrow> decls \<Rightarrow> type_env \<Rightarrow> bool "  where
+indreln [type_prog : bool -> decls -> type_env -> list top -> decls -> type_env -> bool]
 
-"empty" : " \<And> extra_checks tenv decls.
+empty : forall extra_checks tenv decls.
+true
+==>
+type_prog extra_checks decls tenv [] empty_decls <| v = nsEmpty; c = nsEmpty; t = nsEmpty |>
 
-type_prog extra_checks decls tenv [] empty_decls (| v0 = nsEmpty, c0 = nsEmpty, t = nsEmpty |) "
+and
 
-|
-
-"cons" : " \<And> extra_checks tenv top0 tops tenv1 tenv2 decls decls1 decls2.
-type_top extra_checks decls tenv top0 decls1 tenv1 \<and>
+cons : forall extra_checks tenv top tops tenv1 tenv2 decls decls1 decls2.
+type_top extra_checks decls tenv top decls1 tenv1 &&
 type_prog extra_checks (union_decls decls1 decls) (extend_dec_tenv tenv1 tenv) tops decls2 tenv2
 ==>
-type_prog extra_checks decls tenv (top0 # tops)
-  (union_decls decls2 decls1) (extend_dec_tenv tenv2 tenv1)"
+type_prog extra_checks decls tenv (top :: tops)
+  (union_decls decls2 decls1) (extend_dec_tenv tenv2 tenv1)
+  \<close>\<close>
 end

@@ -9,8 +9,11 @@ imports
 
 begin 
 
+\<comment> \<open>\<open>
+  The tokens of CakeML concrete syntax.
+  Some tokens are from Standard ML and not used in CakeML.
+\<close>\<close>
 \<comment> \<open>\<open>open import Pervasives_extra\<close>\<close>
-\<comment> \<open>\<open> Tokens for Standard ML.  NB, not all of them are used in CakeML \<close>\<close>
 datatype token =
   WhitespaceT " nat " | NewlineT | LexErrorT
 | HashT | LparT | RparT | StarT | CommaT | ArrowT | DotsT | ColonT | SealT
@@ -18,7 +21,7 @@ datatype token =
 | BarT | RbraceT | AndT | AndalsoT | AsT | CaseT | DatatypeT
 | ElseT | EndT | EqtypeT | ExceptionT | FnT | FunT | HandleT | IfT
 | InT | IncludeT | LetT | LocalT | OfT | OpT
-| OpenT | OrelseT | RaiseT | RecT | RefT | SharingT | SigT | SignatureT | StructT
+| OpenT | OrelseT | RaiseT | RecT | SharingT | SigT | SignatureT | StructT
 | StructureT | ThenT | TypeT | ValT | WhereT | WhileT | WithT | WithtypeT
 | IntT " int "
 | HexintT " string "

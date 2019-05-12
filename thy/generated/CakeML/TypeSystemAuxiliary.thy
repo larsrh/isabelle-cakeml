@@ -23,6 +23,8 @@ begin
 
 termination check_freevars by lexicographic_order
 
+termination check_freevars_ast by lexicographic_order
+
 termination type_subst by lexicographic_order
 
 termination deBruijn_inc by lexicographic_order

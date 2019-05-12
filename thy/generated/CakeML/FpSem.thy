@@ -11,6 +11,9 @@ imports
 
 begin 
 
+\<comment> \<open>\<open>
+  Definitions of the floating point operations used in CakeML.
+\<close>\<close>
 \<comment> \<open>\<open>open import Pervasives\<close>\<close>
 \<comment> \<open>\<open>open import Lib\<close>\<close>
 

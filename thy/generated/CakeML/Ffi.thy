@@ -11,14 +11,18 @@ imports
 
 begin 
 
+\<comment> \<open>\<open>
+  An oracle says how to perform an ffi call based on its internal
+  state, represented by the type variable 'ffi.
+\<close>\<close>
 \<comment> \<open>\<open>open import Pervasives\<close>\<close>
 \<comment> \<open>\<open>open import Pervasives_extra\<close>\<close>
 \<comment> \<open>\<open>open import Lib\<close>\<close>
 
-\<comment> \<open>\<open> An oracle says how to perform an ffi call based on its internal state,
-* represented by the type variable 'ffi. \<close>\<close>
 
-datatype 'ffi oracle_result = Oracle_return " 'ffi " " 8 word list " | Oracle_diverge | Oracle_fail
+datatype ffi_outcome = FFI_failed | FFI_diverged
+
+datatype 'ffi oracle_result = Oracle_return " 'ffi " " 8 word list " | Oracle_final " ffi_outcome "
 type_synonym 'ffi oracle_function =" 'ffi \<Rightarrow> 8 word list \<Rightarrow> 8 word list \<Rightarrow> 'ffi oracle_result "
 type_synonym 'ffi oracle0 =" string \<Rightarrow> 'ffi oracle_function "
 
@@ -28,7 +32,6 @@ type_synonym 'ffi oracle0 =" string \<Rightarrow> 'ffi oracle_function "
 
 datatype io_event = IO_event " string " " 8 word list " " ( (8 word * 8 word)list)"
 
-datatype ffi_outcome = FFI_diverged | FFI_failed
 datatype final_event = Final_event " string " " 8 word list " " 8 word list " " ffi_outcome "
 
 datatype_record 'ffi ffi_state =
@@ -36,8 +39,6 @@ datatype_record 'ffi ffi_state =
  oracle0      ::" 'ffi oracle0 "
  
  ffi_state   ::" 'ffi "
- 
- final_event ::"  final_event option "
  
  io_events   ::" io_event list "
  
@@ -48,30 +49,31 @@ definition initial_ffi_state  :: "(string \<Rightarrow> 'ffi oracle_function)\<R
      " initial_ffi_state oc ffi1 = (
 (| oracle0      = oc
  , ffi_state   = ffi1
- , final_event = None
  , io_events   = ([])
  |) )"
 
 
-\<comment> \<open>\<open>val call_FFI : forall 'ffi. ffi_state 'ffi -> string -> list word8 -> list word8 -> ffi_state 'ffi * list word8\<close>\<close>
-definition call_FFI  :: " 'ffi ffi_state \<Rightarrow> string \<Rightarrow>(8 word)list \<Rightarrow>(8 word)list \<Rightarrow> 'ffi ffi_state*(8 word)list "  where 
+datatype 'ffi ffi_result = FFI_return " 'ffi ffi_state " " 8 word list " | FFI_final " final_event "
+
+\<comment> \<open>\<open>val call_FFI : forall 'ffi. ffi_state 'ffi -> string -> list word8 -> list word8 -> ffi_result 'ffi\<close>\<close>
+definition call_FFI  :: " 'ffi ffi_state \<Rightarrow> string \<Rightarrow>(8 word)list \<Rightarrow>(8 word)list \<Rightarrow> 'ffi ffi_result "  where 
      " call_FFI st s conf bytes = (
-  if ((final_event   st) = None) \<and> \<not> (s = ('''')) then
+  if \<not> (s = ('''')) then
     (case (oracle0   st) s(ffi_state   st) conf bytes of
       Oracle_return ffi' bytes' =>
         if List.length bytes' = List.length bytes then
-          (( st (| ffi_state := ffi'
+          (FFI_return
+            ( st (| ffi_state := ffi'
                     , io_events :=
                         ((io_events   st) @
                           [IO_event s conf (zipSameLength bytes bytes')])
-            |)), bytes')
-        else (( st (| final_event := (Some (Final_event s conf bytes FFI_failed)) |)), bytes)
-    | Oracle_diverge =>
-          (( st (| final_event := (Some (Final_event s conf bytes FFI_diverged)) |)), bytes)
-    | Oracle_fail =>
-        (( st (| final_event := (Some (Final_event s conf bytes FFI_failed)) |)), bytes)
+            |))
+            bytes')
+        else FFI_final(Final_event s conf bytes FFI_failed)
+    | Oracle_final outcome =>
+          FFI_final(Final_event s conf bytes outcome)
     )
-  else (st, bytes))"
+  else FFI_return st bytes )"
 
 
 datatype outcome = Success | Resource_limit_hit | FFI_outcome " final_event "
@@ -79,7 +81,7 @@ datatype outcome = Success | Resource_limit_hit | FFI_outcome " final_event "
 \<comment> \<open>\<open> A program can Diverge, Terminate, or Fail. We prove that Fail is
    avoided. For Diverge and Terminate, we keep track of what I/O
    events are valid I/O events for this behaviour. \<close>\<close>
-datatype  behaviour =
+datatype 'ffi behaviour =
     \<comment> \<open>\<open> There cannot be any non-returning FFI calls in a diverging
        exeuction. The list of I/O events can be finite or infinite,
        hence the llist (lazy list) type. \<close>\<close>
@@ -102,8 +104,8 @@ definition trace_oracle  :: " string \<Rightarrow>(io_event)llist \<Rightarrow>(
     Some (IO_event s' conf' bytes2) =>
       if (s = s') \<and> ((List.map fst bytes2 = input1) \<and> (conf = conf')) then
         Oracle_return (Option.the (ltl' io_trace)) (List.map snd bytes2)
-      else Oracle_fail
-  | _ => Oracle_fail
+      else Oracle_final FFI_failed
+  | _ => Oracle_final FFI_failed
   ))"
 
 end

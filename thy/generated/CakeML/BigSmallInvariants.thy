@@ -15,6 +15,10 @@ imports
 
 begin 
 
+\<comment> \<open>\<open>
+  Invariants used in the proof relating the big-step and small-step
+  version of the CakeML source semantics.
+\<close>\<close>
 \<comment> \<open>\<open>open import Pervasives\<close>\<close>
 \<comment> \<open>\<open>open import Lib\<close>\<close>
 \<comment> \<open>\<open>open import Namespace\<close>\<close>
@@ -202,8 +206,8 @@ inductive
 evaluate_state  :: " 'ffi small_state \<Rightarrow> 'ffi state*((v),(v))result \<Rightarrow> bool "  where
 
 "exp" : " \<And> env e c1 res bv ffi0 refs0 st.
-evaluate False env  (| clock =(( 0 :: nat)), refs = refs0, ffi = ffi0, defined_types = ({}), defined_mods = 
- ({})  |) e (st, res) \<and>
+evaluate False env  (| clock =(( 0 :: nat)), refs = refs0, ffi = ffi0, next_type_stamp =
+ (( 0 :: nat)), next_exn_stamp =(( 0 :: nat))  |) e (st, res) \<and>
 evaluate_ctxts st c1 res bv
 ==>
 evaluate_state (env, (refs0, ffi0), Exp e, c1) bv "
@@ -211,8 +215,8 @@ evaluate_state (env, (refs0, ffi0), Exp e, c1) bv "
 |
 
 "vl" : " \<And> env ffi0 refs0 v1 c1 bv.
-evaluate_ctxts  (| clock =(( 0 :: nat)), refs = refs0, ffi = ffi0, defined_types = ({}), defined_mods = 
- ({})  |) c1 (Rval v1) bv
+evaluate_ctxts  (| clock =(( 0 :: nat)), refs = refs0, ffi = ffi0, next_type_stamp =
+ (( 0 :: nat)), next_exn_stamp =(( 0 :: nat))  |) c1 (Rval v1) bv
 ==>
 evaluate_state (env, (refs0, ffi0), Val v1, c1) bv "
 end

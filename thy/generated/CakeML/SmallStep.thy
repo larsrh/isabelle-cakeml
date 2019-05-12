@@ -14,6 +14,10 @@ imports
 
 begin 
 
+\<comment> \<open>\<open>
+  A small-step semantics for CakeML. This semantics is no longer used
+  in the CakeML development.
+\<close>\<close>
 \<comment> \<open>\<open>open import Pervasives_extra\<close>\<close>
 \<comment> \<open>\<open>open import Lib\<close>\<close>
 \<comment> \<open>\<open>open import Ast\<close>\<close>
@@ -40,7 +44,7 @@ datatype ctxt_frame =
   \<comment> \<open>\<open> Evaluating a constructor's arguments
    * The v list should be in reverse order. \<close>\<close>
   | Ccon "  ( (modN, conN)id0)option " " v list " " unit " " exp0 list "
-  | Ctannot " unit " " t "
+  | Ctannot " unit " " ast_t "
   | Clannot " unit " " locs "
 type_synonym ctxt =" ctxt_frame * v sem_env "
 
@@ -200,7 +204,7 @@ fun e_step  :: "(v)sem_env*((v)store*'ffi ffi_state)*exp_or_val*(ctxt)list \<Rig
               )
           | Log l e1 e2 => push env s e1 (Clog l ()  e2) c2
           | If e1 e2 e3 => push env s e1 (Cif ()  e2 e3) c2
-          | Mat e pes => push env s e (Cmat ()  pes (Conv (Some ((''Bind''), TypeExn (Short (''Bind'')))) [])) c2
+          | Mat e pes => push env s e (Cmat ()  pes bind_exn_v) c2
           | Let n e1 e2 => push env s e1 (Clet n ()  e2) c2
           | Letrec funs e =>
               if \<not> (allDistinct (List.map ( \<lambda>x .  

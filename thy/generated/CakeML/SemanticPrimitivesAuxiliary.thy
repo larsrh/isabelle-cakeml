@@ -6,13 +6,13 @@ imports
   Main
   "HOL-Library.Datatype_Records"
   "LEM.Lem_pervasives"
-  "LEM.Lem_list_extra"
-  "LEM.Lem_string"
   "Lib"
   "Namespace"
   "Ast"
   "Ffi"
   "FpSem"
+  "LEM.Lem_list_extra"
+  "LEM.Lem_string"
   "LEM.Lem_string_extra"
   "SemanticPrimitives"
 
@@ -30,6 +30,8 @@ termination pmatch by lexicographic_order
 termination do_eq by lexicographic_order
 
 termination v_to_list by lexicographic_order
+
+termination list_to_v by lexicographic_order
 
 termination v_to_char_list by lexicographic_order
 

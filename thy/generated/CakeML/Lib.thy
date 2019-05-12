@@ -6,8 +6,6 @@ imports
   Main
   "HOL-Library.Datatype_Records"
   "LEM.Lem_pervasives"
-  "LEM.Lem_list_extra"
-  "LEM.Lem_string"
   "Coinductive.Coinductive_List"
 
 begin 
@@ -15,9 +13,8 @@ begin
 \<comment> \<open>\<open>
    Extensions to Lem's built-in library to target things we need in HOL.
 \<close>\<close>
+
 \<comment> \<open>\<open>open import Pervasives\<close>\<close>
-\<comment> \<open>\<open>import List_extra\<close>\<close>
-\<comment> \<open>\<open>import String\<close>\<close>
 
 \<comment> \<open>\<open> TODO: look for these in the built-in library \<close>\<close>
 
@@ -26,6 +23,7 @@ begin
 \<comment> \<open>\<open>val disjoint : forall 'a. set 'a -> set 'a -> bool\<close>\<close>
 
 \<comment> \<open>\<open>val all2 : forall 'a 'b. ('a -> 'b -> bool) -> list 'a -> list 'b -> bool\<close>\<close>
+\<comment> \<open>\<open>val map2 : forall 'a 'b 'c. ('a -> 'b -> 'c) -> list 'a -> list 'b -> list 'c\<close>\<close>
 
 fun  the  :: " 'a \<Rightarrow> 'a option \<Rightarrow> 'a "  where 
      " the _ (Some x) = ( x )" |" the x None = ( x )"

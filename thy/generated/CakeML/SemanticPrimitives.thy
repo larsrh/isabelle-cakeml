@@ -6,17 +6,21 @@ imports
   Main
   "HOL-Library.Datatype_Records"
   "LEM.Lem_pervasives"
-  "LEM.Lem_list_extra"
-  "LEM.Lem_string"
   "Lib"
   "Namespace"
   "Ast"
   "Ffi"
   "FpSem"
+  "LEM.Lem_list_extra"
+  "LEM.Lem_string"
   "LEM.Lem_string_extra"
 
 begin 
 
+\<comment> \<open>\<open>
+  Definitions of semantic primitives (e.g., values, and functions for doing
+  primitive operations) used in the semantics.
+\<close>\<close>
 \<comment> \<open>\<open>open import Pervasives\<close>\<close>
 \<comment> \<open>\<open>open import Lib\<close>\<close>
 \<comment> \<open>\<open>import List_extra\<close>\<close>
@@ -27,32 +31,33 @@ begin
 \<comment> \<open>\<open>open import Ffi\<close>\<close>
 \<comment> \<open>\<open>open import FpSem\<close>\<close>
 
-\<comment> \<open>\<open> The type that a constructor builds is either a named datatype or an exception.
- * For exceptions, we also keep the module that the exception was declared in. \<close>\<close>
-datatype tid_or_exn =
-    TypeId " (modN, typeN) id0 "
-  | TypeExn " (modN, conN) id0 "
+\<comment> \<open>\<open> Constructors and exceptions need unique identities, which we represent by stamps. \<close>\<close>
+datatype stamp =
+  \<comment> \<open>\<open> Each type gets a unique number, and the constructor name must be unique
+     inside of the type \<close>\<close>
+    TypeStamp " conN " " nat "
+  | ExnStamp " nat "
 
-\<comment> \<open>\<open>val type_defs_to_new_tdecs : list modN -> type_def -> set tid_or_exn\<close>\<close>
-definition type_defs_to_new_tdecs  :: "(string)list \<Rightarrow>((tvarN)list*string*(conN*(t)list)list)list \<Rightarrow>(tid_or_exn)set "  where 
-     " type_defs_to_new_tdecs mn tdefs = (
-  List.set (List.map ( \<lambda>x .  
-  (case  x of (tvs,tn,ctors) => TypeId (mk_id mn tn) )) tdefs))"
-
+\<comment> \<open>\<open>
+val type_defs_to_new_tdecs : list modN -> type_def -> set tid_or_exn
+let type_defs_to_new_tdecs mn tdefs =
+  Set.fromList (List.map (fun (tvs,tn,ctors) -> TypeId (mk_id mn tn)) tdefs)
+\<close>\<close>
 
 datatype_record 'v sem_env =
   
  v ::" (modN, varN, 'v) namespace "
+   \<comment> \<open>\<open> Lexical mapping of constructor idents to arity, stamp pairs \<close>\<close>
    
- c ::" (modN, conN, (nat * tid_or_exn)) namespace "
+ c ::" (modN, conN, (nat * stamp)) namespace "
    
 
 
 \<comment> \<open>\<open> Value forms \<close>\<close>
 datatype v =
     Litv " lit "
-  \<comment> \<open>\<open> Constructor application. \<close>\<close>
-  | Conv "  (conN * tid_or_exn)option " " v list "
+  \<comment> \<open>\<open> Constructor application. Can be a tuple or a given constructor of a given type \<close>\<close>
+  | Conv "  stamp option " " v list "
   \<comment> \<open>\<open> Function closures
      The environment is used for the free variables in the function \<close>\<close>
   | Closure " v sem_env " " varN " " exp0 "
@@ -64,17 +69,47 @@ datatype v =
   | Loc " nat "
   | Vectorv " v list "
 
-type_synonym env_ctor =" (modN, conN, (nat * tid_or_exn)) namespace "
+type_synonym env_ctor =" (modN, conN, (nat * stamp)) namespace "
 type_synonym env_val =" (modN, varN, v) namespace "
 
-definition Bindv  :: " v "  where 
-     " Bindv = ( Conv (Some((''Bind''),TypeExn(Short(''Bind'')))) [])"
+definition bind_stamp  :: " stamp "  where 
+     " bind_stamp = ( ExnStamp(( 0 :: nat)))"
+
+definition chr_stamp  :: " stamp "  where 
+     " chr_stamp = ( ExnStamp(( 1 :: nat)))"
+
+definition div_stamp  :: " stamp "  where 
+     " div_stamp = ( ExnStamp(( 2 :: nat)))"
+
+definition subscript_stamp  :: " stamp "  where 
+     " subscript_stamp = ( ExnStamp(( 3 :: nat)))"
+
+
+definition bind_exn_v  :: " v "  where 
+     " bind_exn_v = ( Conv (Some bind_stamp) [])"
+
+definition chr_exn_v  :: " v "  where 
+     " chr_exn_v = ( Conv (Some chr_stamp) [])"
+
+definition div_exn_v  :: " v "  where 
+     " div_exn_v = ( Conv (Some div_stamp) [])"
+
+definition sub_exn_v  :: " v "  where 
+     " sub_exn_v = ( Conv (Some subscript_stamp) [])"
+
+
+definition bool_type_num  :: " nat "  where 
+     " bool_type_num = (( 0 :: nat))"
+
+definition list_type_num  :: " nat "  where 
+     " list_type_num = (( 1 :: nat))"
 
 
 \<comment> \<open>\<open> The result of evaluation \<close>\<close>
 datatype abort =
     Rtype_error
   | Rtimeout_error
+  | Rffi_error " final_event "
 
 datatype 'a error_result =
     Rraise " 'a " \<comment> \<open>\<open> Should only be a value of type exn \<close>\<close>
@@ -146,32 +181,32 @@ datatype_record 'ffi state =
    
  ffi ::" 'ffi ffi_state "
    
- defined_types ::" tid_or_exn set "
+ next_type_stamp ::" nat "
    
- defined_mods ::" ( modN list) set "
+ next_exn_stamp ::" nat "
    
 
 
 \<comment> \<open>\<open> Other primitives \<close>\<close>
 \<comment> \<open>\<open> Check that a constructor is properly applied \<close>\<close>
 \<comment> \<open>\<open>val do_con_check : env_ctor -> maybe (id modN conN) -> nat -> bool\<close>\<close>
-fun do_con_check  :: "((string),(string),(nat*tid_or_exn))namespace \<Rightarrow>(((string),(string))id0)option \<Rightarrow> nat \<Rightarrow> bool "  where 
+fun do_con_check  :: "((string),(string),(nat*stamp))namespace \<Rightarrow>(((string),(string))id0)option \<Rightarrow> nat \<Rightarrow> bool "  where 
      " do_con_check cenv None l = ( True )"
 |" do_con_check cenv (Some n) l = (
         (case  nsLookup cenv n of
             None => False
-          | Some (l',ns) => l = l'
+          | Some (l',_) => l = l'
         ))"
 
 
 \<comment> \<open>\<open>val build_conv : env_ctor -> maybe (id modN conN) -> list v -> maybe v\<close>\<close>
-fun build_conv  :: "((string),(string),(nat*tid_or_exn))namespace \<Rightarrow>(((string),(string))id0)option \<Rightarrow>(v)list \<Rightarrow>(v)option "  where 
+fun build_conv  :: "((string),(string),(nat*stamp))namespace \<Rightarrow>(((string),(string))id0)option \<Rightarrow>(v)list \<Rightarrow>(v)option "  where 
      " build_conv envC None vs = (
         Some (Conv None vs))"
 |" build_conv envC (Some id1) vs = (
         (case  nsLookup envC id1 of
             None => None
-          | Some (len,t1) => Some (Conv (Some (id_to_n id1, t1)) vs)
+          | Some (len,stamp) => Some (Conv (Some stamp) vs)
         ))"
 
 
@@ -193,25 +228,24 @@ datatype 'a match_result =
   | Match_type_error
   | Match " 'a "
 
-\<comment> \<open>\<open>val same_tid : tid_or_exn -> tid_or_exn -> bool\<close>\<close>
-fun  same_tid  :: " tid_or_exn \<Rightarrow> tid_or_exn \<Rightarrow> bool "  where 
-     " same_tid (TypeId tn1) (TypeId tn2) = ( tn1 = tn2 )"
-|" same_tid (TypeExn _) (TypeExn _) = ( True )"
-|" same_tid _ _ = ( False )"
+\<comment> \<open>\<open>val same_type : stamp -> stamp -> bool\<close>\<close>
+fun  same_type  :: " stamp \<Rightarrow> stamp \<Rightarrow> bool "  where 
+     " same_type (TypeStamp _ n1) (TypeStamp _ n2) = ( n1 = n2 )"
+|" same_type (ExnStamp _) (ExnStamp _) = ( True )"
+|" same_type _ _ = ( False )"
 
 
-\<comment> \<open>\<open>val same_ctor : conN * tid_or_exn -> conN * tid_or_exn -> bool\<close>\<close>
-fun  same_ctor  :: " string*tid_or_exn \<Rightarrow> string*tid_or_exn \<Rightarrow> bool "  where 
-     " same_ctor (cn1, TypeExn mn1) (cn2, TypeExn mn2) = ( (cn1 = cn2) \<and> (mn1 = mn2))"
-|" same_ctor (cn1, _) (cn2, _) = ( cn1 = cn2 )"
+\<comment> \<open>\<open>val same_ctor : stamp -> stamp -> bool\<close>\<close>
+definition same_ctor  :: " stamp \<Rightarrow> stamp \<Rightarrow> bool "  where 
+     " same_ctor stamp1 stamp2 = ( stamp1 = stamp2 )"
 
 
-\<comment> \<open>\<open>val ctor_same_type : maybe (conN * tid_or_exn) -> maybe (conN * tid_or_exn) -> bool\<close>\<close>
-definition ctor_same_type  :: "(string*tid_or_exn)option \<Rightarrow>(string*tid_or_exn)option \<Rightarrow> bool "  where 
+\<comment> \<open>\<open>val ctor_same_type : maybe stamp -> maybe stamp -> bool\<close>\<close>
+definition ctor_same_type  :: "(stamp)option \<Rightarrow>(stamp)option \<Rightarrow> bool "  where 
      " ctor_same_type c1 c2 = (
   (case  (c1,c2) of
       (None, None) => True
-    | (Some (_,t1), Some (_,t2)) => same_tid t1 t2
+    | (Some stamp1, Some stamp2) => same_type stamp1 stamp2
     | _ => False
   ))"
 
@@ -226,9 +260,9 @@ definition ctor_same_type  :: "(string*tid_or_exn)option \<Rightarrow>(string*ti
  * when one of these conditions is violated \<close>\<close>
 \<comment> \<open>\<open>val pmatch : env_ctor -> store v -> pat -> v -> alist varN v -> match_result (alist varN v)\<close>\<close>
 function (sequential,domintros) 
-pmatch_list  :: "((string),(string),(nat*tid_or_exn))namespace \<Rightarrow>((v)store_v)list \<Rightarrow>(pat)list \<Rightarrow>(v)list \<Rightarrow>(string*v)list \<Rightarrow>((string*v)list)match_result "  
+pmatch_list  :: "((string),(string),(nat*stamp))namespace \<Rightarrow>((v)store_v)list \<Rightarrow>(pat)list \<Rightarrow>(v)list \<Rightarrow>(string*v)list \<Rightarrow>((string*v)list)match_result "  
                    and
-pmatch  :: "((string),(string),(nat*tid_or_exn))namespace \<Rightarrow>((v)store_v)list \<Rightarrow> pat \<Rightarrow> v \<Rightarrow>(string*v)list \<Rightarrow>((string*v)list)match_result "  where 
+pmatch  :: "((string),(string),(nat*stamp))namespace \<Rightarrow>((v)store_v)list \<Rightarrow> pat \<Rightarrow> v \<Rightarrow>(string*v)list \<Rightarrow>((string*v)list)match_result "  where 
      "
 pmatch envC s Pany v' env = ( Match env )"
 |"
@@ -242,11 +276,11 @@ pmatch envC s (Plit l) (Litv l') env = (
   else
     Match_type_error )"
 |"
-pmatch envC s (Pcon (Some n) ps) (Conv (Some (n', t')) vs) env = (
+pmatch envC s (Pcon (Some n) ps) (Conv (Some stamp') vs) env = (
   (case  nsLookup envC n of
-      Some (l, t1) =>
-        if same_tid t1 t' \<and> (List.length ps = l) then
-          if same_ctor (id_to_n n, t1) (n',t') then
+      Some (l,stamp) =>
+        if same_type stamp stamp' \<and> (List.length ps = l) then
+          if same_ctor stamp stamp' then
             if List.length vs = l then
               pmatch_list envC s ps vs env
             else
@@ -366,11 +400,6 @@ do_eq_list _ _ = ( Eq_val False )"
 by pat_completeness auto
 
 
-\<comment> \<open>\<open>val prim_exn : conN -> v\<close>\<close>
-definition prim_exn  :: " string \<Rightarrow> v "  where 
-     " prim_exn cn = ( Conv (Some (cn, TypeExn (Short cn))) [])"
-
-
 \<comment> \<open>\<open> Do an application \<close>\<close>
 \<comment> \<open>\<open>val do_opapp : list v -> maybe (sem_env v * exp)\<close>\<close>
 fun do_opapp  :: "(v)list \<Rightarrow>((v)sem_env*exp0)option "  where 
@@ -391,13 +420,13 @@ fun do_opapp  :: "(v)list \<Rightarrow>((v)sem_env*exp0)option "  where
 \<comment> \<open>\<open> If a value represents a list, get that list. Otherwise return Nothing \<close>\<close>
 \<comment> \<open>\<open>val v_to_list : v -> maybe (list v)\<close>\<close>
 function (sequential,domintros)  v_to_list  :: " v \<Rightarrow>((v)list)option "  where 
-     " v_to_list (Conv (Some (cn, TypeId (Short tn))) []) = (
-  if (cn = (''nil'')) \<and> (tn = (''list'')) then
+     " v_to_list (Conv (Some stamp) []) = (
+  if stamp = TypeStamp (''[]'') list_type_num then
     Some []
   else
     None )"
-|" v_to_list (Conv (Some (cn,TypeId (Short tn))) [v1,v2]) = (
-  if (cn = (''::''))  \<and> (tn = (''list'')) then
+|" v_to_list (Conv (Some stamp) [v1,v2]) = (
+  if stamp = TypeStamp (''::'') list_type_num then
     (case  v_to_list v2 of
         Some vs => Some (v1 # vs)
       | None => None
@@ -408,15 +437,22 @@ function (sequential,domintros)  v_to_list  :: " v \<Rightarrow>((v)list)option 
 by pat_completeness auto
 
 
+\<comment> \<open>\<open>val list_to_v : list v -> v\<close>\<close>
+function (sequential,domintros)  list_to_v  :: "(v)list \<Rightarrow> v "  where 
+     " list_to_v [] = ( Conv (Some (TypeStamp (''[]'') list_type_num)) [])"
+|" list_to_v (x # xs) = ( Conv (Some (TypeStamp (''::'') list_type_num)) [x, list_to_v xs])" 
+by pat_completeness auto
+
+
 \<comment> \<open>\<open>val v_to_char_list : v -> maybe (list char)\<close>\<close>
 function (sequential,domintros)  v_to_char_list  :: " v \<Rightarrow>((char)list)option "  where 
-     " v_to_char_list (Conv (Some (cn, TypeId (Short tn))) []) = (
-  if (cn = (''nil'')) \<and> (tn = (''list'')) then
+     " v_to_char_list (Conv (Some stamp) []) = (
+  if stamp = TypeStamp (''[]'') list_type_num then
     Some []
   else
     None )"
-|" v_to_char_list (Conv (Some (cn,TypeId (Short tn))) [Litv (Char c2),v2]) = (
-  if (cn = (''::''))  \<and> (tn = (''list'')) then
+|" v_to_char_list (Conv (Some stamp) [Litv (Char c2),v2]) = (
+  if stamp = TypeStamp (''::'') list_type_num then
     (case  v_to_char_list v2 of
         Some cs => Some (c2 # cs)
       | None => None
@@ -518,8 +554,8 @@ fun shift64_lookup  :: " shift \<Rightarrow> 64 word \<Rightarrow> nat \<Rightar
 \<comment> \<open>\<open>val Boolv : bool -> v\<close>\<close>
 definition Boolv  :: " bool \<Rightarrow> v "  where 
      " Boolv b = ( if b
-  then Conv (Some ((''true''), TypeId (Short (''bool'')))) []
-  else Conv (Some ((''false''), TypeId (Short (''bool'')))) [])"
+  then Conv (Some (TypeStamp (''True'') bool_type_num)) []
+  else Conv (Some (TypeStamp (''False'') bool_type_num)) [])"
 
 
 datatype exp_or_val =
@@ -532,9 +568,14 @@ type_synonym( 'ffi, 'v) store_ffi =" 'v store * 'ffi ffi_state "
 fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(v)list \<Rightarrow>((((v)store_v)list*'ffi ffi_state)*((v),(v))result)option "  where 
      " do_app ((s:: v store),(t1:: 'ffi ffi_state)) op1 vs = (
   (case  (op1, vs) of
-      (Opn op1, [Litv (IntLit n1), Litv (IntLit n2)]) =>
+      (ListAppend, [x1, x2]) =>
+      (case  (v_to_list x1, v_to_list x2) of
+          (Some xs, Some ys) => Some ((s,t1), Rval (list_to_v (xs @ ys)))
+        | _ => None
+      )
+    | (Opn op1, [Litv (IntLit n1), Litv (IntLit n2)]) =>
         if ((op1 = Divide) \<or> (op1 = Modulo)) \<and> (n2 =( 0 :: int)) then
-          Some ((s,t1), Rerr (Rraise (prim_exn (''Div''))))
+          Some ((s,t1), Rerr (Rraise div_exn_v))
         else
           Some ((s,t1), Rval (Litv (IntLit (opn_lookup op1 n1 n2))))
     | (Opb op1, [Litv (IntLit n1), Litv (IntLit n2)]) =>
@@ -573,7 +614,7 @@ fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(
         )
     | (Aw8alloc, [Litv (IntLit n), Litv (Word8 w)]) =>
         if n <( 0 :: int) then
-          Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
+          Some ((s,t1), Rerr (Rraise sub_exn_v))
         else
           (let (s',lnum) =
             (store_alloc (W8array (List.replicate (nat (abs ( n))) w)) s)
@@ -583,11 +624,11 @@ fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(
         (case  store_lookup lnum s of
             Some (W8array ws) =>
               if i <( 0 :: int) then
-                Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
+                Some ((s,t1), Rerr (Rraise sub_exn_v))
               else
                 (let n = (nat (abs ( i))) in
                   if n \<ge> List.length ws then
-                    Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
+                    Some ((s,t1), Rerr (Rraise sub_exn_v))
                   else
                     Some ((s,t1), Rval (Litv (Word8 (List.nth ws n)))))
           | _ => None
@@ -602,11 +643,11 @@ fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(
         (case  store_lookup lnum s of
           Some (W8array ws) =>
             if i <( 0 :: int) then
-              Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
+              Some ((s,t1), Rerr (Rraise sub_exn_v))
             else
               (let n = (nat (abs ( i))) in
                 if n \<ge> List.length ws then
-                  Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
+                  Some ((s,t1), Rerr (Rraise sub_exn_v))
                 else
                   (case  store_assign lnum (W8array (List.list_update ws n w)) s of
                       None => None
@@ -625,7 +666,7 @@ fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(
     | (CopyStrStr, [Litv(StrLit str),Litv(IntLit off),Litv(IntLit len)]) =>
         Some ((s,t1),
         (case  copy_array ( str,off) len None of
-          None => Rerr (Rraise (prim_exn (''Subscript'')))
+          None => Rerr (Rraise sub_exn_v)
         | Some cs => Rval (Litv(StrLit((cs))))
         ))
     | (CopyStrAw8, [Litv(StrLit str),Litv(IntLit off),Litv(IntLit len),
@@ -633,7 +674,7 @@ fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(
         (case  store_lookup dst s of
           Some (W8array ws) =>
             (case  copy_array ( str,off) len (Some(ws_to_chars ws,dstoff)) of
-              None => Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
+              None => Some ((s,t1), Rerr (Rraise sub_exn_v))
             | Some cs =>
               (case  store_assign dst (W8array (chars_to_ws cs)) s of
                 Some s' =>  Some ((s',t1), Rval (Conv None []))
@@ -647,7 +688,7 @@ fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(
         Some (W8array ws) =>
         Some ((s,t1),
           (case  copy_array (ws,off) len None of
-            None => Rerr (Rraise (prim_exn (''Subscript'')))
+            None => Rerr (Rraise sub_exn_v)
           | Some ws => Rval (Litv(StrLit((ws_to_chars ws))))
           ))
       | _ => None
@@ -657,7 +698,7 @@ fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(
       (case  (store_lookup src s, store_lookup dst s) of
         (Some (W8array ws), Some (W8array ds)) =>
           (case  copy_array (ws,off) len (Some(ds,dstoff)) of
-            None => Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
+            None => Some ((s,t1), Rerr (Rraise sub_exn_v))
           | Some ws =>
               (case  store_assign dst (W8array ws) s of
                 Some s' => Some ((s',t1), Rval (Conv None []))
@@ -671,7 +712,7 @@ fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(
     | (Chr, [Litv (IntLit i)]) =>
         Some ((s,t1),
           (if (i <( 0 :: int)) \<or> (i >( 255 :: int)) then
-            Rerr (Rraise (prim_exn (''Chr'')))
+            Rerr (Rraise chr_exn_v)
           else
             Rval (Litv(Char((%n. char_of (n::nat))(nat (abs ( i))))))))
     | (Chopb op1, [Litv (Char c1), Litv (Char c2)]) =>
@@ -684,11 +725,11 @@ fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(
           )
     | (Strsub, [Litv (StrLit str), Litv (IntLit i)]) =>
         if i <( 0 :: int) then
-          Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
+          Some ((s,t1), Rerr (Rraise sub_exn_v))
         else
           (let n = (nat (abs ( i))) in
             if n \<ge> List.length str then
-              Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
+              Some ((s,t1), Rerr (Rraise sub_exn_v))
             else
               Some ((s,t1), Rval (Litv (Char (List.nth ( str) n)))))
     | (Strlen, [Litv (StrLit str)]) =>
@@ -711,18 +752,18 @@ fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(
           )
     | (Vsub, [Vectorv vs, Litv (IntLit i)]) =>
         if i <( 0 :: int) then
-          Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
+          Some ((s,t1), Rerr (Rraise sub_exn_v))
         else
           (let n = (nat (abs ( i))) in
             if n \<ge> List.length vs then
-              Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
+              Some ((s,t1), Rerr (Rraise sub_exn_v))
             else
               Some ((s,t1), Rval (List.nth vs n)))
     | (Vlength, [Vectorv vs]) =>
         Some ((s,t1), Rval (Litv (IntLit (int (List.length vs)))))
     | (Aalloc, [Litv (IntLit n), v2]) =>
         if n <( 0 :: int) then
-          Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
+          Some ((s,t1), Rerr (Rraise sub_exn_v))
         else
           (let (s',lnum) =
             (store_alloc (Varray (List.replicate (nat (abs ( n))) v2)) s)
@@ -735,11 +776,11 @@ fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(
         (case  store_lookup lnum s of
             Some (Varray vs) =>
               if i <( 0 :: int) then
-                Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
+                Some ((s,t1), Rerr (Rraise sub_exn_v))
               else
                 (let n = (nat (abs ( i))) in
                   if n \<ge> List.length vs then
-                    Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
+                    Some ((s,t1), Rerr (Rraise sub_exn_v))
                   else
                     Some ((s,t1), Rval (List.nth vs n)))
           | _ => None
@@ -754,11 +795,11 @@ fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(
         (case  store_lookup lnum s of
           Some (Varray vs) =>
             if i <( 0 :: int) then
-              Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
+              Some ((s,t1), Rerr (Rraise sub_exn_v))
             else
               (let n = (nat (abs ( i))) in
                 if n \<ge> List.length vs then
-                  Some ((s,t1), Rerr (Rraise (prim_exn (''Subscript''))))
+                  Some ((s,t1), Rerr (Rraise sub_exn_v))
                 else
                   (case  store_assign lnum (Varray (List.list_update vs n v2)) s of
                       None => None
@@ -772,11 +813,13 @@ fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(
         (case  store_lookup lnum s of
           Some (W8array ws) =>
             (case  call_FFI t1 n (List.map (\<lambda> c2 .  of_nat(of_char c2)) ( conf)) ws of
-              (t', ws') =>
+              FFI_return t' ws' =>
                (case  store_assign lnum (W8array ws') s of
                  Some s' => Some ((s', t'), Rval (Conv None []))
                | None => None
                )
+            | FFI_final outcome =>
+               Some ((s, t1), Rerr (Rabort (Rffi_error outcome)))
             )
         | _ => None
         )
@@ -786,96 +829,14 @@ fun do_app  :: "((v)store_v)list*'ffi ffi_state \<Rightarrow> op0 \<Rightarrow>(
 
 \<comment> \<open>\<open> Do a logical operation \<close>\<close>
 \<comment> \<open>\<open>val do_log : lop -> v -> exp -> maybe exp_or_val\<close>\<close>
-fun do_log  :: " lop \<Rightarrow> v \<Rightarrow> exp0 \<Rightarrow>(exp_or_val)option "  where 
-     " do_log And v2 e = ( 
-  (case  v2 of
-      Litv _ => None
-    | Conv m l2 => (case  m of
-                       None => None
-                     | Some p => (case  p of
-                                     (s1,t1) =>
-                                 if(s1 = (''true'')) then
-                                   ((case  t1 of
-                                        TypeId i => (case  i of
-                                                        Short s2 =>
-                                                    if(s2 = (''bool'')) then
-                                                      ((case  l2 of
-                                                           [] => Some (Exp e)
-                                                         | _ => None
-                                                       )) else None
-                                                      | Long _ _ => None
-                                                    )
-                                      | TypeExn _ => None
-                                    )) else
-                                   (
-                                   if(s1 = (''false'')) then
-                                     ((case  t1 of
-                                          TypeId i2 => (case  i2 of
-                                                           Short s4 =>
-                                                       if(s4 = (''bool'')) then
-                                                         ((case  l2 of
-                                                              [] => Some
-                                                                    (Val v2)
-                                                            | _ => None
-                                                          )) else None
-                                                         | Long _ _ => 
-                                                       None
-                                                       )
-                                        | TypeExn _ => None
-                                      )) else None)
-                                 )
-                   )
-    | Closure _ _ _ => None
-    | Recclosure _ _ _ => None
-    | Loc _ => None
-    | Vectorv _ => None
-  ) )"
-|" do_log Or v2 e = ( 
-  (case  v2 of
-      Litv _ => None
-    | Conv m0 l6 => (case  m0 of
-                        None => None
-                      | Some p0 => (case  p0 of
-                                       (s8,t0) =>
-                                   if(s8 = (''false'')) then
-                                     ((case  t0 of
-                                          TypeId i5 => (case  i5 of
-                                                           Short s9 =>
-                                                       if(s9 = (''bool'')) then
-                                                         ((case  l6 of
-                                                              [] => Some
-                                                                    (Exp e)
-                                                            | _ => None
-                                                          )) else None
-                                                         | Long _ _ => 
-                                                       None
-                                                       )
-                                        | TypeExn _ => None
-                                      )) else
-                                     (
-                                     if(s8 = (''true'')) then
-                                       ((case  t0 of
-                                            TypeId i8 => (case  i8 of
-                                                             Short s11 =>
-                                                         if(s11 = (''bool'')) then
-                                                           ((case  l6 of
-                                                                [] => 
-                                                            Some (Val v2)
-                                                              | _ => 
-                                                            None
-                                                            )) else None
-                                                           | Long _ _ => 
-                                                         None
-                                                         )
-                                          | TypeExn _ => None
-                                        )) else None)
-                                   )
-                    )
-    | Closure _ _ _ => None
-    | Recclosure _ _ _ => None
-    | Loc _ => None
-    | Vectorv _ => None
-  ) )"
+definition do_log  :: " lop \<Rightarrow> v \<Rightarrow> exp0 \<Rightarrow>(exp_or_val)option "  where 
+     " do_log l v2 e = (
+  if ((l = And) \<and> (v2 = Boolv True)) \<or> ((l = Or) \<and> (v2 = Boolv False)) then
+    Some (Exp e)
+  else if ((l = And) \<and> (v2 = Boolv False)) \<or> ((l = Or) \<and> (v2 = Boolv True)) then
+    Some (Val v2)
+  else
+    None )"
 
 
 \<comment> \<open>\<open> Do an if-then-else \<close>\<close>
@@ -892,45 +853,32 @@ definition do_if  :: " v \<Rightarrow> exp0 \<Rightarrow> exp0 \<Rightarrow>(exp
 
 \<comment> \<open>\<open> Semantic helpers for definitions \<close>\<close>
 
-\<comment> \<open>\<open> Build a constructor environment for the type definition tds \<close>\<close>
-\<comment> \<open>\<open>val build_tdefs : list modN -> list (list tvarN * typeN * list (conN * list t)) -> env_ctor\<close>\<close>
-definition build_tdefs  :: "(string)list \<Rightarrow>((tvarN)list*string*(string*(t)list)list)list \<Rightarrow>((string),(string),(nat*tid_or_exn))namespace "  where 
-     " build_tdefs mn tds = (
-  alist_to_ns
-    (List.rev
-      (List.concat
-        (List.map
-          ( \<lambda>x .  
-  (case  x of
-      (tvs, tn, condefs) =>
+definition build_constrs  :: " nat \<Rightarrow>(string*'a list)list \<Rightarrow>(string*(nat*stamp))list "  where 
+     " build_constrs stamp condefs = (
   List.map
-    ( \<lambda>x .  (case  x of
-                        (conN, ts) =>
-                    (conN, (List.length ts, TypeId (mk_id mn tn)))
-                    )) condefs
-  ))
-          tds))))"
+    ( \<lambda>x .  (case  x of (conN, ts) => (conN, (List.length ts, TypeStamp conN stamp)) ))
+    condefs )"
+
+
+\<comment> \<open>\<open> Build a constructor environment for the type definition tds \<close>\<close>
+\<comment> \<open>\<open>val build_tdefs : nat -> list (list tvarN * typeN * list (conN * list ast_t)) -> env_ctor\<close>\<close>
+fun  build_tdefs  :: " nat \<Rightarrow>((tvarN)list*string*(string*(ast_t)list)list)list \<Rightarrow>((string),(string),(nat*stamp))namespace "  where 
+     " build_tdefs next_stamp [] = ( alist_to_ns [])"
+|" build_tdefs next_stamp ((tvs,tn,condefs)# tds) = (
+  nsAppend
+    (build_tdefs (next_stamp +( 1 :: nat)) tds)
+    (alist_to_ns (List.rev (build_constrs next_stamp condefs))))"
 
 
 \<comment> \<open>\<open> Checks that no constructor is defined twice in a type \<close>\<close>
-\<comment> \<open>\<open>val check_dup_ctors : list (list tvarN * typeN * list (conN * list t)) -> bool\<close>\<close>
-definition check_dup_ctors  :: "((tvarN)list*string*(string*(t)list)list)list \<Rightarrow> bool "  where 
-     " check_dup_ctors tds = (
+\<comment> \<open>\<open>val check_dup_ctors : list tvarN * typeN * list (conN * list ast_t) -> bool\<close>\<close>
+fun check_dup_ctors  :: "(tvarN)list*string*(string*(ast_t)list)list \<Rightarrow> bool "  where 
+     " check_dup_ctors (tvs, tn, condefs) = (
   Lem_list.allDistinct ((let x2 = 
   ([]) in  List.foldr
    (\<lambda>x .  (case  x of
-                      (tvs, tn, condefs) => \<lambda> x2 .  List.foldr
-                                                              (\<lambda>x .  
-                                                               (case  x of
-                                                                   (n, ts) => 
-                                                               \<lambda> x2 . 
-                                                                 if True then
-                                                                   n # x2
-                                                                 else 
-                                                                 x2
-                                                               )) condefs 
-                                                            x2
-                  )) tds x2)))"
+                      (n, ts) => \<lambda> x2 .  if True then n # x2 else x2
+                  )) condefs x2)))"
 
 
 \<comment> \<open>\<open>val combine_dec_result : forall 'a. sem_env v -> result (sem_env v) 'a -> result (sem_env v) 'a\<close>\<close>
@@ -945,54 +893,43 @@ definition extend_dec_env  :: "(v)sem_env \<Rightarrow>(v)sem_env \<Rightarrow>(
   (| v = (nsAppend(v   new_env)(v   env)), c = (nsAppend(c   new_env)(c   env))  |) )"
 
 
-\<comment> \<open>\<open>val decs_to_types : list dec -> list typeN\<close>\<close>
-definition decs_to_types  :: "(dec)list \<Rightarrow>(string)list "  where 
-     " decs_to_types ds = (
-  List.concat (List.map (\<lambda> d . 
-        (case  d of
-            Dtype locs tds => List.map ( \<lambda>x .  
-  (case  x of (tvs,tn,ctors) => tn )) tds
-          | _ => [] ))
-     ds))"
+\<comment> \<open>\<open>
+val decs_to_types : list dec -> list typeN
+let decs_to_types ds =
+  List.concat (List.map (fun d ->
+        match d with
+          | Dtype locs tds -> List.map (fun (tvs,tn,ctors) -> tn) tds
+          | _ -> [] end)
+     ds)
 
+val no_dup_types : list dec -> bool
+let no_dup_types ds =
+  List.allDistinct (decs_to_types ds)
 
-\<comment> \<open>\<open>val no_dup_types : list dec -> bool\<close>\<close>
-definition no_dup_types  :: "(dec)list \<Rightarrow> bool "  where 
-     " no_dup_types ds = (
-  Lem_list.allDistinct (decs_to_types ds))"
+val prog_to_mods : list top -> list (list modN)
+let prog_to_mods tops =
+  List.concat (List.map (fun top ->
+        match top with
+          | Tmod mn _ _ -> [[mn]]
+          | _ -> [] end)
+     tops)
 
+val no_dup_mods : list top -> set (list modN) -> bool
+let no_dup_mods tops defined_mods =
+  List.allDistinct (prog_to_mods tops) &&
+  disjoint (Set.fromList (prog_to_mods tops)) defined_mods
 
-\<comment> \<open>\<open>val prog_to_mods : list top -> list (list modN)\<close>\<close>
-definition prog_to_mods  :: "(top0)list \<Rightarrow>((string)list)list "  where 
-     " prog_to_mods tops = (
-  List.concat (List.map (\<lambda> top1 . 
-        (case  top1 of
-            Tmod mn _ _ => [[mn]]
-          | _ => [] ))
-     tops))"
+val prog_to_top_types : list top -> list typeN
+let prog_to_top_types tops =
+  List.concat (List.map (fun top ->
+        match top with
+          | Tdec d -> decs_to_types [d]
+          | _ -> [] end)
+     tops)
 
-
-\<comment> \<open>\<open>val no_dup_mods : list top -> set (list modN) -> bool\<close>\<close>
-definition no_dup_mods  :: "(top0)list \<Rightarrow>((modN)list)set \<Rightarrow> bool "  where 
-     " no_dup_mods tops defined_mods2 = (
-  Lem_list.allDistinct (prog_to_mods tops) \<and>
-  disjnt (List.set (prog_to_mods tops)) defined_mods2 )"
-
-
-\<comment> \<open>\<open>val prog_to_top_types : list top -> list typeN\<close>\<close>
-definition prog_to_top_types  :: "(top0)list \<Rightarrow>(string)list "  where 
-     " prog_to_top_types tops = (
-  List.concat (List.map (\<lambda> top1 . 
-        (case  top1 of
-            Tdec d => decs_to_types [d]
-          | _ => [] ))
-     tops))"
-
-
-\<comment> \<open>\<open>val no_dup_top_types : list top -> set tid_or_exn -> bool\<close>\<close>
-definition no_dup_top_types  :: "(top0)list \<Rightarrow>(tid_or_exn)set \<Rightarrow> bool "  where 
-     " no_dup_top_types tops defined_types2 = (
-  Lem_list.allDistinct (prog_to_top_types tops) \<and>
-  disjnt (List.set (List.map (\<lambda> tn .  TypeId (Short tn)) (prog_to_top_types tops))) defined_types2 )"
-
+val no_dup_top_types : list top -> set tid_or_exn -> bool
+let no_dup_top_types tops defined_types =
+  List.allDistinct (prog_to_top_types tops) &&
+  disjoint (Set.fromList (List.map (fun tn -> TypeId (Short tn)) (prog_to_top_types tops))) defined_types
+  \<close>\<close>
 end
