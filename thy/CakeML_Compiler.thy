@@ -2,7 +2,7 @@ chapter "CakeML Compiler"
 
 theory CakeML_Compiler
 imports
-  "generated/CakeML/Ast"
+  Semantic_Extras
   "Show.Show_Instances"
 keywords "cakeml" :: diag
 begin

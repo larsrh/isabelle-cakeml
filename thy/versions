@@ -6,8 +6,8 @@
 
 LEM_REPOSITORY="https://github.com/larsrh/lem"
 LEM_COMMIT="9db1a4addd9e685059e8ea597e4bad502a12f380" # larsrh-3
-CAKEML_REPOSITORY="https://github.com/larsrh/cakeml"
-CAKEML_COMMIT="35f8ad6231ce6c26eb69126a31f99ac278f527d3"
+CAKEML_REPOSITORY="https://github.com/CakeML/cakeml"
+CAKEML_COMMIT="d12bf8c081357963887ad183f2f09e395105cdf6"
 
 # Isabelle tools (if not specified in the environment)
 

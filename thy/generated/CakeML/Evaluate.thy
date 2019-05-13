@@ -184,20 +184,20 @@ by pat_completeness auto
 \<comment> \<open>\<open>val evaluate_decs :
   forall 'ffi. state 'ffi -> sem_env v -> list dec -> state 'ffi * result (sem_env v) v\<close>\<close>
 function (sequential,domintros) 
-evaluate_decs0  :: " 'ffi state \<Rightarrow>(v)sem_env \<Rightarrow>(dec)list \<Rightarrow> 'ffi state*(((v)sem_env),(v))result "  where 
+fun_evaluate_decs  :: " 'ffi state \<Rightarrow>(v)sem_env \<Rightarrow>(dec)list \<Rightarrow> 'ffi state*(((v)sem_env),(v))result "  where 
      "
-evaluate_decs0 st env [] = ( (st, Rval (| v = nsEmpty, c = nsEmpty |)))"
+fun_evaluate_decs st env [] = ( (st, Rval (| v = nsEmpty, c = nsEmpty |)))"
 |"
-evaluate_decs0 st env (d1 # d2 # ds) = (
-  (case  evaluate_decs0 st env [d1] of
+fun_evaluate_decs st env (d1 # d2 # ds) = (
+  (case  fun_evaluate_decs st env [d1] of
     (st1, Rval env1) =>
-    (case  evaluate_decs0 st1 (extend_dec_env env1 env) (d2 # ds) of
+    (case  fun_evaluate_decs st1 (extend_dec_env env1 env) (d2 # ds) of
       (st2,r) => (st2, combine_dec_result env1 r)
     )
   | res => res
   ))"
 |"
-evaluate_decs0 st env [Dlet locs p e] = (
+fun_evaluate_decs st env [Dlet locs p e] = (
   if allDistinct (pat_bindings p []) then
     (case  fun_evaluate st env [e] of
       (st', Rval v2) =>
@@ -212,7 +212,7 @@ evaluate_decs0 st env [Dlet locs p e] = (
   else
     (st, Rerr (Rabort Rtype_error)))"
 |"
-evaluate_decs0 st env [Dletrec locs funs] = (
+fun_evaluate_decs st env [Dletrec locs funs] = (
   (st,
    (if allDistinct (List.map ( \<lambda>x .  
   (case  x of (x,y,z) => x )) funs) then
@@ -220,22 +220,22 @@ evaluate_decs0 st env [Dletrec locs funs] = (
    else
      Rerr (Rabort Rtype_error))))"
 |"
-evaluate_decs0 st env [Dtype locs tds] = (
+fun_evaluate_decs st env [Dtype locs tds] = (
   if ((\<forall> x \<in> (set tds).  check_dup_ctors x)) then
     (( st (| next_type_stamp := ((next_type_stamp   st) + List.length tds) |)),
      Rval (| v = nsEmpty, c = (build_tdefs(next_type_stamp   st) tds) |))
   else
     (st, Rerr (Rabort Rtype_error)))"
 |"
-evaluate_decs0 st env [Dtabbrev locs tvs tn t1] = (
+fun_evaluate_decs st env [Dtabbrev locs tvs tn t1] = (
   (st, Rval (| v = nsEmpty, c = nsEmpty |)))"
 |"
-evaluate_decs0 st env [Dexn locs cn ts] = (
+fun_evaluate_decs st env [Dexn locs cn ts] = (
   (( st (| next_exn_stamp := ((next_exn_stamp   st) +( 1 :: nat)) |)),
    Rval (| v = nsEmpty, c = (nsSing cn (List.length ts, ExnStamp(next_exn_stamp   st))) |)))"
 |"
-evaluate_decs0 st env [Dmod mn ds] = (
-  (case  evaluate_decs0 st env ds of
+fun_evaluate_decs st env [Dmod mn ds] = (
+  (case  fun_evaluate_decs st env ds of
     (st', r) =>
       (st',
        (case  r of
@@ -244,13 +244,12 @@ evaluate_decs0 st env [Dmod mn ds] = (
        ))
   ))"
 |"
-evaluate_decs0 st env [Dlocal lds ds] = (
-  (case  evaluate_decs0 st env lds of
+fun_evaluate_decs st env [Dlocal lds ds] = (
+  (case  fun_evaluate_decs st env lds of
     (st1, Rval env1) =>
-    evaluate_decs0 st1 (extend_dec_env env1 env) ds
+    fun_evaluate_decs st1 (extend_dec_env env1 env) ds
   | res => res
   ))" 
 by pat_completeness auto
-
 
 end

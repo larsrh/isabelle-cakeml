@@ -7,9 +7,9 @@ definition default_loc :: locs where
   (\<lparr> locn.row = 0, locn.col = 0, locn.offset = 0 \<rparr>,
    \<lparr> locn.row = 0, locn.col = 0, locn.offset = 0 \<rparr>)"
 
-definition simple_print :: Ast.prog where
+definition simple_print :: prog where
 "simple_print =
-  [Ast.Tdec (Ast.Dlet default_loc Ast.Pany (Ast.App Ast.Opapp [Ast.Var (Short ''print''), Ast.Lit (Ast.StrLit ''hi'')]))]"
+  [Ast.Dlet default_loc Ast.Pany (Ast.App Ast.Opapp [Ast.Var (Short ''print''), Ast.Lit (Ast.StrLit ''hi'')])]"
 
 cakeml (literal) \<open>print "hi1";\<close>
 cakeml (literal) \<open>print "hi2";\<close>

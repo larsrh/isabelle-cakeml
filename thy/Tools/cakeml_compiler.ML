@@ -139,7 +139,7 @@ fun cakeml_cmd ctxt mode source =
       | Prog =>
           Syntax.implode_input source
           |> Syntax.parse_term ctxt
-          |> Type.constraint @{typ Ast.prog}
+          |> Type.constraint @{typ prog}
           |> Syntax.check_term ctxt
           |> string_of_prog ctxt
     val _ = tracing ("Evaluating: " ^ source)

@@ -10,6 +10,7 @@ imports
 begin
 
 type_synonym exp = exp0
+type_synonym prog = \<open>dec list\<close>
 
 hide_const (open) sem_env.v
 

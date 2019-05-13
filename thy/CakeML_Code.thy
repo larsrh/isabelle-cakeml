@@ -38,7 +38,7 @@ definition prim_sem_state where "prim_sem_state = fst prim_sem_res"
 
 end
 
-export_code evaluate fun_evaluate fun_evaluate_prog prim_sem_env
+export_code evaluate fun_evaluate fun_evaluate_decs prim_sem_env
   checking SML
 
 \<comment>\<open>Test\<close>

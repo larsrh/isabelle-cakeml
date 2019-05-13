@@ -62,4 +62,7 @@ by (relation fun_evaluate_relation;
 
 end
 
+termination fun_evaluate_decs
+  by lexicographic_order
+
 end

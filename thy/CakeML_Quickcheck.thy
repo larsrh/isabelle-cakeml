@@ -6,7 +6,7 @@ imports
 begin
 
 datatype_compat namespace
-datatype_compat t
+datatype_compat ast_t
 datatype_compat pat
 datatype_compat sem_env
 

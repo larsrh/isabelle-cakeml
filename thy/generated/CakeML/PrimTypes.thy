@@ -45,7 +45,7 @@ definition prim_types_program  :: "(dec)list "  where
   forall 'ffi. Eq 'ffi => (state 'ffi * sem_env v) -> list dec -> maybe (state 'ffi * sem_env v)\<close>\<close>
 fun add_to_sem_env  :: " 'ffi state*(v)sem_env \<Rightarrow>(dec)list \<Rightarrow>('ffi state*(v)sem_env)option "  where 
      " add_to_sem_env (st, env) prog = (
-  (case  evaluate_decs0 st env prog of
+  (case  fun_evaluate_decs st env prog of
     (st', Rval env') => Some (st', extend_dec_env env' env)
   | _ => None
   ))"
