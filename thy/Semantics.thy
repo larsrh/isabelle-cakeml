@@ -6,6 +6,7 @@ imports
   "generated/CakeML/TypeSystem"
   "generated/CakeML/Evaluate"
   "HOL-Library.Finite_Map"
+  Semantic_Extras
 begin
 
 hide_const (open) type_env.t
@@ -104,7 +105,7 @@ definition parse :: "(token, locs) alist \<Rightarrow> prog option" where
                  ptree_head pt = NT (mkNT nTopLevelDecs) \<and>
                  real_fringe pt = (map (map_prod TOK id) toks))
                of Some pt \<Rightarrow> ptree_TopLevelDecs pt | None \<Rightarrow> None)"
-
+(*
 datatype_record 'ffi state =
   tdecs :: "decls"
   tenv :: "type_env"
@@ -118,11 +119,11 @@ definition can_type_prog :: "'a state \<Rightarrow> prog \<Rightarrow> bool" whe
 definition evaluate_prog_with_clock :: "'a SemanticPrimitives.state \<Rightarrow> v sem_env \<Rightarrow> num \<Rightarrow> prog \<Rightarrow> 'a ffi_state \<times> (v sem_env, v) result" where
 "evaluate_prog_with_clock st env k prog =
   (case fun_evaluate_prog (st \<lparr> clock := k \<rparr>) env prog of (st',r) \<Rightarrow> ((ffi st',r)))"
-
+*)
 definition lprefix_lub :: "'a llist set \<Rightarrow> 'a llist \<Rightarrow> bool" where
 "lprefix_lub ls lub = ((\<forall>ll \<in> ls. lprefix ll lub) \<and> (\<forall>ub. (\<forall>ll \<in> ls. lprefix ll ub) \<longrightarrow> lprefix lub ub))"
-
-definition semantics_prog :: "'a SemanticPrimitives.state \<Rightarrow> v sem_env \<Rightarrow> prog \<Rightarrow> behaviour \<Rightarrow> bool" where
+(*
+definition semantics_prog :: "'a SemanticPrimitives.state \<Rightarrow> v sem_env \<Rightarrow> prog \<Rightarrow> 'ffi behaviour \<Rightarrow> bool" where
 "semantics_prog st env prog bhv =
   (case bhv of
     Terminate outcome io_list \<Rightarrow>
@@ -150,5 +151,5 @@ definition semantics :: "'a state \<Rightarrow> prog \<Rightarrow> tvarN \<Right
       (if can_type_prog state (prelude @ prog)
        then Execute (semantics_prog (sem_st state) (sem_env state) (prelude @ prog))
        else IllTyped))"
-
+*)
 end

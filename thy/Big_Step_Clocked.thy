@@ -729,6 +729,8 @@ proof (induction rule:evaluate_decs.inducts)
  qed (auto intro!:evaluate_decs.intros simp add:dec_add_to_counter)
 *)
 
+end
+
 lemma clocked_evaluate:
   "(\<exists>k. BigStep.evaluate True env (update_clock (\<lambda>_. k) s) e (s', r) \<and> r \<noteq>  Rerr (Rabort Rtimeout_error)) =
    (\<exists>k. BigStep.evaluate True env (update_clock (\<lambda>_. k) s) e ((update_clock (\<lambda>_. 0) s'), r) \<and> r \<noteq>  Rerr (Rabort Rtimeout_error))"
