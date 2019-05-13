@@ -207,7 +207,7 @@ evaluate env s (If e1 e2 e3) (s', Rerr err)"
 
 "mat1" : " \<And> env e pes v1 bv s1 s2.
 evaluate env s1 e (s2, Rval v1) \<Longrightarrow>
-match_result env s2 v1 pes Bindv = Rval (e', env') \<Longrightarrow>
+match_result env s2 v1 pes bind_exn_v = Rval (e', env') \<Longrightarrow>
 evaluate (env \<lparr> sem_env.v := nsAppend (alist_to_ns env') (sem_env.v env) \<rparr>) s2 e' bv
 ==>
 evaluate env s1 (Mat e pes) bv "
@@ -216,7 +216,7 @@ evaluate env s1 (Mat e pes) bv "
 
 "mat1b" : " \<And> env e pes v1 s1 s2.
 evaluate env s1 e (s2, Rval v1) \<Longrightarrow>
-match_result env s2 v1 pes Bindv = Rerr err
+match_result env s2 v1 pes bind_exn_v = Rerr err
 ==>
 evaluate env s1 (Mat e pes) (s2, Rerr err)"
 
@@ -324,7 +324,7 @@ next
 next
   case (mat1 e' env' env e pes v1 bv s1 s2)
   show ?case
-    apply (rule BigStep.mat1, fold Bindv_def, intro conjI)
+    apply (rule BigStep.mat1, intro conjI)
     apply fact
     apply (rule match_result_sound_val)
     apply fact+
@@ -332,7 +332,7 @@ next
 next
   case (mat1b err env e pes v1 s1 s2)
   show ?case
-    apply (rule BigStep.mat1, fold Bindv_def, intro conjI)
+    apply (rule BigStep.mat1, intro conjI)
     apply fact
     apply (rule match_result_sound_err)
     apply fact
@@ -406,7 +406,7 @@ next
   case (mat1 ck env e pes v1 s3 v' s1 s2)
   then show ?case
     (* this is the same proof as above, but with less Isar and more apply *)
-    apply (auto split: result.splits simp: Bindv_def[symmetric])
+    apply (auto split: result.splits)
     subgoal by (rule evaluate_list_evaluate.mat1) auto
     subgoal
       apply (frule match_result_sound_err)

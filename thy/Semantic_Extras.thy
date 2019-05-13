@@ -18,10 +18,9 @@ code_pred
       and evaluate_list: i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> o \<Rightarrow> bool
       and evaluate_match: i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> o \<Rightarrow> bool) evaluate .
 
-code_pred (modes: i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> o \<Rightarrow> bool) evaluate_dec .
-code_pred (modes: i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> o \<Rightarrow> bool) evaluate_decs .
-code_pred (modes: i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> o \<Rightarrow> bool) evaluate_top .
-code_pred (modes: i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> o \<Rightarrow> bool as compute_prog) evaluate_prog .
+code_pred
+  (modes: evaluate_dec: i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> o \<Rightarrow> bool as compute_dec
+      and evaluate_decs: i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> i \<Rightarrow> o \<Rightarrow> bool) evaluate_dec .
 
 termination pmatch_list by lexicographic_order
 termination do_eq_list by lexicographic_order
@@ -53,19 +52,12 @@ lemma do_if_cases:
 unfolding do_if_def
 by meson
 
-case_of_simps do_log_alt_def: do_log.simps
 case_of_simps do_con_check_alt_def: do_con_check.simps
 case_of_simps list_result_alt_def: list_result.simps
 
-context begin
-
-private fun_cases do_logE: "do_log op v e = res"
-
 lemma do_log_exp: "do_log op v e = Some (Exp e') \<Longrightarrow> e = e'"
-by (erule do_logE)
-   (auto split: v.splits option.splits if_splits tid_or_exn.splits id0.splits list.splits)
-
-end
+unfolding do_log_def
+by (auto split: if_splits)
 
 lemma c_of_merge[simp]: "c (extend_dec_env env2 env1) = nsAppend (c env2) (c env1)"
 by (cases env1; cases env2; simp add: extend_dec_env_def)

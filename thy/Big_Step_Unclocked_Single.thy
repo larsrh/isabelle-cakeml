@@ -158,13 +158,13 @@ if3:
 
 mat1:
   "evaluate env s1 e (s2, Rval v1) \<Longrightarrow>
-   match_result env s2 v1 pes Bindv = Rval (e', env') \<Longrightarrow>
+   match_result env s2 v1 pes bind_exn_v = Rval (e', env') \<Longrightarrow>
    evaluate (env \<lparr> sem_env.v := nsAppend (alist_to_ns env') (sem_env.v env) \<rparr>) s2 e' bv \<Longrightarrow>
    evaluate env s1 (Mat e pes) bv " |
 
 mat1b:
   "evaluate env s1 e (s2, Rval v1) \<Longrightarrow>
-   match_result env s2 v1 pes Bindv = Rerr err \<Longrightarrow>
+   match_result env s2 v1 pes bind_exn_v = Rerr err \<Longrightarrow>
    evaluate env s1 (Mat e pes) (s2, Rerr err)" |
 
 mat2:

@@ -391,8 +391,8 @@ proof -
           show ?thesis
             proof (cases r)
               case (Rval v)
-
-              have "\<exists>s'' r. evaluate_match True env s' v pes (Conv (Some (''Bind'', TypeExn (Short ''Bind''))) []) (s'', r)"
+              thm bind_exn_v_def
+              have "\<exists>s'' r. evaluate_match True env s' v pes bind_exn_v (s'', r)"
                 apply (rule evaluate_match_total0)
                 apply (rule less)
                 unfolding Mat using clock apply (auto simp: less_eq_Suc_le)
@@ -400,7 +400,7 @@ proof -
                 apply (rule size_list_estimation')
                 apply assumption
                 by auto
-              then obtain s'' r where "evaluate_match True env s' v pes (Conv (Some (''Bind'', TypeExn (Short ''Bind''))) []) (s'', r)"
+              then obtain s'' r where "evaluate_match True env s' v pes bind_exn_v (s'', r)"
                 by auto
 
               show ?thesis

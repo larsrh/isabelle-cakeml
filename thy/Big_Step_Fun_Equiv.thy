@@ -105,7 +105,7 @@ by (rule eval_eqI) (auto elim: evaluate.cases intro: evaluate_match_evaluate_lis
 lemma eval_match[simp]:
   "eval env (Mat e pes) st =
     (case eval env e st of
-      (st', Rval v) \<Rightarrow> eval_match env v pes Bindv st'
+      (st', Rval v) \<Rightarrow> eval_match env v pes bind_exn_v st'
     | (st', Rerr err) \<Rightarrow> (st', Rerr err))"
 apply (subst evaluate_iff_sym[symmetric])
 apply (simp only: split!: prod.splits result.splits)
@@ -113,9 +113,7 @@ subgoal
   apply (subst (asm) evaluate_iff_sym[symmetric])
   apply (rule mat1, rule)
   apply assumption
-  apply (subst Bindv_def)
-  apply (metis valid_eval_match)
-  done
+  by (metis valid_eval_match)
 subgoal
   apply (subst (asm) evaluate_iff_sym[symmetric])
   by (auto intro: evaluate_match_evaluate_list_evaluate.intros)
@@ -320,7 +318,7 @@ next
     apply (rule evaluate_list_singleton_cases)
     subgoal for s' v
       apply simp
-      apply (cases "fun_evaluate_match s' env v pes Bindv" rule: prod_result_cases; simp only:)
+      apply (cases "fun_evaluate_match s' env v pes bind_exn_v" rule: prod_result_cases; simp only:)
       subgoal premises prems
         using prems(3)
         apply (rule fun_evaluate_matchE)
@@ -328,7 +326,6 @@ next
         apply (rule evaluate_match_evaluate_list_evaluate.cons1)
         apply (intro conjI)
         apply (rule mat1)
-        apply (fold Bindv_def)
         apply (intro conjI)
         apply (rule prems)
         supply error_result.map_ident[simp]
@@ -338,7 +335,6 @@ next
       subgoal premises prems
         apply (rule evaluate_match_evaluate_list_evaluate.cons2)
         apply (rule mat1)
-        apply (fold Bindv_def)
         apply (intro conjI)
         apply (rule prems)
         supply error_result.map_ident[simp]

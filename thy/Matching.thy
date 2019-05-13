@@ -18,7 +18,7 @@ qualified lemma fold2_cong[fundef_cong]:
 using assms
 by (induction f err1 xs1 ys1 init1 arbitrary: init2 xs2 ys2 rule: fold2.induct) auto
 
-fun pmatch_single :: "((string),(string),(nat*tid_or_exn))namespace \<Rightarrow>((v)store_v)list \<Rightarrow> pat \<Rightarrow> v \<Rightarrow>(string*v)list \<Rightarrow>((string*v)list)match_result " where
+fun pmatch_single :: "((string),(string),(nat*stamp))namespace \<Rightarrow>((v)store_v)list \<Rightarrow> pat \<Rightarrow> v \<Rightarrow>(string*v)list \<Rightarrow>((string*v)list)match_result " where
 "pmatch_single envC s Pany v' env = ( Match env )" |
 "pmatch_single envC s (Pvar x) v' env = ( Match ((x,v')# env))" |
 "pmatch_single envC s (Plit l) (Litv l') env = (
@@ -28,13 +28,13 @@ fun pmatch_single :: "((string),(string),(nat*tid_or_exn))namespace \<Rightarrow
     No_match
   else
     Match_type_error )" |
-"pmatch_single envC s (Pcon (Some n) ps) (Conv (Some (n', t')) vs) env =
+"pmatch_single envC s (Pcon (Some n) ps) (Conv (Some stamp') vs) env =
   (case  nsLookup envC n of
-      Some (l, t1) =>
-        if same_tid t1 t' \<and> (List.length ps = l) then
-          if same_ctor (id_to_n n, t1) (n',t') then
+      Some (l, stamp) =>
+        if same_type stamp stamp' \<and> (List.length ps = l) then
+          if same_ctor stamp stamp' then
             fold2 (\<lambda>p v m. case m of
-               Match env \<Rightarrow> pmatch_single envC s p v env 
+               Match env \<Rightarrow> pmatch_single envC s p v env
             | m \<Rightarrow> m) Match_type_error ps vs (Match env)
           else
             No_match
@@ -45,7 +45,7 @@ fun pmatch_single :: "((string),(string),(nat*tid_or_exn))namespace \<Rightarrow
 "pmatch_single envC s (Pcon None ps) (Conv None vs) env = (
   if List.length ps = List.length vs then
     fold2 (\<lambda>p v m. case m of
-       Match env \<Rightarrow> pmatch_single envC s p v env 
+       Match env \<Rightarrow> pmatch_single envC s p v env
         | m \<Rightarrow> m)
          Match_type_error ps vs (Match env)
   else
@@ -61,29 +61,29 @@ fun pmatch_single :: "((string),(string),(nat*tid_or_exn))namespace \<Rightarrow
 
 private lemma pmatch_list_length_neq:
   "length vs \<noteq> length ps \<Longrightarrow> fold2(\<lambda>p v m. case m of
-       Match env \<Rightarrow> pmatch_single cenv s p v env 
+       Match env \<Rightarrow> pmatch_single cenv s p v env
         | m \<Rightarrow> m) Match_type_error ps vs m = Match_type_error"
   by (induction ps vs arbitrary:m rule:List.list_induct2') auto
 
 private lemma pmatch_list_nomatch:
   "length vs = length ps \<Longrightarrow> fold2(\<lambda>p v m. case m of
-       Match env \<Rightarrow> pmatch_single cenv s p v env 
+       Match env \<Rightarrow> pmatch_single cenv s p v env
         | m \<Rightarrow> m) Match_type_error ps vs No_match = No_match"
   by (induction ps vs  rule:List.list_induct2') auto
 
 private lemma pmatch_list_typerr:
   "length vs = length ps \<Longrightarrow> fold2(\<lambda>p v m. case m of
-       Match env \<Rightarrow> pmatch_single cenv s p v env 
+       Match env \<Rightarrow> pmatch_single cenv s p v env
         | m \<Rightarrow> m) Match_type_error ps vs Match_type_error = Match_type_error"
   by (induction ps vs  rule:List.list_induct2') auto
 
 private lemma pmatch_single_eq0:
   "length ps = length vs \<Longrightarrow> pmatch_list cenv s ps vs env = fold2(\<lambda>p v m. case m of
-       Match env \<Rightarrow> pmatch_single cenv s p v env 
+       Match env \<Rightarrow> pmatch_single cenv s p v env
         | m \<Rightarrow> m) Match_type_error ps vs (Match env)"
   "pmatch cenv s p v0 env = pmatch_single cenv s p v0 env"
 proof (induction rule: pmatch_list_pmatch.induct)
-  case (4 envC s n ps n' t' vs env)
+  case (4 envC s n ps stamp' vs env)
   then show ?case
     by (auto split:option.splits match_result.splits dest!:pmatch_list_length_neq[where m = "Match env" and cenv = envC and s = s])
 qed (auto split:option.splits match_result.splits store_v.splits simp:pmatch_list_nomatch pmatch_list_typerr)

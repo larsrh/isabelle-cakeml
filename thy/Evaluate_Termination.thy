@@ -56,9 +56,9 @@ private definition fun_evaluate_relation where
 termination fun_evaluate
 by (relation fun_evaluate_relation;
     auto
-      simp: fun_evaluate_relation_def fix_clock_alt_def dec_clock_def do_if_def do_log_alt_def
+      simp: fun_evaluate_relation_def fix_clock_alt_def dec_clock_def do_if_def do_log_def
       simp: datatype_record_update
-      split: prod.splits state.splits lop.splits v.splits option.splits if_splits tid_or_exn.splits id0.splits list.splits)
+      split: prod.splits state.splits if_splits)
 
 end
 

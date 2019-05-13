@@ -17,7 +17,7 @@ declare pmatch_single_equiv[code]
 declare [[code abort: failwith fp64_negate fp64_sqrt fp64_sub fp64_mul fp64_div fp64_add fp64_abs]]
 
 definition empty_ffi_state :: "unit ffi_state" where
-"empty_ffi_state = initial_ffi_state (\<lambda>_ _ _ _. Oracle_fail) ()"
+"empty_ffi_state = initial_ffi_state (\<lambda>_ _ _ _. Oracle_final FFI_failed) ()"
 
 context begin
 

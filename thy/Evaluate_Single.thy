@@ -108,7 +108,7 @@ Mat:
 "evaluate env s (Mat e pes) =
   (case evaluate env s e of
     (s', Rval v) \<Rightarrow>
-      (case match_result env s' v pes Bindv of
+      (case match_result env s' v pes bind_exn_v of
         Rval (e', env') \<Rightarrow>
           evaluate (env \<lparr> sem_env.v := nsAppend (alist_to_ns env') (sem_env.v env) \<rparr>) s' e'
       | Rerr err \<Rightarrow> (s', Rerr err))
@@ -189,8 +189,8 @@ proof (relation "fun_evaluate_single_relation", unfold fun_evaluate_single_relat
   then show ?case
     using evaluate_list_clock_monotone "7"(1)[symmetric]
     by (auto dest!: fstI simp add:evaluate_list_clock_monotone Suc_le_lessD)
-qed (auto simp add: less_Suc_eq_le Suc_le_lessD do_if_def do_log_alt_def evaluate_list_clock_monotone elem_less_size
-          split:lop.splits v.splits option.splits tid_or_exn.splits if_splits id0.splits list.splits
+qed (auto simp add: less_Suc_eq_le Suc_le_lessD do_if_def do_log_def evaluate_list_clock_monotone elem_less_size
+          split:lop.splits if_splits
           dest!:evaluate_clock_monotone match_result_elem fstI dest:sym pat_elem_less_size intro:le_neq_implies_less)
 
 termination evaluate by (rule evaluate_total)
