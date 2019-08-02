@@ -27,18 +27,30 @@ begin
 \<comment> \<open>\<open>val maybeEqualBy : forall 'a. ('a -> 'a -> bool) -> maybe 'a -> maybe 'a -> bool\<close>\<close>
 
 fun maybeEqualBy  :: "('a \<Rightarrow> 'a \<Rightarrow> bool)\<Rightarrow> 'a option \<Rightarrow> 'a option \<Rightarrow> bool "  where 
-     " maybeEqualBy eq None None = ( True )"
-|" maybeEqualBy eq None (Some _) = ( False )"
-|" maybeEqualBy eq (Some _) None = ( False )"
-|" maybeEqualBy eq (Some x') (Some y') = ( (eq x' y'))"
+     " maybeEqualBy eq None None = ( True )" 
+  for  eq  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool "
+|" maybeEqualBy eq None (Some _) = ( False )" 
+  for  eq  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool "
+|" maybeEqualBy eq (Some _) None = ( False )" 
+  for  eq  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool "
+|" maybeEqualBy eq (Some x') (Some y') = ( (eq x' y'))" 
+  for  eq  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  x'  :: " 'a " 
+  and  y'  :: " 'a "
   
 
 
 fun maybeCompare  :: "('b \<Rightarrow> 'a \<Rightarrow> ordering)\<Rightarrow> 'b option \<Rightarrow> 'a option \<Rightarrow> ordering "  where 
-     " maybeCompare cmp None None = ( EQ )"
-|" maybeCompare cmp None (Some _) = ( LT )"
-|" maybeCompare cmp (Some _) None = ( GT )"
-|" maybeCompare cmp (Some x') (Some y') = ( cmp x' y' )"
+     " maybeCompare cmp None None = ( EQ )" 
+  for  cmp  :: " 'b \<Rightarrow> 'a \<Rightarrow> ordering "
+|" maybeCompare cmp None (Some _) = ( LT )" 
+  for  cmp  :: " 'b \<Rightarrow> 'a \<Rightarrow> ordering "
+|" maybeCompare cmp (Some _) None = ( GT )" 
+  for  cmp  :: " 'b \<Rightarrow> 'a \<Rightarrow> ordering "
+|" maybeCompare cmp (Some x') (Some y') = ( cmp x' y' )" 
+  for  cmp  :: " 'b \<Rightarrow> 'a \<Rightarrow> ordering " 
+  and  x'  :: " 'b " 
+  and  y'  :: " 'a "
 
 
 definition instance_Basic_classes_Ord_Maybe_maybe_dict  :: " 'a Ord_class \<Rightarrow>('a option)Ord_class "  where 
@@ -57,7 +69,8 @@ definition instance_Basic_classes_Ord_Maybe_maybe_dict  :: " 'a Ord_class \<Righ
   (compare_method   dict_Basic_classes_Ord_a) m1 m2 = GT)),
 
   isGreaterEqual_method = (\<lambda> m1 .  (\<lambda> m2 .  ((let r = (maybeCompare 
-  (compare_method   dict_Basic_classes_Ord_a) m1 m2) in (r = GT) \<or> (r = EQ)))))|) )"
+  (compare_method   dict_Basic_classes_Ord_a) m1 m2) in (r = GT) \<or> (r = EQ)))))|) )" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class "
 
 
 \<comment> \<open>\<open> ----------------------- \<close>\<close>

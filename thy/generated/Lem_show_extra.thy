@@ -47,7 +47,9 @@ definition instance_Show_Show_Num_integer_dict  :: "(int)Show_class "  where
 
 definition stringFromSet  :: "('a \<Rightarrow> string)\<Rightarrow> 'a set \<Rightarrow> string "  where 
      " stringFromSet showX xs = (
-  (''{'') @ (Lem_show.stringFromListAux showX (list_of_set xs) @ (''}'')))"
+  (''{'') @ (Lem_show.stringFromListAux showX (list_of_set xs) @ (''}'')))" 
+  for  showX  :: " 'a \<Rightarrow> string " 
+  and  xs  :: " 'a set "
 
 
 \<comment> \<open>\<open> Abbreviates the representation if the relation is transitive. \<close>\<close>
@@ -62,13 +64,16 @@ definition stringFromRelation  :: "('a*'a \<Rightarrow> string)\<Rightarrow>('a*
     else
       (''trancl of '') @ stringFromSet showX pruned_rel)
   else
-    stringFromSet showX rel )"
+    stringFromSet showX rel )" 
+  for  showX  :: " 'a*'a \<Rightarrow> string " 
+  and  rel  :: "('a*'a)set "
 
 
 definition instance_Show_Show_set_dict  :: " 'a Show_class \<Rightarrow>('a set)Show_class "  where 
      " instance_Show_Show_set_dict dict_Show_Show_a = ((|
 
   show_method = (\<lambda> xs. stringFromSet 
-  (show_method   dict_Show_Show_a) xs)|) )"
+  (show_method   dict_Show_Show_a) xs)|) )" 
+  for  dict_Show_Show_a  :: " 'a Show_class "
 
 end

@@ -27,18 +27,30 @@ datatype_record simpleIO =
 
 \<comment> \<open>\<open>val isEof : oracle_function simpleIO\<close>\<close>
 fun isEof  :: " simpleIO \<Rightarrow>(8 word)list \<Rightarrow>(8 word)list \<Rightarrow>(simpleIO)oracle_result "  where 
-     " isEof st conf ([]) = ( Oracle_final FFI_failed )"
-|" isEof st conf (x # xs) = ( Oracle_return st ((if(input   st) = LNil then of_nat (( 1 :: nat)) else of_nat (( 0 :: nat)))# xs))"
+     " isEof st conf ([]) = ( Oracle_final FFI_failed )" 
+  for  st  :: " simpleIO " 
+  and  conf  :: "(8 word)list "
+|" isEof st conf (x # xs) = ( Oracle_return st ((if(input   st) = LNil then of_nat (( 1 :: nat)) else of_nat (( 0 :: nat)))# xs))" 
+  for  st  :: " simpleIO " 
+  and  conf  :: "(8 word)list " 
+  and  xs  :: "(8 word)list " 
+  and  x  :: " 8 word "
 
 
 \<comment> \<open>\<open>val getChar : oracle_function simpleIO\<close>\<close>
 fun getChar  :: " simpleIO \<Rightarrow>(8 word)list \<Rightarrow>(8 word)list \<Rightarrow>(simpleIO)oracle_result "  where 
-     " getChar st conf ([]) = ( Oracle_final FFI_failed )"
+     " getChar st conf ([]) = ( Oracle_final FFI_failed )" 
+  for  st  :: " simpleIO " 
+  and  conf  :: "(8 word)list "
 |" getChar st conf (x # xs) = (
       (case  lhd'(input   st) of
         Some y => Oracle_return (( st (| input := (Option.the (ltl'(input   st))) |))) (y # xs)
       | _ => Oracle_final FFI_failed
-      ))"
+      ))" 
+  for  st  :: " simpleIO " 
+  and  conf  :: "(8 word)list " 
+  and  xs  :: "(8 word)list " 
+  and  x  :: " 8 word "
 
 
 \<comment> \<open>\<open>val putChar : oracle_function simpleIO\<close>\<close>
@@ -47,12 +59,18 @@ definition putChar  :: " simpleIO \<Rightarrow>(8 word)list \<Rightarrow>(8 word
   (case  input1 of
     [] => Oracle_final FFI_failed
   | x # _ => Oracle_return (( st (| output0 := (LCons x(output0   st)) |))) input1
-  ))"
+  ))" 
+  for  st  :: " simpleIO " 
+  and  conf  :: "(8 word)list " 
+  and  input1  :: "(8 word)list "
 
 
 \<comment> \<open>\<open>val exit : oracle_function simpleIO\<close>\<close>
 definition exit0  :: " simpleIO \<Rightarrow>(8 word)list \<Rightarrow>(8 word)list \<Rightarrow>(simpleIO)oracle_result "  where 
-     " exit0 st conf input1 = ( Oracle_final FFI_diverged )"
+     " exit0 st conf input1 = ( Oracle_final FFI_diverged )" 
+  for  st  :: " simpleIO " 
+  and  conf  :: "(8 word)list " 
+  and  input1  :: "(8 word)list "
 
 
 \<comment> \<open>\<open>val simpleIO_oracle : oracle simpleIO\<close>\<close>
@@ -67,6 +85,10 @@ definition simpleIO_oracle  :: " string \<Rightarrow> simpleIO \<Rightarrow>(8 w
   else if s = (''exit'') then
     exit0 st conf input1
   else
-    Oracle_final FFI_failed )"
+    Oracle_final FFI_failed )" 
+  for  s  :: " string " 
+  and  st  :: " simpleIO " 
+  and  conf  :: "(8 word)list " 
+  and  input1  :: "(8 word)list "
 
 end

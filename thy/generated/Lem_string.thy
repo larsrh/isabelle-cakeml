@@ -64,12 +64,16 @@ begin
 
 \<comment> \<open>\<open>val concat : string -> list string -> string\<close>\<close>
 function (sequential,domintros)  concat  :: " string \<Rightarrow>(string)list \<Rightarrow> string "  where 
-     " concat sep ([]) = ( (''''))"
+     " concat sep ([]) = ( (''''))" 
+  for  sep  :: " string "
 |" concat sep (s # ss') = (
       (case  ss' of
         [] => s
       | _ => s @ (sep @ concat sep ss')
       ))" 
+  for  sep  :: " string " 
+  and  ss'  :: "(string)list " 
+  and  s  :: " string " 
 by pat_completeness auto
 
 end

@@ -26,23 +26,32 @@ begin
 \<comment> \<open>\<open>val map2 : forall 'a 'b 'c. ('a -> 'b -> 'c) -> list 'a -> list 'b -> list 'c\<close>\<close>
 
 fun  the  :: " 'a \<Rightarrow> 'a option \<Rightarrow> 'a "  where 
-     " the _ (Some x) = ( x )" |" the x None = ( x )"
+     " the _ (Some x) = ( x )" 
+  for  x  :: " 'a " |" the x None = ( x )" 
+  for  x  :: " 'a "
 
 
 \<comment> \<open>\<open>val fapply : forall 'a 'b. MapKeyType 'b => 'a -> 'b -> Map.map 'b 'a -> 'a\<close>\<close>
 definition fapply  :: " 'a \<Rightarrow> 'b \<Rightarrow>('b,'a)Map.map \<Rightarrow> 'a "  where 
-     " fapply d x f = ( (case   f x of Some d => d | None => d ))"
+     " fapply d x f = ( (case   f x of Some d => d | None => d ))" 
+  for  d  :: " 'a " 
+  and  x  :: " 'b " 
+  and  f  :: "('b,'a)Map.map "
 
 
 function (sequential,domintros) 
 lunion  :: " 'a list \<Rightarrow> 'a list \<Rightarrow> 'a list "  where 
      "
-lunion [] s = ( s )"
+lunion [] s = ( s )" 
+  for  s  :: " 'a list "
 |"
 lunion (x # xs) s = (
   if Set.member x (set s)
   then lunion xs s
   else x #(lunion xs s))" 
+  for  xs  :: " 'a list " 
+  and  x  :: " 'a " 
+  and  s  :: " 'a list " 
 by pat_completeness auto
 
 
@@ -118,8 +127,13 @@ type_synonym( 'a, 'b) alist =" ('a * 'b) list "
 
 \<comment> \<open>\<open>val opt_bind : forall 'a 'b. maybe 'a -> 'b -> alist 'a 'b -> alist 'a 'b\<close>\<close>
 fun opt_bind  :: " 'a option \<Rightarrow> 'b \<Rightarrow>('a*'b)list \<Rightarrow>('a*'b)list "  where 
-     " opt_bind None v2 e = ( e )"
-|" opt_bind (Some n') v2 e = ( (n',v2)# e )"
+     " opt_bind None v2 e = ( e )" 
+  for  v2  :: " 'b " 
+  and  e  :: "('a*'b)list "
+|" opt_bind (Some n') v2 e = ( (n',v2)# e )" 
+  for  n'  :: " 'a " 
+  and  v2  :: " 'b " 
+  and  e  :: "('a*'b)list "
 
 
 \<comment> \<open>\<open> Lists of indices \<close>\<close>
@@ -128,7 +142,9 @@ fun
 lshift  :: " nat \<Rightarrow>(nat)list \<Rightarrow>(nat)list "  where 
      "
 lshift (n :: nat) ls = (
-  List.map (\<lambda> v2 .  v2 - n) (List.filter (\<lambda> v2 .  n \<le> v2) ls))"
+  List.map (\<lambda> v2 .  v2 - n) (List.filter (\<lambda> v2 .  n \<le> v2) ls))" 
+  for  n  :: " nat " 
+  and  ls  :: "(nat)list "
 
 
 \<comment> \<open>\<open>open import {hol} `locationTheory`\<close>\<close>

@@ -43,13 +43,16 @@ fun  stringFromNatHelper  :: " nat \<Rightarrow>(char)list \<Rightarrow>(char)li
   if n =( 0 :: nat) then
     acc1
   else
-    stringFromNatHelper (n div( 10 :: nat)) ((%n. char_of (n::nat)) ((n mod( 10 :: nat)) +( 48 :: nat)) # acc1))"
+    stringFromNatHelper (n div( 10 :: nat)) ((%n. char_of (n::nat)) ((n mod( 10 :: nat)) +( 48 :: nat)) # acc1))" 
+  for  n  :: " nat " 
+  and  acc1  :: "(char)list "
 
 
 \<comment> \<open>\<open>val stringFromNat : nat -> string\<close>\<close>
 definition stringFromNat  :: " nat \<Rightarrow> string "  where 
      " stringFromNat n = ( 
-  if n =( 0 :: nat) then (''0'') else  (stringFromNatHelper n []))"
+  if n =( 0 :: nat) then (''0'') else  (stringFromNatHelper n []))" 
+  for  n  :: " nat "
 
 
 \<comment> \<open>\<open>val stringFromNaturalHelper : natural -> list char -> list char\<close>\<close>
@@ -58,13 +61,16 @@ fun  stringFromNaturalHelper  :: " nat \<Rightarrow>(char)list \<Rightarrow>(cha
   if n =( 0 :: nat) then
     acc1
   else
-    stringFromNaturalHelper (n div( 10 :: nat)) ((%n. char_of (n::nat)) ( ((n mod( 10 :: nat)) +( 48 :: nat))) # acc1))"
+    stringFromNaturalHelper (n div( 10 :: nat)) ((%n. char_of (n::nat)) ( ((n mod( 10 :: nat)) +( 48 :: nat))) # acc1))" 
+  for  n  :: " nat " 
+  and  acc1  :: "(char)list "
 
 
 \<comment> \<open>\<open>val stringFromNatural : natural -> string\<close>\<close>
 definition stringFromNatural  :: " nat \<Rightarrow> string "  where 
      " stringFromNatural n = ( 
-  if n =( 0 :: nat) then (''0'') else  (stringFromNaturalHelper n []))"
+  if n =( 0 :: nat) then (''0'') else  (stringFromNaturalHelper n []))" 
+  for  n  :: " nat "
 
 
 \<comment> \<open>\<open>val stringFromInt : int -> string\<close>\<close>
@@ -73,7 +79,8 @@ definition stringFromInt  :: " int \<Rightarrow> string "  where
   if i <( 0 :: int) then 
     (''-'') @ stringFromNat (nat (abs i))
   else
-    stringFromNat (nat (abs i)))"
+    stringFromNat (nat (abs i)))" 
+  for  i  :: " int "
 
 
 \<comment> \<open>\<open>val stringFromInteger : integer -> string\<close>\<close>
@@ -82,7 +89,8 @@ definition stringFromInteger  :: " int \<Rightarrow> string "  where
   if i <( 0 :: int) then 
     (''-'') @ stringFromNatural (nat (abs i))
   else
-    stringFromNatural (nat (abs i)))"
+    stringFromNatural (nat (abs i)))" 
+  for  i  :: " int "
 
 
 
@@ -92,13 +100,16 @@ definition stringFromInteger  :: " int \<Rightarrow> string "  where
 
 \<comment> \<open>\<open>val nth : string -> nat -> char\<close>\<close>
 definition nth  :: " string \<Rightarrow> nat \<Rightarrow> char "  where 
-     " nth s n = ( List.nth ( s) n )"
+     " nth s n = ( List.nth ( s) n )" 
+  for  s  :: " string " 
+  and  n  :: " nat "
 
 
 \<comment> \<open>\<open>val stringConcat : list string -> string\<close>\<close>
 definition stringConcat  :: "(string)list \<Rightarrow> string "  where 
      " stringConcat s = (
-  List.foldr (@) s (''''))"
+  List.foldr (@) s (''''))" 
+  for  s  :: "(string)list "
 
 
 \<comment> \<open>\<open>****************************************************************************\<close>\<close>
@@ -108,16 +119,24 @@ definition stringConcat  :: "(string)list \<Rightarrow> string "  where
 \<comment> \<open>\<open>val stringCompare : string -> string -> ordering\<close>\<close>
 
 definition stringLess  :: " string \<Rightarrow> string \<Rightarrow> bool "  where 
-     " stringLess x y = ( orderingIsLess (EQ))"
+     " stringLess x y = ( orderingIsLess (EQ))" 
+  for  x  :: " string " 
+  and  y  :: " string "
 
 definition stringLessEq  :: " string \<Rightarrow> string \<Rightarrow> bool "  where 
-     " stringLessEq x y = ( \<not> (orderingIsGreater (EQ)))"
+     " stringLessEq x y = ( \<not> (orderingIsGreater (EQ)))" 
+  for  x  :: " string " 
+  and  y  :: " string "
 
 definition stringGreater  :: " string \<Rightarrow> string \<Rightarrow> bool "  where 
-     " stringGreater x y = ( stringLess y x )"
+     " stringGreater x y = ( stringLess y x )" 
+  for  x  :: " string " 
+  and  y  :: " string "
 
 definition stringGreaterEq  :: " string \<Rightarrow> string \<Rightarrow> bool "  where 
-     " stringGreaterEq x y = ( stringLessEq y x )"
+     " stringGreaterEq x y = ( stringLessEq y x )" 
+  for  x  :: " string " 
+  and  y  :: " string "
 
 
 definition instance_Basic_classes_Ord_string_dict  :: "(string)Ord_class "  where 

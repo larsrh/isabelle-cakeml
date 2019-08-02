@@ -39,7 +39,9 @@ definition ensure  :: " bool \<Rightarrow> string \<Rightarrow> unit "  where
   if test then
     () 
   else
-    failwith msg )"
+    failwith msg )" 
+  for  test  :: " bool " 
+  and  msg  :: " string "
 
 
 end

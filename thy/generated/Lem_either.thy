@@ -35,15 +35,31 @@ definition eitherEqualBy  :: "('a \<Rightarrow> 'a \<Rightarrow> bool)\<Rightarr
       (Inl l, Inl l') => eql l l'
     | (Inr r, Inr r') => eqr r r'
     | _ => False
-  ))"
+  ))" 
+  for  eql  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  eqr  :: " 'b \<Rightarrow> 'b \<Rightarrow> bool " 
+  and  left  :: "('a,'b)sum " 
+  and  right  :: "('a,'b)sum "
 
 \<comment> \<open>\<open>let eitherEqual=  eitherEqualBy (=) (=)\<close>\<close>
 
 fun either_setElemCompare  :: "('d \<Rightarrow> 'b \<Rightarrow> ordering)\<Rightarrow>('c \<Rightarrow> 'a \<Rightarrow> ordering)\<Rightarrow>('d,'c)sum \<Rightarrow>('b,'a)sum \<Rightarrow> ordering "  where 
-     " either_setElemCompare cmpa cmpb (Inl x') (Inl y') = ( cmpa x' y' )"
-|" either_setElemCompare cmpa cmpb (Inr x') (Inr y') = ( cmpb x' y' )"
-|" either_setElemCompare cmpa cmpb (Inl _) (Inr _) = ( LT )"
-|" either_setElemCompare cmpa cmpb (Inr _) (Inl _) = ( GT )"
+     " either_setElemCompare cmpa cmpb (Inl x') (Inl y') = ( cmpa x' y' )" 
+  for  cmpa  :: " 'd \<Rightarrow> 'b \<Rightarrow> ordering " 
+  and  cmpb  :: " 'c \<Rightarrow> 'a \<Rightarrow> ordering " 
+  and  x'  :: " 'd " 
+  and  y'  :: " 'b "
+|" either_setElemCompare cmpa cmpb (Inr x') (Inr y') = ( cmpb x' y' )" 
+  for  cmpa  :: " 'd \<Rightarrow> 'b \<Rightarrow> ordering " 
+  and  cmpb  :: " 'c \<Rightarrow> 'a \<Rightarrow> ordering " 
+  and  x'  :: " 'c " 
+  and  y'  :: " 'a "
+|" either_setElemCompare cmpa cmpb (Inl _) (Inr _) = ( LT )" 
+  for  cmpa  :: " 'd \<Rightarrow> 'b \<Rightarrow> ordering " 
+  and  cmpb  :: " 'c \<Rightarrow> 'a \<Rightarrow> ordering "
+|" either_setElemCompare cmpa cmpb (Inr _) (Inl _) = ( GT )" 
+  for  cmpa  :: " 'd \<Rightarrow> 'b \<Rightarrow> ordering " 
+  and  cmpb  :: " 'c \<Rightarrow> 'a \<Rightarrow> ordering "
 
                            
 

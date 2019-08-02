@@ -63,10 +63,18 @@ begin
 \<comment> \<open>\<open>val listEqualBy : forall 'a. ('a -> 'a -> bool) -> list 'a -> list 'a -> bool\<close>\<close>
 
 fun  listEqualBy  :: "('a \<Rightarrow> 'a \<Rightarrow> bool)\<Rightarrow> 'a list \<Rightarrow> 'a list \<Rightarrow> bool "  where 
-     " listEqualBy eq ([]) ([]) = ( True )"
-|" listEqualBy eq ([]) (_ # _) = ( False )"
-|" listEqualBy eq (_ # _) ([]) = ( False )"
-|" listEqualBy eq (x # xs) (y # ys) = ( (eq x y \<and> listEqualBy eq xs ys))"
+     " listEqualBy eq ([]) ([]) = ( True )" 
+  for  eq  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool "
+|" listEqualBy eq ([]) (_ # _) = ( False )" 
+  for  eq  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool "
+|" listEqualBy eq (_ # _) ([]) = ( False )" 
+  for  eq  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool "
+|" listEqualBy eq (x # xs) (y # ys) = ( (eq x y \<and> listEqualBy eq xs ys))" 
+  for  eq  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  xs  :: " 'a list " 
+  and  x  :: " 'a " 
+  and  ys  :: " 'a list " 
+  and  y  :: " 'a "
 
 
 
@@ -78,34 +86,66 @@ fun  listEqualBy  :: "('a \<Rightarrow> 'a \<Rightarrow> bool)\<Rightarrow> 'a l
 \<comment> \<open>\<open>val lexicographicCompareBy : forall 'a. ('a -> 'a -> ordering) -> list 'a -> list 'a -> ordering\<close>\<close>
 
 fun  lexicographicCompareBy  :: "('a \<Rightarrow> 'a \<Rightarrow> ordering)\<Rightarrow> 'a list \<Rightarrow> 'a list \<Rightarrow> ordering "  where 
-     " lexicographicCompareBy cmp ([]) ([]) = ( EQ )"
-|" lexicographicCompareBy cmp ([]) (_ # _) = ( LT )"
-|" lexicographicCompareBy cmp (_ # _) ([]) = ( GT )"
+     " lexicographicCompareBy cmp ([]) ([]) = ( EQ )" 
+  for  cmp  :: " 'a \<Rightarrow> 'a \<Rightarrow> ordering "
+|" lexicographicCompareBy cmp ([]) (_ # _) = ( LT )" 
+  for  cmp  :: " 'a \<Rightarrow> 'a \<Rightarrow> ordering "
+|" lexicographicCompareBy cmp (_ # _) ([]) = ( GT )" 
+  for  cmp  :: " 'a \<Rightarrow> 'a \<Rightarrow> ordering "
 |" lexicographicCompareBy cmp (x # xs) (y # ys) = ( (
       (case  cmp x y of 
           LT => LT
         | GT => GT
         | EQ => lexicographicCompareBy cmp xs ys
       )
-    ))"
+    ))" 
+  for  cmp  :: " 'a \<Rightarrow> 'a \<Rightarrow> ordering " 
+  and  xs  :: " 'a list " 
+  and  x  :: " 'a " 
+  and  ys  :: " 'a list " 
+  and  y  :: " 'a "
 
 
 \<comment> \<open>\<open>val lexicographicLess : forall 'a. Ord 'a => list 'a -> list 'a -> bool\<close>\<close>
 \<comment> \<open>\<open>val lexicographicLessBy : forall 'a. ('a -> 'a -> bool) -> ('a -> 'a -> bool) -> list 'a -> list 'a -> bool\<close>\<close>
 fun  lexicographicLessBy  :: "('a \<Rightarrow> 'a \<Rightarrow> bool)\<Rightarrow>('a \<Rightarrow> 'a \<Rightarrow> bool)\<Rightarrow> 'a list \<Rightarrow> 'a list \<Rightarrow> bool "  where 
-     " lexicographicLessBy less1 less_eq1 ([]) ([]) = ( False )"
-|" lexicographicLessBy less1 less_eq1 ([]) (_ # _) = ( True )"
-|" lexicographicLessBy less1 less_eq1 (_ # _) ([]) = ( False )"
-|" lexicographicLessBy less1 less_eq1 (x # xs) (y # ys) = ( ((less1 x y) \<or> ((less_eq1 x y) \<and> (lexicographicLessBy less1 less_eq1 xs ys))))"
+     " lexicographicLessBy less1 less_eq1 ([]) ([]) = ( False )" 
+  for  less1  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  less_eq1  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool "
+|" lexicographicLessBy less1 less_eq1 ([]) (_ # _) = ( True )" 
+  for  less1  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  less_eq1  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool "
+|" lexicographicLessBy less1 less_eq1 (_ # _) ([]) = ( False )" 
+  for  less1  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  less_eq1  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool "
+|" lexicographicLessBy less1 less_eq1 (x # xs) (y # ys) = ( ((less1 x y) \<or> ((less_eq1 x y) \<and> (lexicographicLessBy less1 less_eq1 xs ys))))" 
+  for  less1  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  less_eq1  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  xs  :: " 'a list " 
+  and  x  :: " 'a " 
+  and  ys  :: " 'a list " 
+  and  y  :: " 'a "
 
 
 \<comment> \<open>\<open>val lexicographicLessEq : forall 'a. Ord 'a => list 'a -> list 'a -> bool\<close>\<close>
 \<comment> \<open>\<open>val lexicographicLessEqBy : forall 'a. ('a -> 'a -> bool) -> ('a -> 'a -> bool) -> list 'a -> list 'a -> bool\<close>\<close>
 fun  lexicographicLessEqBy  :: "('a \<Rightarrow> 'a \<Rightarrow> bool)\<Rightarrow>('a \<Rightarrow> 'a \<Rightarrow> bool)\<Rightarrow> 'a list \<Rightarrow> 'a list \<Rightarrow> bool "  where 
-     " lexicographicLessEqBy less1 less_eq1 ([]) ([]) = ( True )"
-|" lexicographicLessEqBy less1 less_eq1 ([]) (_ # _) = ( True )"
-|" lexicographicLessEqBy less1 less_eq1 (_ # _) ([]) = ( False )"
-|" lexicographicLessEqBy less1 less_eq1 (x # xs) (y # ys) = ( (less1 x y \<or> (less_eq1 x y \<and> lexicographicLessEqBy less1 less_eq1 xs ys)))"
+     " lexicographicLessEqBy less1 less_eq1 ([]) ([]) = ( True )" 
+  for  less1  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  less_eq1  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool "
+|" lexicographicLessEqBy less1 less_eq1 ([]) (_ # _) = ( True )" 
+  for  less1  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  less_eq1  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool "
+|" lexicographicLessEqBy less1 less_eq1 (_ # _) ([]) = ( False )" 
+  for  less1  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  less_eq1  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool "
+|" lexicographicLessEqBy less1 less_eq1 (x # xs) (y # ys) = ( (less1 x y \<or> (less_eq1 x y \<and> lexicographicLessEqBy less1 less_eq1 xs ys)))" 
+  for  less1  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  less_eq1  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  xs  :: " 'a list " 
+  and  x  :: " 'a " 
+  and  ys  :: " 'a list " 
+  and  y  :: " 'a "
 
 
 
@@ -125,7 +165,8 @@ definition instance_Basic_classes_Ord_list_dict  :: " 'a Ord_class \<Rightarrow>
   (isLess_method   dict_Basic_classes_Ord_a) (isLessEqual_method   dict_Basic_classes_Ord_a) y x)),
 
   isGreaterEqual_method = (\<lambda> x y. (lexicographicLessEqBy 
-  (isLess_method   dict_Basic_classes_Ord_a) (isLessEqual_method   dict_Basic_classes_Ord_a) y x))|) )"
+  (isLess_method   dict_Basic_classes_Ord_a) (isLessEqual_method   dict_Basic_classes_Ord_a) y x))|) )" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class "
 
 
 
@@ -172,18 +213,30 @@ definition instance_Basic_classes_Ord_list_dict  :: " 'a Ord_class \<Rightarrow>
 
 \<comment> \<open>\<open>val map_tr : forall 'a 'b. list 'b -> ('a -> 'b) -> list 'a -> list 'b\<close>\<close>
 function (sequential,domintros)  map_tr  :: " 'b list \<Rightarrow>('a \<Rightarrow> 'b)\<Rightarrow> 'a list \<Rightarrow> 'b list "  where 
-     " map_tr rev_acc f ([]) = ( List.rev rev_acc )"
+     " map_tr rev_acc f ([]) = ( List.rev rev_acc )" 
+  for  rev_acc  :: " 'b list " 
+  and  f  :: " 'a \<Rightarrow> 'b "
 |" map_tr rev_acc f (x # xs) = ( map_tr ((f x) # rev_acc) f xs )" 
+  for  rev_acc  :: " 'b list " 
+  and  f  :: " 'a \<Rightarrow> 'b " 
+  and  xs  :: " 'a list " 
+  and  x  :: " 'a " 
 by pat_completeness auto
 
 
 \<comment> \<open>\<open> taken from: https://blogs.janestreet.com/optimizing-list-map/ \<close>\<close>
 \<comment> \<open>\<open>val count_map : forall 'a 'b. ('a -> 'b) -> list 'a -> nat -> list 'b\<close>\<close>
 function (sequential,domintros)  count_map  :: "('a \<Rightarrow> 'b)\<Rightarrow> 'a list \<Rightarrow> nat \<Rightarrow> 'b list "  where 
-     " count_map f ([]) ctr = ( [])"
+     " count_map f ([]) ctr = ( [])" 
+  for  f  :: " 'a \<Rightarrow> 'b " 
+  and  ctr  :: " nat "
 |" count_map f (hd1 # tl1) ctr = ( f hd1 # 
     (if ctr <( 5000 :: nat) then count_map f tl1 (ctr +( 1 :: nat)) 
     else map_tr [] f tl1))" 
+  for  f  :: " 'a \<Rightarrow> 'b " 
+  and  tl1  :: " 'a list " 
+  and  hd1  :: " 'a " 
+  and  ctr  :: " nat " 
 by pat_completeness auto
 
  
@@ -265,13 +318,21 @@ end\<close>\<close>
 \<comment> \<open>\<open>val dest_init : forall 'a. list 'a -> maybe (list 'a * 'a)\<close>\<close> 
 
 fun  dest_init_aux  :: " 'a list \<Rightarrow> 'a \<Rightarrow> 'a list \<Rightarrow> 'a list*'a "  where 
-     " dest_init_aux rev_init last_elem_seen ([]) = ( (List.rev rev_init, last_elem_seen))"
-|" dest_init_aux rev_init last_elem_seen (x # xs) = ( dest_init_aux (last_elem_seen # rev_init) x xs )"
+     " dest_init_aux rev_init last_elem_seen ([]) = ( (List.rev rev_init, last_elem_seen))" 
+  for  rev_init  :: " 'a list " 
+  and  last_elem_seen  :: " 'a "
+|" dest_init_aux rev_init last_elem_seen (x # xs) = ( dest_init_aux (last_elem_seen # rev_init) x xs )" 
+  for  rev_init  :: " 'a list " 
+  and  last_elem_seen  :: " 'a " 
+  and  xs  :: " 'a list " 
+  and  x  :: " 'a "
 
 
 fun dest_init  :: " 'a list \<Rightarrow>('a list*'a)option "  where 
      " dest_init ([]) = ( None )"
-|" dest_init (x # xs) = ( Some (dest_init_aux [] x xs))"
+|" dest_init (x # xs) = ( Some (dest_init_aux [] x xs))" 
+  for  xs  :: " 'a list " 
+  and  x  :: " 'a "
 
 
 
@@ -299,8 +360,14 @@ end\<close>\<close>
 \<comment> \<open>\<open>val findIndices : forall 'a. ('a -> bool) -> list 'a -> list nat\<close>\<close>
 
 fun  findIndices_aux  :: " nat \<Rightarrow>('a \<Rightarrow> bool)\<Rightarrow> 'a list \<Rightarrow>(nat)list "  where 
-     " findIndices_aux (i::nat) P ([]) = ( [])"
-|" findIndices_aux (i::nat) P (x # xs) = ( if P x then i # findIndices_aux (i +( 1 :: nat)) P xs else findIndices_aux (i +( 1 :: nat)) P xs )"
+     " findIndices_aux (i::nat) P ([]) = ( [])" 
+  for  i  :: " nat " 
+  and  P  :: " 'a \<Rightarrow> bool "
+|" findIndices_aux (i::nat) P (x # xs) = ( if P x then i # findIndices_aux (i +( 1 :: nat)) P xs else findIndices_aux (i +( 1 :: nat)) P xs )" 
+  for  i  :: " nat " 
+  and  P  :: " 'a \<Rightarrow> bool " 
+  and  xs  :: " 'a list " 
+  and  x  :: " 'a "
 
 \<comment> \<open>\<open>let findIndices P l=  findIndices_aux 0 P l\<close>\<close>
 
@@ -379,6 +446,9 @@ function (sequential,domintros)  splitAtAcc  :: " 'a list \<Rightarrow> nat \<Ri
       []    => (List.rev revAcc, [])
     | x # xs => if n \<le>( 0 :: nat) then (List.rev revAcc, l) else splitAtAcc (x # revAcc) (n-( 1 :: nat)) xs
   ))" 
+  for  revAcc  :: " 'a list " 
+  and  n  :: " nat " 
+  and  l  :: " 'a list " 
 by pat_completeness auto
 
 
@@ -410,29 +480,41 @@ by pat_completeness auto
 \<comment> \<open>\<open>val splitWhile_tr : forall 'a. ('a -> bool) -> list 'a -> list 'a -> (list 'a * list 'a)\<close>\<close>
 fun  splitWhile_tr  :: "('a \<Rightarrow> bool)\<Rightarrow> 'a list \<Rightarrow> 'a list \<Rightarrow> 'a list*'a list "  where 
      " splitWhile_tr p ([]) acc1 = (
-    (List.rev acc1, []))"
+    (List.rev acc1, []))" 
+  for  p  :: " 'a \<Rightarrow> bool " 
+  and  acc1  :: " 'a list "
 |" splitWhile_tr p (x # xs) acc1 = (
     if p x then
       splitWhile_tr p xs (x # acc1)
     else
-      (List.rev acc1, (x # xs)))"
+      (List.rev acc1, (x # xs)))" 
+  for  p  :: " 'a \<Rightarrow> bool " 
+  and  xs  :: " 'a list " 
+  and  x  :: " 'a " 
+  and  acc1  :: " 'a list "
 
 
 \<comment> \<open>\<open>val splitWhile : forall 'a. ('a -> bool) -> list 'a -> (list 'a * list 'a)\<close>\<close>
 definition splitWhile  :: "('a \<Rightarrow> bool)\<Rightarrow> 'a list \<Rightarrow> 'a list*'a list "  where 
-     " splitWhile p xs = ( splitWhile_tr p xs [])"
+     " splitWhile p xs = ( splitWhile_tr p xs [])" 
+  for  p  :: " 'a \<Rightarrow> bool " 
+  and  xs  :: " 'a list "
 
 
 \<comment> \<open>\<open> [takeWhile p xs] takes the first elements of [xs] that satisfy [p]. \<close>\<close>
 \<comment> \<open>\<open>val takeWhile : forall 'a. ('a -> bool) -> list 'a -> list 'a\<close>\<close>
 definition takeWhile  :: "('a \<Rightarrow> bool)\<Rightarrow> 'a list \<Rightarrow> 'a list "  where 
-     " takeWhile p l = ( fst (splitWhile p l))"
+     " takeWhile p l = ( fst (splitWhile p l))" 
+  for  p  :: " 'a \<Rightarrow> bool " 
+  and  l  :: " 'a list "
 
 
 \<comment> \<open>\<open> [dropWhile p xs] drops the first elements of [xs] that satisfy [p]. \<close>\<close>
 \<comment> \<open>\<open>val dropWhile : forall 'a. ('a -> bool) -> list 'a -> list 'a\<close>\<close>
 definition dropWhile  :: "('a \<Rightarrow> bool)\<Rightarrow> 'a list \<Rightarrow> 'a list "  where 
-     " dropWhile p l = ( snd (splitWhile p l))"
+     " dropWhile p l = ( snd (splitWhile p l))" 
+  for  p  :: " 'a \<Rightarrow> bool " 
+  and  l  :: " 'a list "
 
 
 \<comment> \<open>\<open> ------------------------- \<close>\<close>
@@ -443,7 +525,11 @@ definition dropWhile  :: "('a \<Rightarrow> bool)\<Rightarrow> 'a list \<Rightar
 fun  isPrefixOf  :: " 'a list \<Rightarrow> 'a list \<Rightarrow> bool "  where 
      " isPrefixOf ([]) _ = ( True )"
 |" isPrefixOf (_ # _) ([]) = ( False )"
-|" isPrefixOf (x # xs) (y # ys) = ( (x = y) \<and> isPrefixOf xs ys )"
+|" isPrefixOf (x # xs) (y # ys) = ( (x = y) \<and> isPrefixOf xs ys )" 
+  for  xs  :: " 'a list " 
+  and  x  :: " 'a " 
+  and  ys  :: " 'a list " 
+  and  y  :: " 'a "
 
 
 \<comment> \<open>\<open> ------------------------- \<close>\<close>
@@ -487,7 +573,10 @@ end\<close>\<close>
 \<comment> \<open>\<open>val elemBy : forall 'a. ('a -> 'a -> bool) -> 'a -> list 'a -> bool\<close>\<close>
 
 definition elemBy  :: "('a \<Rightarrow> 'a \<Rightarrow> bool)\<Rightarrow> 'a \<Rightarrow> 'a list \<Rightarrow> bool "  where 
-     " elemBy eq e l = ( ((\<exists> x \<in> (set l).  (eq e) x)))"
+     " elemBy eq e l = ( ((\<exists> x \<in> (set l).  (eq e) x)))" 
+  for  eq  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  e  :: " 'a " 
+  and  l  :: " 'a list "
 
 \<comment> \<open>\<open>let elem=  elemBy (=)\<close>\<close>
 
@@ -510,7 +599,10 @@ end\<close>\<close>
 \<comment> \<open>\<open> DPM: eta-expansion for Coq backend type-inference. \<close>\<close>
 definition lookupBy  :: "('a \<Rightarrow> 'a \<Rightarrow> bool)\<Rightarrow> 'a \<Rightarrow>('a*'b)list \<Rightarrow> 'b option "  where 
      " lookupBy eq k m = ( map_option (\<lambda> x .  snd x) (List.find ( \<lambda>x .  
-  (case  x of (k', _) => eq k k' )) m))"
+  (case  x of (k', _) => eq k k' )) m))" 
+  for  eq  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  k  :: " 'a " 
+  and  m  :: "('a*'b)list "
 
 
 \<comment> \<open>\<open> ------------------------- \<close>\<close>
@@ -531,7 +623,9 @@ definition lookupBy  :: "('a \<Rightarrow> 'a \<Rightarrow> bool)\<Rightarrow> '
 
 \<comment> \<open>\<open>val reversePartition : forall 'a. ('a -> bool) -> list 'a -> list 'a * list 'a\<close>\<close>
 definition reversePartition  :: "('a \<Rightarrow> bool)\<Rightarrow> 'a list \<Rightarrow> 'a list*'a list "  where 
-     " reversePartition P l = ( List.partition P (List.rev l))"
+     " reversePartition P l = ( List.partition P (List.rev l))" 
+  for  P  :: " 'a \<Rightarrow> bool " 
+  and  l  :: " 'a list "
 
 
 
@@ -551,7 +645,10 @@ definition reversePartition  :: "('a \<Rightarrow> bool)\<Rightarrow> 'a list \<
 \<comment> \<open>\<open>val deleteBy : forall 'a. ('a -> 'a -> bool) -> 'a -> list 'a -> list 'a\<close>\<close>
 
 definition deleteBy  :: "('a \<Rightarrow> 'a \<Rightarrow> bool)\<Rightarrow> 'a \<Rightarrow> 'a list \<Rightarrow> 'a list "  where 
-     " deleteBy eq x l = ( case_option l id (delete_first (eq x) l))"
+     " deleteBy eq x l = ( case_option l id (delete_first (eq x) l))" 
+  for  eq  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  x  :: " 'a " 
+  and  l  :: " 'a list "
 
 
 
@@ -587,35 +684,51 @@ end\<close>\<close>
 \<comment> \<open>\<open>val allDistinct : forall 'a. Eq 'a => list 'a -> bool\<close>\<close>
 fun  allDistinct  :: " 'a list \<Rightarrow> bool "  where 
      " allDistinct ([]) = ( True )"
-|" allDistinct (x # l') = ( \<not> (Set.member x (set l')) \<and> allDistinct l' )"
+|" allDistinct (x # l') = ( \<not> (Set.member x (set l')) \<and> allDistinct l' )" 
+  for  l'  :: " 'a list " 
+  and  x  :: " 'a "
 
 
 \<comment> \<open>\<open> some more useful functions \<close>\<close>
 \<comment> \<open>\<open>val mapMaybe : forall 'a 'b. ('a -> maybe 'b) -> list 'a -> list 'b\<close>\<close>
 function (sequential,domintros)  mapMaybe  :: "('a \<Rightarrow> 'b option)\<Rightarrow> 'a list \<Rightarrow> 'b list "  where 
-     " mapMaybe f ([]) = ( [])"
+     " mapMaybe f ([]) = ( [])" 
+  for  f  :: " 'a \<Rightarrow> 'b option "
 |" mapMaybe f (x # xs) = (
       (case  f x of
         None => mapMaybe f xs
       | Some y => y # (mapMaybe f xs)
       ))" 
+  for  f  :: " 'a \<Rightarrow> 'b option " 
+  and  xs  :: " 'a list " 
+  and  x  :: " 'a " 
 by pat_completeness auto
 
 
 \<comment> \<open>\<open>val mapi : forall 'a 'b. (nat -> 'a -> 'b) -> list 'a -> list 'b\<close>\<close>
 function (sequential,domintros)  mapiAux  :: "(nat \<Rightarrow> 'b \<Rightarrow> 'a)\<Rightarrow> nat \<Rightarrow> 'b list \<Rightarrow> 'a list "  where 
-     " mapiAux f (n :: nat) ([]) = ( [])"
+     " mapiAux f (n :: nat) ([]) = ( [])" 
+  for  f  :: " nat \<Rightarrow> 'b \<Rightarrow> 'a " 
+  and  n  :: " nat "
 |" mapiAux f (n :: nat) (x # xs) = ( (f n x) # mapiAux f (n +( 1 :: nat)) xs )" 
+  for  f  :: " nat \<Rightarrow> 'b \<Rightarrow> 'a " 
+  and  n  :: " nat " 
+  and  xs  :: " 'b list " 
+  and  x  :: " 'b " 
 by pat_completeness auto
 
 definition mapi  :: "(nat \<Rightarrow> 'a \<Rightarrow> 'b)\<Rightarrow> 'a list \<Rightarrow> 'b list "  where 
-     " mapi f l = ( mapiAux f(( 0 :: nat)) l )"
+     " mapi f l = ( mapiAux f(( 0 :: nat)) l )" 
+  for  f  :: " nat \<Rightarrow> 'a \<Rightarrow> 'b " 
+  and  l  :: " 'a list "
 
 
 \<comment> \<open>\<open>val deletes: forall 'a. Eq 'a => list 'a -> list 'a -> list 'a\<close>\<close>
 definition deletes  :: " 'a list \<Rightarrow> 'a list \<Rightarrow> 'a list "  where 
      " deletes xs ys = (
-  List.foldl ((\<lambda> x y. remove1 y x)) xs ys )"
+  List.foldl ((\<lambda> x y. remove1 y x)) xs ys )" 
+  for  xs  :: " 'a list " 
+  and  ys  :: " 'a list "
 
 
 \<comment> \<open>\<open> ========================================================================== \<close>\<close>
@@ -768,9 +881,12 @@ function (sequential,domintros)  catMaybes  :: "('a option)list \<Rightarrow> 'a
      " catMaybes ([]) = (
         [])"
 |" catMaybes (None # xs') = (
-        catMaybes xs' )"
+        catMaybes xs' )" 
+  for  xs'  :: "('a option)list "
 |" catMaybes (Some x # xs') = (
         x # catMaybes xs' )" 
+  for  xs'  :: "('a option)list " 
+  and  x  :: " 'a " 
 by pat_completeness auto
 
 end

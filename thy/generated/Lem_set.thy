@@ -147,7 +147,9 @@ begin
 
 \<comment> \<open>\<open>val partition : forall 'a. SetType 'a => ('a -> bool) -> set 'a -> set 'a * set 'a\<close>\<close>
 definition partition  :: "('a \<Rightarrow> bool)\<Rightarrow> 'a set \<Rightarrow> 'a set*'a set "  where 
-     " partition P s = ( (set_filter P s, set_filter (\<lambda> e .  \<not> (P e)) s))"
+     " partition P s = ( (set_filter P s, set_filter (\<lambda> e .  \<not> (P e)) s))" 
+  for  P  :: " 'a \<Rightarrow> bool " 
+  and  s  :: " 'a set "
 
 
 
@@ -158,14 +160,20 @@ definition partition  :: "('a \<Rightarrow> bool)\<Rightarrow> 'a set \<Rightarr
 \<comment> \<open>\<open>val split : forall 'a. SetType 'a, Ord 'a => 'a -> set 'a -> set 'a * set 'a\<close>\<close>
 definition split  :: " 'a Ord_class \<Rightarrow> 'a \<Rightarrow> 'a set \<Rightarrow> 'a set*'a set "  where 
      " split dict_Basic_classes_Ord_a p s = ( (set_filter (
-  (isGreater_method   dict_Basic_classes_Ord_a) p) s, set_filter ((isLess_method   dict_Basic_classes_Ord_a) p) s))"
+  (isGreater_method   dict_Basic_classes_Ord_a) p) s, set_filter ((isLess_method   dict_Basic_classes_Ord_a) p) s))" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  p  :: " 'a " 
+  and  s  :: " 'a set "
 
 
 \<comment> \<open>\<open>val splitMember : forall 'a. SetType 'a, Ord 'a => 'a -> set 'a -> set 'a * bool * set 'a\<close>\<close>
 definition splitMember  :: " 'a Ord_class \<Rightarrow> 'a \<Rightarrow> 'a set \<Rightarrow> 'a set*bool*'a set "  where 
      " splitMember dict_Basic_classes_Ord_a p s = ( (set_filter (
   (isLess_method   dict_Basic_classes_Ord_a) p) s, (p \<in> s), set_filter (
-  (isGreater_method   dict_Basic_classes_Ord_a) p) s))"
+  (isGreater_method   dict_Basic_classes_Ord_a) p) s))" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  p  :: " 'a " 
+  and  s  :: " 'a set "
 
 
 \<comment> \<open>\<open> ------------------------ \<close>\<close>
@@ -209,7 +217,8 @@ definition bigintersection  :: "('a set)set \<Rightarrow> 'a set "  where
   ({}) in  Finite_Set.fold
    (\<lambda>x x2 . 
     if( \<forall> s \<in> bs. x \<in> s) then Set.insert x x2 else x2) 
- x2 (\<Union> bs)))"
+ x2 (\<Union> bs)))" 
+  for  bs  :: "('a set)set "
 
 
 \<comment> \<open>\<open> ------------------------ \<close>\<close>
@@ -260,12 +269,15 @@ definition setMapMaybe  :: "('a \<Rightarrow> 'b option)\<Rightarrow> 'a set \<R
   \<Union> (Set.image (\<lambda> x .  (case  f x of 
                           Some y  => {y} 
                         | None => {}
-                        )) s))"
+                        )) s))" 
+  for  f  :: " 'a \<Rightarrow> 'b option " 
+  and  s  :: " 'a set "
 
 
 \<comment> \<open>\<open>val removeMaybe : forall 'a. SetType 'a => set (maybe 'a) -> set 'a\<close>\<close>
 definition removeMaybe  :: "('a option)set \<Rightarrow> 'a set "  where 
-     " removeMaybe s = ( setMapMaybe (\<lambda> x .  x) s )"
+     " removeMaybe s = ( setMapMaybe (\<lambda> x .  x) s )" 
+  for  s  :: "('a option)set "
 
 
 \<comment> \<open>\<open> ------------------------ \<close>\<close>
@@ -317,9 +329,14 @@ definition removeMaybe  :: "('a option)set \<Rightarrow> 'a set "  where
 \<comment> \<open>\<open>val leastFixedPoint : forall 'a. SetType 'a 
   => nat -> (set 'a -> set 'a) -> set 'a -> set 'a\<close>\<close>
 fun  leastFixedPoint  :: " nat \<Rightarrow>('a set \<Rightarrow> 'a set)\<Rightarrow> 'a set \<Rightarrow> 'a set "  where 
-     " leastFixedPoint 0 f x = ( x )"
+     " leastFixedPoint 0 f x = ( x )" 
+  for  f  :: " 'a set \<Rightarrow> 'a set " 
+  and  x  :: " 'a set "
 |" leastFixedPoint ((Suc bound')) f x = ( (let fx = (f x) in
                   if fx \<subseteq> x then x
-                  else leastFixedPoint bound' f (fx \<union> x)))"
+                  else leastFixedPoint bound' f (fx \<union> x)))" 
+  for  bound'  :: " nat " 
+  and  f  :: " 'a set \<Rightarrow> 'a set " 
+  and  x  :: " 'a set "
  
 end

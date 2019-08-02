@@ -40,18 +40,24 @@ type_synonym( 'a, 'b) rel =" ('a, 'b) rel_set "
 
 \<comment> \<open>\<open>val relEq : forall 'a 'b. SetType 'a, SetType 'b => rel 'a 'b -> rel 'a 'b -> bool\<close>\<close>
 definition relEq  :: "('a*'b)set \<Rightarrow>('a*'b)set \<Rightarrow> bool "  where 
-     " relEq r1 r2 = ( (r1 = r2))"
+     " relEq r1 r2 = ( (r1 = r2))" 
+  for  r1  :: "('a*'b)set " 
+  and  r2  :: "('a*'b)set "
 
 
 \<comment> \<open>\<open>val relToPred : forall 'a 'b. SetType 'a, SetType 'b, Eq 'a, Eq 'b => rel 'a 'b -> rel_pred 'a 'b\<close>\<close>
 \<comment> \<open>\<open>val relFromPred : forall 'a 'b. SetType 'a, SetType 'b, Eq 'a, Eq 'b => set 'a -> set 'b -> rel_pred 'a 'b -> rel 'a 'b\<close>\<close>
 
 definition relToPred  :: "('a*'b)set \<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> bool "  where 
-     " relToPred r = ( (\<lambda> x y .  (x, y) \<in> r))"
+     " relToPred r = ( (\<lambda> x y .  (x, y) \<in> r))" 
+  for  r  :: "('a*'b)set "
 
 definition relFromPred  :: " 'a set \<Rightarrow> 'b set \<Rightarrow>('a \<Rightarrow> 'b \<Rightarrow> bool)\<Rightarrow>('a*'b)set "  where 
      " relFromPred xs ys p = ( set_filter ( \<lambda>x .  
-  (case  x of (x,y) => p x y )) (xs \<times> ys))"
+  (case  x of (x,y) => p x y )) (xs \<times> ys))" 
+  for  xs  :: " 'a set " 
+  and  ys  :: " 'b set " 
+  and  p  :: " 'a \<Rightarrow> 'b \<Rightarrow> bool "
 
 
  
@@ -85,7 +91,8 @@ definition relFromPred  :: " 'a set \<Rightarrow> 'b set \<Rightarrow>('a \<Righ
 
 \<comment> \<open>\<open>val relIdOn : forall 'a. SetType 'a, Eq 'a => set 'a -> rel 'a 'a\<close>\<close>
 definition relIdOn  :: " 'a set \<Rightarrow>('a*'a)set "  where 
-     " relIdOn s = ( relFromPred s s (=))"
+     " relIdOn s = ( relFromPred s s (=))" 
+  for  s  :: " 'a set "
 
 
 \<comment> \<open>\<open>val relId : forall 'a. SetType 'a, Eq 'a => rel 'a 'a\<close>\<close>
@@ -120,7 +127,9 @@ definition relRestrict  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow>('a*'a)
    (\<lambda>a x2 .  Finite_Set.fold
                        (\<lambda>b x2 . 
                         if (a, b) \<in> r then Set.insert (a, b) x2 else x2)
-                       x2 s) x2 s)))"
+                       x2 s) x2 s)))" 
+  for  r  :: "('a*'a)set " 
+  and  s  :: " 'a set "
 
 
 
@@ -163,7 +172,9 @@ definition relRestrict  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow>('a*'a)
 
 \<comment> \<open>\<open>val relOver : forall 'a. SetType 'a => rel 'a 'a -> set 'a -> bool\<close>\<close>
 definition relOver  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> bool "  where 
-     " relOver r s = ( ((((Domain r) \<union> (Range r))) \<subseteq> s))"
+     " relOver r s = ( ((((Domain r) \<union> (Range r))) \<subseteq> s))" 
+  for  r  :: "('a*'a)set " 
+  and  s  :: " 'a set "
 
 
 
@@ -195,7 +206,9 @@ definition relOver  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> bool "  wh
 
 \<comment> \<open>\<open>val isReflexiveOn : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> set 'a -> bool\<close>\<close>
 definition isReflexiveOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> bool "  where 
-     " isReflexiveOn r s = ( ((\<forall> e \<in> s.  (e, e) \<in> r)))"
+     " isReflexiveOn r s = ( ((\<forall> e \<in> s.  (e, e) \<in> r)))" 
+  for  r  :: "('a*'a)set " 
+  and  s  :: " 'a set "
 
 
 \<comment> \<open>\<open>val isReflexive : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> bool\<close>\<close>
@@ -208,7 +221,9 @@ definition isReflexiveOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> bool
 
 \<comment> \<open>\<open>val isIrreflexiveOn : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> set 'a -> bool\<close>\<close>
 definition isIrreflexiveOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> bool "  where 
-     " isIrreflexiveOn r s = ( ((\<forall> e \<in> s.  \<not> ((e, e) \<in> r))))"
+     " isIrreflexiveOn r s = ( ((\<forall> e \<in> s.  \<not> ((e, e) \<in> r))))" 
+  for  r  :: "('a*'a)set " 
+  and  s  :: " 'a set "
 
 
 \<comment> \<open>\<open>val isIrreflexive : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> bool\<close>\<close>
@@ -221,7 +236,9 @@ definition isIrreflexiveOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> bo
 
 \<comment> \<open>\<open>val isSymmetricOn : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> set 'a -> bool\<close>\<close>
 definition isSymmetricOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> bool "  where 
-     " isSymmetricOn r s = ( ((\<forall> e1 \<in> s. \<forall> e2 \<in> s.  ((e1, e2) \<in> r) \<longrightarrow> ((e2, e1) \<in> r))))"
+     " isSymmetricOn r s = ( ((\<forall> e1 \<in> s. \<forall> e2 \<in> s.  ((e1, e2) \<in> r) \<longrightarrow> ((e2, e1) \<in> r))))" 
+  for  r  :: "('a*'a)set " 
+  and  s  :: " 'a set "
 
 
 \<comment> \<open>\<open>val isSymmetric : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> bool\<close>\<close>
@@ -234,7 +251,9 @@ definition isSymmetricOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> bool
 
 \<comment> \<open>\<open>val isAntisymmetricOn : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> set 'a -> bool\<close>\<close>
 definition isAntisymmetricOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> bool "  where 
-     " isAntisymmetricOn r s = ( ((\<forall> e1 \<in> s. \<forall> e2 \<in> s.  ((e1, e2) \<in> r) \<longrightarrow> (((e2, e1) \<in> r) \<longrightarrow> (e1 = e2)))))"
+     " isAntisymmetricOn r s = ( ((\<forall> e1 \<in> s. \<forall> e2 \<in> s.  ((e1, e2) \<in> r) \<longrightarrow> (((e2, e1) \<in> r) \<longrightarrow> (e1 = e2)))))" 
+  for  r  :: "('a*'a)set " 
+  and  s  :: " 'a set "
 
 
 \<comment> \<open>\<open>val isAntisymmetric : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> bool\<close>\<close>
@@ -247,7 +266,9 @@ definition isAntisymmetricOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> 
 
 \<comment> \<open>\<open>val isTransitiveOn : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> set 'a -> bool\<close>\<close>
 definition isTransitiveOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> bool "  where 
-     " isTransitiveOn r s = ( ((\<forall> e1 \<in> s. \<forall> e2 \<in> s. \<forall> e3 \<in> s.  ((e1, e2) \<in> r) \<longrightarrow> (((e2, e3) \<in> r) \<longrightarrow> ((e1, e3) \<in> r)))))"
+     " isTransitiveOn r s = ( ((\<forall> e1 \<in> s. \<forall> e2 \<in> s. \<forall> e3 \<in> s.  ((e1, e2) \<in> r) \<longrightarrow> (((e2, e3) \<in> r) \<longrightarrow> ((e1, e3) \<in> r)))))" 
+  for  r  :: "('a*'a)set " 
+  and  s  :: " 'a set "
 
 
 \<comment> \<open>\<open>val isTransitive : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> bool\<close>\<close>
@@ -259,7 +280,9 @@ definition isTransitiveOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> boo
 
 \<comment> \<open>\<open>val isTotalOn : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> set 'a -> bool\<close>\<close>
 definition isTotalOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> bool "  where 
-     " isTotalOn r s = ( ((\<forall> e1 \<in> s. \<forall> e2 \<in> s.  ((e1, e2) \<in> r) \<or> ((e2, e1) \<in> r))))"
+     " isTotalOn r s = ( ((\<forall> e1 \<in> s. \<forall> e2 \<in> s.  ((e1, e2) \<in> r) \<or> ((e2, e1) \<in> r))))" 
+  for  r  :: "('a*'a)set " 
+  and  s  :: " 'a set "
 
 
 
@@ -268,12 +291,15 @@ definition isTotalOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> bool "  
 
 \<comment> \<open>\<open>val isTrichotomousOn : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> set 'a -> bool\<close>\<close>
 definition isTrichotomousOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> bool "  where 
-     " isTrichotomousOn r s = ( ((\<forall> e1 \<in> s. \<forall> e2 \<in> s.  ((e1, e2) \<in> r) \<or> ((e1 = e2) \<or> ((e2, e1) \<in> r)))))"
+     " isTrichotomousOn r s = ( ((\<forall> e1 \<in> s. \<forall> e2 \<in> s.  ((e1, e2) \<in> r) \<or> ((e1 = e2) \<or> ((e2, e1) \<in> r)))))" 
+  for  r  :: "('a*'a)set " 
+  and  s  :: " 'a set "
 
 
 \<comment> \<open>\<open>val isTrichotomous : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> bool\<close>\<close>
 definition isTrichotomous  :: "('a*'a)set \<Rightarrow> bool "  where 
-     " isTrichotomous r = ( ((\<forall> e1. \<forall> e2.  ((e1, e2) \<in> r) \<or> ((e1 = e2) \<or> ((e2, e1) \<in> r)))))"
+     " isTrichotomous r = ( ((\<forall> e1. \<forall> e2.  ((e1, e2) \<in> r) \<or> ((e1 = e2) \<or> ((e2, e1) \<in> r)))))" 
+  for  r  :: "('a*'a)set "
 
 
 
@@ -283,7 +309,8 @@ definition isTrichotomous  :: "('a*'a)set \<Rightarrow> bool "  where
 
 \<comment> \<open>\<open>val isSingleValued : forall 'a 'b. SetType 'a, SetType 'b, Eq 'a, Eq 'b => rel 'a 'b -> bool\<close>\<close>
 definition isSingleValued  :: "('a*'b)set \<Rightarrow> bool "  where 
-     " isSingleValued r = ( ((\<forall> (e1, e2a) \<in> r. \<forall> e2b \<in> Image r {e1}.  e2a = e2b)))"
+     " isSingleValued r = ( ((\<forall> (e1, e2a) \<in> r. \<forall> e2b \<in> Image r {e1}.  e2a = e2b)))" 
+  for  r  :: "('a*'b)set "
 
 
 
@@ -293,13 +320,16 @@ definition isSingleValued  :: "('a*'b)set \<Rightarrow> bool "  where
 
 \<comment> \<open>\<open>val isEquivalenceOn : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> set 'a -> bool\<close>\<close>
 definition isEquivalenceOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> bool "  where 
-     " isEquivalenceOn r s = ( isReflexiveOn r s \<and> (isSymmetricOn r s \<and> isTransitiveOn r s))"
+     " isEquivalenceOn r s = ( isReflexiveOn r s \<and> (isSymmetricOn r s \<and> isTransitiveOn r s))" 
+  for  r  :: "('a*'a)set " 
+  and  s  :: " 'a set "
 
 
 
 \<comment> \<open>\<open>val isEquivalence : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> bool\<close>\<close>
 definition isEquivalence  :: "('a*'a)set \<Rightarrow> bool "  where 
-     " isEquivalence r = ( refl r \<and> (sym r \<and> trans r))"
+     " isEquivalence r = ( refl r \<and> (sym r \<and> trans r))" 
+  for  r  :: "('a*'a)set "
 
 
 
@@ -309,7 +339,8 @@ definition isEquivalence  :: "('a*'a)set \<Rightarrow> bool "  where
 
 \<comment> \<open>\<open>val isWellFounded : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> bool\<close>\<close>
 definition isWellFounded  :: "('a*'a)set \<Rightarrow> bool "  where 
-     " isWellFounded r = ( ((\<forall> P.  ((\<forall> x.  ((\<forall> y.  ((y, x) \<in> r) \<longrightarrow> P x)) \<longrightarrow> P x)) \<longrightarrow> ((\<forall> x.  P x)))))"
+     " isWellFounded r = ( ((\<forall> P.  ((\<forall> x.  ((\<forall> y.  ((y, x) \<in> r) \<longrightarrow> P x)) \<longrightarrow> P x)) \<longrightarrow> ((\<forall> x.  P x)))))" 
+  for  r  :: "('a*'a)set "
 
 
 
@@ -324,12 +355,15 @@ definition isWellFounded  :: "('a*'a)set \<Rightarrow> bool "  where
 
 \<comment> \<open>\<open>val isPreorderOn : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> set 'a -> bool\<close>\<close>
 definition isPreorderOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> bool "  where 
-     " isPreorderOn r s = ( isReflexiveOn r s \<and> isTransitiveOn r s )"
+     " isPreorderOn r s = ( isReflexiveOn r s \<and> isTransitiveOn r s )" 
+  for  r  :: "('a*'a)set " 
+  and  s  :: " 'a set "
 
 
 \<comment> \<open>\<open>val isPreorder : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> bool\<close>\<close>
 definition isPreorder  :: "('a*'a)set \<Rightarrow> bool "  where 
-     " isPreorder r = ( refl r \<and> trans r )"
+     " isPreorder r = ( refl r \<and> trans r )" 
+  for  r  :: "('a*'a)set "
 
 
 
@@ -339,24 +373,30 @@ definition isPreorder  :: "('a*'a)set \<Rightarrow> bool "  where
 
 \<comment> \<open>\<open>val isPartialOrderOn : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> set 'a -> bool\<close>\<close>
 definition isPartialOrderOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> bool "  where 
-     " isPartialOrderOn r s = ( isReflexiveOn r s \<and> (isTransitiveOn r s \<and> isAntisymmetricOn r s))"
+     " isPartialOrderOn r s = ( isReflexiveOn r s \<and> (isTransitiveOn r s \<and> isAntisymmetricOn r s))" 
+  for  r  :: "('a*'a)set " 
+  and  s  :: " 'a set "
 
 
 
 \<comment> \<open>\<open>val isStrictPartialOrderOn : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> set 'a -> bool\<close>\<close>
 definition isStrictPartialOrderOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> bool "  where 
-     " isStrictPartialOrderOn r s = ( isIrreflexiveOn r s \<and> isTransitiveOn r s )"
+     " isStrictPartialOrderOn r s = ( isIrreflexiveOn r s \<and> isTransitiveOn r s )" 
+  for  r  :: "('a*'a)set " 
+  and  s  :: " 'a set "
 
 
 
 \<comment> \<open>\<open>val isStrictPartialOrder : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> bool\<close>\<close>
 definition isStrictPartialOrder  :: "('a*'a)set \<Rightarrow> bool "  where 
-     " isStrictPartialOrder r = ( irrefl r \<and> trans r )"
+     " isStrictPartialOrder r = ( irrefl r \<and> trans r )" 
+  for  r  :: "('a*'a)set "
 
 
 \<comment> \<open>\<open>val isPartialOrder : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> bool\<close>\<close>
 definition isPartialOrder  :: "('a*'a)set \<Rightarrow> bool "  where 
-     " isPartialOrder r = ( refl r \<and> (trans r \<and> antisym r))"
+     " isPartialOrder r = ( refl r \<and> (trans r \<and> antisym r))" 
+  for  r  :: "('a*'a)set "
 
 
 \<comment> \<open>\<open> ----------------------- \<close>\<close>
@@ -365,22 +405,28 @@ definition isPartialOrder  :: "('a*'a)set \<Rightarrow> bool "  where
 
 \<comment> \<open>\<open>val isTotalOrderOn : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> set 'a -> bool\<close>\<close>
 definition isTotalOrderOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> bool "  where 
-     " isTotalOrderOn r s = ( isPartialOrderOn r s \<and> isTotalOn r s )"
+     " isTotalOrderOn r s = ( isPartialOrderOn r s \<and> isTotalOn r s )" 
+  for  r  :: "('a*'a)set " 
+  and  s  :: " 'a set "
 
 
 \<comment> \<open>\<open>val isStrictTotalOrderOn : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> set 'a -> bool\<close>\<close>
 definition isStrictTotalOrderOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow> bool "  where 
-     " isStrictTotalOrderOn r s = ( isStrictPartialOrderOn r s \<and> isTrichotomousOn r s )"
+     " isStrictTotalOrderOn r s = ( isStrictPartialOrderOn r s \<and> isTrichotomousOn r s )" 
+  for  r  :: "('a*'a)set " 
+  and  s  :: " 'a set "
 
 
 \<comment> \<open>\<open>val isTotalOrder : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> bool\<close>\<close>
 definition isTotalOrder  :: "('a*'a)set \<Rightarrow> bool "  where 
-     " isTotalOrder r = ( isPartialOrder r \<and> total r )"
+     " isTotalOrder r = ( isPartialOrder r \<and> total r )" 
+  for  r  :: "('a*'a)set "
 
 
 \<comment> \<open>\<open>val isStrictTotalOrder : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> bool\<close>\<close>
 definition isStrictTotalOrder  :: "('a*'a)set \<Rightarrow> bool "  where 
-     " isStrictTotalOrder r = ( isStrictPartialOrder r \<and> isTrichotomous r )"
+     " isStrictTotalOrder r = ( isStrictPartialOrder r \<and> isTrichotomous r )" 
+  for  r  :: "('a*'a)set "
 
 
 
@@ -412,7 +458,10 @@ definition transitiveClosureAdd  :: " 'a \<Rightarrow> 'a \<Rightarrow>('a*'a)se
  x2 (Range r)))) \<union> (((let x2 = 
   ({}) in  Finite_Set.fold
    (\<lambda>z x2 .  if (z, x) \<in> r then Set.insert (z, y) x2 else x2) 
- x2 (Domain r))))))))))"
+ x2 (Domain r))))))))))" 
+  for  x  :: " 'a " 
+  and  y  :: " 'a " 
+  and  r  :: "('a*'a)set "
 
 
 
@@ -422,13 +471,16 @@ definition transitiveClosureAdd  :: " 'a \<Rightarrow> 'a \<Rightarrow>('a*'a)se
 
 \<comment> \<open>\<open>val reflexiveTransitiveClosureOn : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> set 'a -> rel 'a 'a\<close>\<close>
 definition reflexiveTransitiveClosureOn  :: "('a*'a)set \<Rightarrow> 'a set \<Rightarrow>('a*'a)set "  where 
-     " reflexiveTransitiveClosureOn r s = ( trancl (((r) \<union> ((relIdOn s)))))"
+     " reflexiveTransitiveClosureOn r s = ( trancl (((r) \<union> ((relIdOn s)))))" 
+  for  r  :: "('a*'a)set " 
+  and  s  :: " 'a set "
 
 
 
 \<comment> \<open>\<open>val reflexiveTransitiveClosure : forall 'a. SetType 'a, Eq 'a => rel 'a 'a -> rel 'a 'a\<close>\<close>
 definition reflexiveTransitiveClosure  :: "('a*'a)set \<Rightarrow>('a*'a)set "  where 
-     " reflexiveTransitiveClosure r = ( trancl (((r) \<union> (Id))))"
+     " reflexiveTransitiveClosure r = ( trancl (((r) \<union> (Id))))" 
+  for  r  :: "('a*'a)set "
 
 
 

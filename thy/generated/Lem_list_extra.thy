@@ -56,14 +56,22 @@ begin
     which don`t take the base case \<close>\<close>
 \<comment> \<open>\<open>val foldl1 : forall 'a. ('a -> 'a -> 'a) -> list 'a -> 'a\<close>\<close>
 fun foldl1  :: "('a \<Rightarrow> 'a \<Rightarrow> 'a)\<Rightarrow> 'a list \<Rightarrow> 'a "  where 
-     " foldl1 f (x # xs) = ( List.foldl f x xs )"
-|" foldl1 f ([]) = ( failwith (''List_extra.foldl1 of empty list''))"
+     " foldl1 f (x # xs) = ( List.foldl f x xs )" 
+  for  f  :: " 'a \<Rightarrow> 'a \<Rightarrow> 'a " 
+  and  xs  :: " 'a list " 
+  and  x  :: " 'a "
+|" foldl1 f ([]) = ( failwith (''List_extra.foldl1 of empty list''))" 
+  for  f  :: " 'a \<Rightarrow> 'a \<Rightarrow> 'a "
 
 
 \<comment> \<open>\<open>val foldr1 : forall 'a. ('a -> 'a -> 'a) -> list 'a -> 'a\<close>\<close>
 fun foldr1  :: "('a \<Rightarrow> 'a \<Rightarrow> 'a)\<Rightarrow> 'a list \<Rightarrow> 'a "  where 
-     " foldr1 f (x # xs) = ( List.foldr f xs x )"
-|" foldr1 f ([]) = ( failwith (''List_extra.foldr1 of empty list''))"
+     " foldr1 f (x # xs) = ( List.foldr f xs x )" 
+  for  f  :: " 'a \<Rightarrow> 'a \<Rightarrow> 'a " 
+  and  xs  :: " 'a list " 
+  and  x  :: " 'a "
+|" foldr1 f ([]) = ( failwith (''List_extra.foldr1 of empty list''))" 
+  for  f  :: " 'a \<Rightarrow> 'a \<Rightarrow> 'a "
 
 
   
@@ -84,7 +92,9 @@ definition findNonPure  :: "('a \<Rightarrow> bool)\<Rightarrow> 'a list \<Right
      " findNonPure P l = ( (case  (List.find P l) of 
     Some e      => e
   | None     => failwith (''List_extra.findNonPure'')
-))"
+))" 
+  for  P  :: " 'a \<Rightarrow> bool " 
+  and  l  :: " 'a list "
 
 
 
@@ -99,7 +109,9 @@ fun  zipSameLength  :: " 'a list \<Rightarrow> 'b list \<Rightarrow>('a*'b)list 
   | ([], []) => []
   | _ => failwith (''List_extra.zipSameLength of different length lists'')
 
-))"
+))" 
+  for  l1  :: " 'a list " 
+  and  l2  :: " 'b list "
 
 
 \<comment> \<open>\<open>val     unfoldr: forall 'a 'b. ('a -> maybe ('b * 'a)) -> 'a -> list 'b\<close>\<close>
@@ -111,6 +123,8 @@ function (sequential,domintros)  unfoldr  :: "('a \<Rightarrow>('b*'a)option)\<R
     | None =>
         []
   ))" 
+  for  f  :: " 'a \<Rightarrow>('b*'a)option " 
+  and  x  :: " 'a " 
 by pat_completeness auto
 
 

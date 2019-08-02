@@ -154,6 +154,9 @@ end\<close>\<close>
 \<comment> \<open>\<open> instance of SetType \<close>\<close>
 definition map_setElemCompare  :: "(('d*'c)set \<Rightarrow>('b*'a)set \<Rightarrow> 'e)\<Rightarrow>('d,'c)Map.map \<Rightarrow>('b,'a)Map.map \<Rightarrow> 'e "  where 
      " map_setElemCompare cmp x y = (
-  cmp (map_to_set x) (map_to_set y))"
+  cmp (map_to_set x) (map_to_set y))" 
+  for  cmp  :: "('d*'c)set \<Rightarrow>('b*'a)set \<Rightarrow> 'e " 
+  and  x  :: "('d,'c)Map.map " 
+  and  y  :: "('b,'a)Map.map "
 
 end

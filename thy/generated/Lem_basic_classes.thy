@@ -84,7 +84,11 @@ fun orderingIsEqual  :: " ordering \<Rightarrow> bool "       where
 definition ordering_cases  :: " ordering \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> 'a "  where 
      " ordering_cases r lt eq gt = (
   if orderingIsLess r then lt else
-  if orderingIsEqual r then eq else gt )"
+  if orderingIsEqual r then eq else gt )" 
+  for  r  :: " ordering " 
+  and  lt  :: " 'a " 
+  and  eq  :: " 'a " 
+  and  gt  :: " 'a "
 
 
 
@@ -125,7 +129,11 @@ definition genericCompare  :: "('a \<Rightarrow> 'a \<Rightarrow> bool)\<Rightar
   else if equal x y then
     EQ
   else
-    GT )"
+    GT )" 
+  for  less1  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  equal  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  x  :: " 'a " 
+  and  y  :: " 'a "
 
 
 
@@ -146,7 +154,10 @@ lemma ord_OK_2: (
 definition ordCompare  :: " 'a Ord_class \<Rightarrow> 'a \<Rightarrow> 'a \<Rightarrow> ordering "  where 
      " ordCompare dict_Basic_classes_Ord_a x y = (
   if ((isLess_method   dict_Basic_classes_Ord_a) x y) then LT else
-  if (x = y) then EQ else GT )"
+  if (x = y) then EQ else GT )" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  x  :: " 'a " 
+  and  y  :: " 'a "
 
 
 record 'a OrdMaxMin_class= 
@@ -172,7 +183,8 @@ definition instance_Basic_classes_OrdMaxMin_var_dict  :: " 'a Ord_class \<Righta
   (isLessEqual_method   dict_Basic_classes_Ord_a) y x) then x else y)),
 
   min_method = ((\<lambda> x y. if (
-  (isLessEqual_method   dict_Basic_classes_Ord_a) x y) then x else y))|) )"
+  (isLessEqual_method   dict_Basic_classes_Ord_a) x y) then x else y))|) )" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class "
 
 
 
@@ -218,25 +230,51 @@ fun pairCompare  :: "('a \<Rightarrow> 'a \<Rightarrow> ordering)\<Rightarrow>('
       LT => LT
     | GT => GT
     | EQ => cmpb b1 b2
-  ))"
+  ))" 
+  for  cmpa  :: " 'a \<Rightarrow> 'a \<Rightarrow> ordering " 
+  and  cmpb  :: " 'b \<Rightarrow> 'b \<Rightarrow> ordering " 
+  and  a1  :: " 'a " 
+  and  b1  :: " 'b " 
+  and  a2  :: " 'a " 
+  and  b2  :: " 'b "
 
 
 fun pairLess  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'b*'a \<Rightarrow> 'b*'a \<Rightarrow> bool "  where 
      " pairLess dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b (x1, x2) (y1, y2) = ( (
-  (isLess_method   dict_Basic_classes_Ord_b) x1 y1) \<or> (((isLessEqual_method   dict_Basic_classes_Ord_b) x1 y1) \<and> ((isLess_method   dict_Basic_classes_Ord_a) x2 y2)))"
+  (isLess_method   dict_Basic_classes_Ord_b) x1 y1) \<or> (((isLessEqual_method   dict_Basic_classes_Ord_b) x1 y1) \<and> ((isLess_method   dict_Basic_classes_Ord_a) x2 y2)))" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  x2  :: " 'a " 
+  and  x1  :: " 'b " 
+  and  y2  :: " 'a " 
+  and  y1  :: " 'b "
 
 fun pairLessEq  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'b*'a \<Rightarrow> 'b*'a \<Rightarrow> bool "  where 
      " pairLessEq dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b (x1, x2) (y1, y2) = ( (
-  (isLess_method   dict_Basic_classes_Ord_b) x1 y1) \<or> (((isLessEqual_method   dict_Basic_classes_Ord_b) x1 y1) \<and> ((isLessEqual_method   dict_Basic_classes_Ord_a) x2 y2)))"
+  (isLess_method   dict_Basic_classes_Ord_b) x1 y1) \<or> (((isLessEqual_method   dict_Basic_classes_Ord_b) x1 y1) \<and> ((isLessEqual_method   dict_Basic_classes_Ord_a) x2 y2)))" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  x2  :: " 'a " 
+  and  x1  :: " 'b " 
+  and  y2  :: " 'a " 
+  and  y1  :: " 'b "
 
 
 definition pairGreater  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'a*'b \<Rightarrow> 'a*'b \<Rightarrow> bool "  where 
      " pairGreater dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b x12 y12 = ( pairLess 
-  dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y12 x12 )"
+  dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y12 x12 )" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  x12  :: " 'a*'b " 
+  and  y12  :: " 'a*'b "
 
 definition pairGreaterEq  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'a*'b \<Rightarrow> 'a*'b \<Rightarrow> bool "  where 
      " pairGreaterEq dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b x12 y12 = ( pairLessEq 
-  dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y12 x12 )"
+  dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y12 x12 )" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  x12  :: " 'a*'b " 
+  and  y12  :: " 'a*'b "
 
 
 definition instance_Basic_classes_Ord_tup2_dict  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow>('a*'b)Ord_class "  where 
@@ -255,7 +293,9 @@ definition instance_Basic_classes_Ord_tup2_dict  :: " 'a Ord_class \<Rightarrow>
   (pairGreater dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b),
 
   isGreaterEqual_method = 
-  (pairGreaterEq dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b) |) )"
+  (pairGreaterEq dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b) |) )" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class "
 
 
 
@@ -267,27 +307,64 @@ definition instance_Basic_classes_Ord_tup2_dict  :: " 'a Ord_class \<Rightarrow>
 \<comment> \<open>\<open>val tripleCompare : forall 'a 'b 'c. ('a -> 'a -> ordering) -> ('b -> 'b -> ordering) -> ('c -> 'c -> ordering) -> ('a * 'b * 'c) -> ('a * 'b * 'c) -> ordering\<close>\<close>
 fun tripleCompare  :: "('a \<Rightarrow> 'a \<Rightarrow> ordering)\<Rightarrow>('b \<Rightarrow> 'b \<Rightarrow> ordering)\<Rightarrow>('c \<Rightarrow> 'c \<Rightarrow> ordering)\<Rightarrow> 'a*'b*'c \<Rightarrow> 'a*'b*'c \<Rightarrow> ordering "  where 
      " tripleCompare cmpa cmpb cmpc (a1, b1, c1) (a2, b2, c2) = (
-  pairCompare cmpa (pairCompare cmpb cmpc) (a1, (b1, c1)) (a2, (b2, c2)))"
+  pairCompare cmpa (pairCompare cmpb cmpc) (a1, (b1, c1)) (a2, (b2, c2)))" 
+  for  cmpa  :: " 'a \<Rightarrow> 'a \<Rightarrow> ordering " 
+  and  cmpb  :: " 'b \<Rightarrow> 'b \<Rightarrow> ordering " 
+  and  cmpc  :: " 'c \<Rightarrow> 'c \<Rightarrow> ordering " 
+  and  c1  :: " 'c " 
+  and  a1  :: " 'a " 
+  and  b1  :: " 'b " 
+  and  c2  :: " 'c " 
+  and  a2  :: " 'a " 
+  and  b2  :: " 'b "
 
 
 fun tripleLess  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow> 'a*'b*'c \<Rightarrow> 'a*'b*'c \<Rightarrow> bool "  where 
      " tripleLess dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b dict_Basic_classes_Ord_c (x1, x2, x3) (y1, y2, y3) = ( pairLess 
   (instance_Basic_classes_Ord_tup2_dict dict_Basic_classes_Ord_b
-     dict_Basic_classes_Ord_c) dict_Basic_classes_Ord_a (x1, (x2, x3)) (y1, (y2, y3)))"
+     dict_Basic_classes_Ord_c) dict_Basic_classes_Ord_a (x1, (x2, x3)) (y1, (y2, y3)))" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class " 
+  and  x3  :: " 'c " 
+  and  x2  :: " 'b " 
+  and  x1  :: " 'a " 
+  and  y3  :: " 'c " 
+  and  y2  :: " 'b " 
+  and  y1  :: " 'a "
 
 fun tripleLessEq  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow> 'a*'b*'c \<Rightarrow> 'a*'b*'c \<Rightarrow> bool "  where 
      " tripleLessEq dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b dict_Basic_classes_Ord_c (x1, x2, x3) (y1, y2, y3) = ( pairLessEq 
   (instance_Basic_classes_Ord_tup2_dict dict_Basic_classes_Ord_b
-     dict_Basic_classes_Ord_c) dict_Basic_classes_Ord_a (x1, (x2, x3)) (y1, (y2, y3)))"
+     dict_Basic_classes_Ord_c) dict_Basic_classes_Ord_a (x1, (x2, x3)) (y1, (y2, y3)))" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class " 
+  and  x3  :: " 'c " 
+  and  x2  :: " 'b " 
+  and  x1  :: " 'a " 
+  and  y3  :: " 'c " 
+  and  y2  :: " 'b " 
+  and  y1  :: " 'a "
 
 
 definition tripleGreater  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow> 'c*'b*'a \<Rightarrow> 'c*'b*'a \<Rightarrow> bool "  where 
      " tripleGreater dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b dict_Basic_classes_Ord_c x123 y123 = ( tripleLess 
-  dict_Basic_classes_Ord_c dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y123 x123 )"
+  dict_Basic_classes_Ord_c dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y123 x123 )" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class " 
+  and  x123  :: " 'c*'b*'a " 
+  and  y123  :: " 'c*'b*'a "
 
 definition tripleGreaterEq  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow> 'c*'b*'a \<Rightarrow> 'c*'b*'a \<Rightarrow> bool "  where 
      " tripleGreaterEq dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b dict_Basic_classes_Ord_c x123 y123 = ( tripleLessEq 
-  dict_Basic_classes_Ord_c dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y123 x123 )"
+  dict_Basic_classes_Ord_c dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y123 x123 )" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class " 
+  and  x123  :: " 'c*'b*'a " 
+  and  y123  :: " 'c*'b*'a "
 
 
 definition instance_Basic_classes_Ord_tup3_dict  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow>('a*'b*'c)Ord_class "  where 
@@ -310,7 +387,10 @@ definition instance_Basic_classes_Ord_tup3_dict  :: " 'a Ord_class \<Rightarrow>
 
   isGreaterEqual_method = 
   (tripleGreaterEq dict_Basic_classes_Ord_c dict_Basic_classes_Ord_b
-     dict_Basic_classes_Ord_a) |) )"
+     dict_Basic_classes_Ord_a) |) )" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class "
 
 
 \<comment> \<open>\<open> quadruples \<close>\<close>
@@ -322,29 +402,77 @@ definition instance_Basic_classes_Ord_tup3_dict  :: " 'a Ord_class \<Rightarrow>
                                               ('d -> 'd -> ordering) -> ('a * 'b * 'c * 'd) -> ('a * 'b * 'c * 'd) -> ordering\<close>\<close>
 fun quadrupleCompare  :: "('a \<Rightarrow> 'a \<Rightarrow> ordering)\<Rightarrow>('b \<Rightarrow> 'b \<Rightarrow> ordering)\<Rightarrow>('c \<Rightarrow> 'c \<Rightarrow> ordering)\<Rightarrow>('d \<Rightarrow> 'd \<Rightarrow> ordering)\<Rightarrow> 'a*'b*'c*'d \<Rightarrow> 'a*'b*'c*'d \<Rightarrow> ordering "  where 
      " quadrupleCompare cmpa cmpb cmpc cmpd (a1, b1, c1, d1) (a2, b2, c2, d2) = (
-  pairCompare cmpa (pairCompare cmpb (pairCompare cmpc cmpd)) (a1, (b1, (c1, d1))) (a2, (b2, (c2, d2))))"
+  pairCompare cmpa (pairCompare cmpb (pairCompare cmpc cmpd)) (a1, (b1, (c1, d1))) (a2, (b2, (c2, d2))))" 
+  for  cmpa  :: " 'a \<Rightarrow> 'a \<Rightarrow> ordering " 
+  and  cmpb  :: " 'b \<Rightarrow> 'b \<Rightarrow> ordering " 
+  and  cmpc  :: " 'c \<Rightarrow> 'c \<Rightarrow> ordering " 
+  and  cmpd  :: " 'd \<Rightarrow> 'd \<Rightarrow> ordering " 
+  and  d1  :: " 'd " 
+  and  c1  :: " 'c " 
+  and  a1  :: " 'a " 
+  and  b1  :: " 'b " 
+  and  d2  :: " 'd " 
+  and  c2  :: " 'c " 
+  and  a2  :: " 'a " 
+  and  b2  :: " 'b "
 
 
 fun quadrupleLess  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow> 'd Ord_class \<Rightarrow> 'a*'b*'c*'d \<Rightarrow> 'a*'b*'c*'d \<Rightarrow> bool "  where 
      " quadrupleLess dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b dict_Basic_classes_Ord_c dict_Basic_classes_Ord_d (x1, x2, x3, x4) (y1, y2, y3, y4) = ( pairLess 
   (instance_Basic_classes_Ord_tup2_dict dict_Basic_classes_Ord_b
      (instance_Basic_classes_Ord_tup2_dict dict_Basic_classes_Ord_c
-        dict_Basic_classes_Ord_d)) dict_Basic_classes_Ord_a (x1, (x2, (x3, x4))) (y1, (y2, (y3, y4))))"
+        dict_Basic_classes_Ord_d)) dict_Basic_classes_Ord_a (x1, (x2, (x3, x4))) (y1, (y2, (y3, y4))))" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class " 
+  and  dict_Basic_classes_Ord_d  :: " 'd Ord_class " 
+  and  x4  :: " 'd " 
+  and  x3  :: " 'c " 
+  and  x2  :: " 'b " 
+  and  x1  :: " 'a " 
+  and  y4  :: " 'd " 
+  and  y3  :: " 'c " 
+  and  y2  :: " 'b " 
+  and  y1  :: " 'a "
 
 fun quadrupleLessEq  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow> 'd Ord_class \<Rightarrow> 'a*'b*'c*'d \<Rightarrow> 'a*'b*'c*'d \<Rightarrow> bool "  where 
      " quadrupleLessEq dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b dict_Basic_classes_Ord_c dict_Basic_classes_Ord_d (x1, x2, x3, x4) (y1, y2, y3, y4) = ( pairLessEq 
   (instance_Basic_classes_Ord_tup2_dict dict_Basic_classes_Ord_b
      (instance_Basic_classes_Ord_tup2_dict dict_Basic_classes_Ord_c
-        dict_Basic_classes_Ord_d)) dict_Basic_classes_Ord_a (x1, (x2, (x3, x4))) (y1, (y2, (y3, y4))))"
+        dict_Basic_classes_Ord_d)) dict_Basic_classes_Ord_a (x1, (x2, (x3, x4))) (y1, (y2, (y3, y4))))" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class " 
+  and  dict_Basic_classes_Ord_d  :: " 'd Ord_class " 
+  and  x4  :: " 'd " 
+  and  x3  :: " 'c " 
+  and  x2  :: " 'b " 
+  and  x1  :: " 'a " 
+  and  y4  :: " 'd " 
+  and  y3  :: " 'c " 
+  and  y2  :: " 'b " 
+  and  y1  :: " 'a "
 
 
 definition quadrupleGreater  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow> 'd Ord_class \<Rightarrow> 'd*'c*'b*'a \<Rightarrow> 'd*'c*'b*'a \<Rightarrow> bool "  where 
      " quadrupleGreater dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b dict_Basic_classes_Ord_c dict_Basic_classes_Ord_d x1234 y1234 = ( quadrupleLess 
-  dict_Basic_classes_Ord_d dict_Basic_classes_Ord_c dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y1234 x1234 )"
+  dict_Basic_classes_Ord_d dict_Basic_classes_Ord_c dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y1234 x1234 )" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class " 
+  and  dict_Basic_classes_Ord_d  :: " 'd Ord_class " 
+  and  x1234  :: " 'd*'c*'b*'a " 
+  and  y1234  :: " 'd*'c*'b*'a "
 
 definition quadrupleGreaterEq  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow> 'd Ord_class \<Rightarrow> 'd*'c*'b*'a \<Rightarrow> 'd*'c*'b*'a \<Rightarrow> bool "  where 
      " quadrupleGreaterEq dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b dict_Basic_classes_Ord_c dict_Basic_classes_Ord_d x1234 y1234 = ( quadrupleLessEq 
-  dict_Basic_classes_Ord_d dict_Basic_classes_Ord_c dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y1234 x1234 )"
+  dict_Basic_classes_Ord_d dict_Basic_classes_Ord_c dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y1234 x1234 )" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class " 
+  and  dict_Basic_classes_Ord_d  :: " 'd Ord_class " 
+  and  x1234  :: " 'd*'c*'b*'a " 
+  and  y1234  :: " 'd*'c*'b*'a "
 
 
 definition instance_Basic_classes_Ord_tup4_dict  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow> 'd Ord_class \<Rightarrow>('a*'b*'c*'d)Ord_class "  where 
@@ -367,7 +495,11 @@ definition instance_Basic_classes_Ord_tup4_dict  :: " 'a Ord_class \<Rightarrow>
 
   isGreaterEqual_method = 
   (quadrupleGreaterEq dict_Basic_classes_Ord_d dict_Basic_classes_Ord_c
-     dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a) |) )"
+     dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a) |) )" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class " 
+  and  dict_Basic_classes_Ord_d  :: " 'd Ord_class "
 
 
 \<comment> \<open>\<open> quintuples \<close>\<close>
@@ -379,7 +511,22 @@ definition instance_Basic_classes_Ord_tup4_dict  :: " 'a Ord_class \<Rightarrow>
                                               ('d -> 'd -> ordering) -> ('e -> 'e -> ordering) -> ('a * 'b * 'c * 'd * 'e) -> ('a * 'b * 'c * 'd * 'e) -> ordering\<close>\<close>
 fun quintupleCompare  :: "('a \<Rightarrow> 'a \<Rightarrow> ordering)\<Rightarrow>('b \<Rightarrow> 'b \<Rightarrow> ordering)\<Rightarrow>('c \<Rightarrow> 'c \<Rightarrow> ordering)\<Rightarrow>('d \<Rightarrow> 'd \<Rightarrow> ordering)\<Rightarrow>('e \<Rightarrow> 'e \<Rightarrow> ordering)\<Rightarrow> 'a*'b*'c*'d*'e \<Rightarrow> 'a*'b*'c*'d*'e \<Rightarrow> ordering "  where 
      " quintupleCompare cmpa cmpb cmpc cmpd cmpe (a1, b1, c1, d1, e1) (a2, b2, c2, d2, e2) = (
-  pairCompare cmpa (pairCompare cmpb (pairCompare cmpc (pairCompare cmpd cmpe))) (a1, (b1, (c1, (d1, e1)))) (a2, (b2, (c2, (d2, e2)))))"
+  pairCompare cmpa (pairCompare cmpb (pairCompare cmpc (pairCompare cmpd cmpe))) (a1, (b1, (c1, (d1, e1)))) (a2, (b2, (c2, (d2, e2)))))" 
+  for  cmpa  :: " 'a \<Rightarrow> 'a \<Rightarrow> ordering " 
+  and  cmpb  :: " 'b \<Rightarrow> 'b \<Rightarrow> ordering " 
+  and  cmpc  :: " 'c \<Rightarrow> 'c \<Rightarrow> ordering " 
+  and  cmpd  :: " 'd \<Rightarrow> 'd \<Rightarrow> ordering " 
+  and  cmpe  :: " 'e \<Rightarrow> 'e \<Rightarrow> ordering " 
+  and  e1  :: " 'e " 
+  and  d1  :: " 'd " 
+  and  c1  :: " 'c " 
+  and  a1  :: " 'a " 
+  and  b1  :: " 'b " 
+  and  e2  :: " 'e " 
+  and  d2  :: " 'd " 
+  and  c2  :: " 'c " 
+  and  a2  :: " 'a " 
+  and  b2  :: " 'b "
 
 
 fun quintupleLess  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow> 'd Ord_class \<Rightarrow> 'e Ord_class \<Rightarrow> 'a*'b*'c*'d*'e \<Rightarrow> 'a*'b*'c*'d*'e \<Rightarrow> bool "  where 
@@ -387,23 +534,67 @@ fun quintupleLess  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c
   (instance_Basic_classes_Ord_tup2_dict dict_Basic_classes_Ord_b
      (instance_Basic_classes_Ord_tup2_dict dict_Basic_classes_Ord_c
         (instance_Basic_classes_Ord_tup2_dict dict_Basic_classes_Ord_d
-           dict_Basic_classes_Ord_e))) dict_Basic_classes_Ord_a (x1, (x2, (x3, (x4, x5)))) (y1, (y2, (y3, (y4, y5)))))"
+           dict_Basic_classes_Ord_e))) dict_Basic_classes_Ord_a (x1, (x2, (x3, (x4, x5)))) (y1, (y2, (y3, (y4, y5)))))" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class " 
+  and  dict_Basic_classes_Ord_d  :: " 'd Ord_class " 
+  and  dict_Basic_classes_Ord_e  :: " 'e Ord_class " 
+  and  x5  :: " 'e " 
+  and  x4  :: " 'd " 
+  and  x3  :: " 'c " 
+  and  x2  :: " 'b " 
+  and  x1  :: " 'a " 
+  and  y5  :: " 'e " 
+  and  y4  :: " 'd " 
+  and  y3  :: " 'c " 
+  and  y2  :: " 'b " 
+  and  y1  :: " 'a "
 
 fun quintupleLessEq  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow> 'd Ord_class \<Rightarrow> 'e Ord_class \<Rightarrow> 'a*'b*'c*'d*'e \<Rightarrow> 'a*'b*'c*'d*'e \<Rightarrow> bool "  where 
      " quintupleLessEq dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b dict_Basic_classes_Ord_c dict_Basic_classes_Ord_d dict_Basic_classes_Ord_e (x1, x2, x3, x4, x5) (y1, y2, y3, y4, y5) = ( pairLessEq 
   (instance_Basic_classes_Ord_tup2_dict dict_Basic_classes_Ord_b
      (instance_Basic_classes_Ord_tup2_dict dict_Basic_classes_Ord_c
         (instance_Basic_classes_Ord_tup2_dict dict_Basic_classes_Ord_d
-           dict_Basic_classes_Ord_e))) dict_Basic_classes_Ord_a (x1, (x2, (x3, (x4, x5)))) (y1, (y2, (y3, (y4, y5)))))"
+           dict_Basic_classes_Ord_e))) dict_Basic_classes_Ord_a (x1, (x2, (x3, (x4, x5)))) (y1, (y2, (y3, (y4, y5)))))" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class " 
+  and  dict_Basic_classes_Ord_d  :: " 'd Ord_class " 
+  and  dict_Basic_classes_Ord_e  :: " 'e Ord_class " 
+  and  x5  :: " 'e " 
+  and  x4  :: " 'd " 
+  and  x3  :: " 'c " 
+  and  x2  :: " 'b " 
+  and  x1  :: " 'a " 
+  and  y5  :: " 'e " 
+  and  y4  :: " 'd " 
+  and  y3  :: " 'c " 
+  and  y2  :: " 'b " 
+  and  y1  :: " 'a "
 
 
 definition quintupleGreater  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow> 'd Ord_class \<Rightarrow> 'e Ord_class \<Rightarrow> 'e*'d*'c*'b*'a \<Rightarrow> 'e*'d*'c*'b*'a \<Rightarrow> bool "  where 
      " quintupleGreater dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b dict_Basic_classes_Ord_c dict_Basic_classes_Ord_d dict_Basic_classes_Ord_e x12345 y12345 = ( quintupleLess 
-  dict_Basic_classes_Ord_e dict_Basic_classes_Ord_d dict_Basic_classes_Ord_c dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y12345 x12345 )"
+  dict_Basic_classes_Ord_e dict_Basic_classes_Ord_d dict_Basic_classes_Ord_c dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y12345 x12345 )" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class " 
+  and  dict_Basic_classes_Ord_d  :: " 'd Ord_class " 
+  and  dict_Basic_classes_Ord_e  :: " 'e Ord_class " 
+  and  x12345  :: " 'e*'d*'c*'b*'a " 
+  and  y12345  :: " 'e*'d*'c*'b*'a "
 
 definition quintupleGreaterEq  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow> 'd Ord_class \<Rightarrow> 'e Ord_class \<Rightarrow> 'e*'d*'c*'b*'a \<Rightarrow> 'e*'d*'c*'b*'a \<Rightarrow> bool "  where 
      " quintupleGreaterEq dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b dict_Basic_classes_Ord_c dict_Basic_classes_Ord_d dict_Basic_classes_Ord_e x12345 y12345 = ( quintupleLessEq 
-  dict_Basic_classes_Ord_e dict_Basic_classes_Ord_d dict_Basic_classes_Ord_c dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y12345 x12345 )"
+  dict_Basic_classes_Ord_e dict_Basic_classes_Ord_d dict_Basic_classes_Ord_c dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y12345 x12345 )" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class " 
+  and  dict_Basic_classes_Ord_d  :: " 'd Ord_class " 
+  and  dict_Basic_classes_Ord_e  :: " 'e Ord_class " 
+  and  x12345  :: " 'e*'d*'c*'b*'a " 
+  and  y12345  :: " 'e*'d*'c*'b*'a "
 
 
 definition instance_Basic_classes_Ord_tup5_dict  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow> 'd Ord_class \<Rightarrow> 'e Ord_class \<Rightarrow>('a*'b*'c*'d*'e)Ord_class "  where 
@@ -430,7 +621,12 @@ definition instance_Basic_classes_Ord_tup5_dict  :: " 'a Ord_class \<Rightarrow>
   isGreaterEqual_method = 
   (quintupleGreaterEq dict_Basic_classes_Ord_e dict_Basic_classes_Ord_d
      dict_Basic_classes_Ord_c dict_Basic_classes_Ord_b
-     dict_Basic_classes_Ord_a) |) )"
+     dict_Basic_classes_Ord_a) |) )" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class " 
+  and  dict_Basic_classes_Ord_d  :: " 'd Ord_class " 
+  and  dict_Basic_classes_Ord_e  :: " 'e Ord_class "
 
 
 \<comment> \<open>\<open> sextuples \<close>\<close>
@@ -443,7 +639,25 @@ definition instance_Basic_classes_Ord_tup5_dict  :: " 'a Ord_class \<Rightarrow>
                                               ('a * 'b * 'c * 'd * 'e * 'f) -> ('a * 'b * 'c * 'd * 'e * 'f) -> ordering\<close>\<close>
 fun sextupleCompare  :: "('a \<Rightarrow> 'a \<Rightarrow> ordering)\<Rightarrow>('b \<Rightarrow> 'b \<Rightarrow> ordering)\<Rightarrow>('c \<Rightarrow> 'c \<Rightarrow> ordering)\<Rightarrow>('d \<Rightarrow> 'd \<Rightarrow> ordering)\<Rightarrow>('e \<Rightarrow> 'e \<Rightarrow> ordering)\<Rightarrow>('f \<Rightarrow> 'f \<Rightarrow> ordering)\<Rightarrow> 'a*'b*'c*'d*'e*'f \<Rightarrow> 'a*'b*'c*'d*'e*'f \<Rightarrow> ordering "  where 
      " sextupleCompare cmpa cmpb cmpc cmpd cmpe cmpf (a1, b1, c1, d1, e1, f1) (a2, b2, c2, d2, e2, f2) = (
-  pairCompare cmpa (pairCompare cmpb (pairCompare cmpc (pairCompare cmpd (pairCompare cmpe cmpf)))) (a1, (b1, (c1, (d1, (e1, f1))))) (a2, (b2, (c2, (d2, (e2, f2))))))"
+  pairCompare cmpa (pairCompare cmpb (pairCompare cmpc (pairCompare cmpd (pairCompare cmpe cmpf)))) (a1, (b1, (c1, (d1, (e1, f1))))) (a2, (b2, (c2, (d2, (e2, f2))))))" 
+  for  cmpa  :: " 'a \<Rightarrow> 'a \<Rightarrow> ordering " 
+  and  cmpb  :: " 'b \<Rightarrow> 'b \<Rightarrow> ordering " 
+  and  cmpc  :: " 'c \<Rightarrow> 'c \<Rightarrow> ordering " 
+  and  cmpd  :: " 'd \<Rightarrow> 'd \<Rightarrow> ordering " 
+  and  cmpe  :: " 'e \<Rightarrow> 'e \<Rightarrow> ordering " 
+  and  cmpf  :: " 'f \<Rightarrow> 'f \<Rightarrow> ordering " 
+  and  f1  :: " 'f " 
+  and  e1  :: " 'e " 
+  and  d1  :: " 'd " 
+  and  c1  :: " 'c " 
+  and  a1  :: " 'a " 
+  and  b1  :: " 'b " 
+  and  f2  :: " 'f " 
+  and  e2  :: " 'e " 
+  and  d2  :: " 'd " 
+  and  c2  :: " 'c " 
+  and  a2  :: " 'a " 
+  and  b2  :: " 'b "
 
 
 fun sextupleLess  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow> 'd Ord_class \<Rightarrow> 'e Ord_class \<Rightarrow> 'f Ord_class \<Rightarrow> 'a*'b*'c*'d*'e*'f \<Rightarrow> 'a*'b*'c*'d*'e*'f \<Rightarrow> bool "  where 
@@ -452,7 +666,25 @@ fun sextupleLess  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c 
      (instance_Basic_classes_Ord_tup2_dict dict_Basic_classes_Ord_c
         (instance_Basic_classes_Ord_tup2_dict dict_Basic_classes_Ord_d
            (instance_Basic_classes_Ord_tup2_dict dict_Basic_classes_Ord_e
-              dict_Basic_classes_Ord_f)))) dict_Basic_classes_Ord_a (x1, (x2, (x3, (x4, (x5, x6))))) (y1, (y2, (y3, (y4, (y5, y6))))))"
+              dict_Basic_classes_Ord_f)))) dict_Basic_classes_Ord_a (x1, (x2, (x3, (x4, (x5, x6))))) (y1, (y2, (y3, (y4, (y5, y6))))))" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class " 
+  and  dict_Basic_classes_Ord_d  :: " 'd Ord_class " 
+  and  dict_Basic_classes_Ord_e  :: " 'e Ord_class " 
+  and  dict_Basic_classes_Ord_f  :: " 'f Ord_class " 
+  and  x6  :: " 'f " 
+  and  x5  :: " 'e " 
+  and  x4  :: " 'd " 
+  and  x3  :: " 'c " 
+  and  x2  :: " 'b " 
+  and  x1  :: " 'a " 
+  and  y6  :: " 'f " 
+  and  y5  :: " 'e " 
+  and  y4  :: " 'd " 
+  and  y3  :: " 'c " 
+  and  y2  :: " 'b " 
+  and  y1  :: " 'a "
 
 fun sextupleLessEq  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow> 'd Ord_class \<Rightarrow> 'e Ord_class \<Rightarrow> 'f Ord_class \<Rightarrow> 'a*'b*'c*'d*'e*'f \<Rightarrow> 'a*'b*'c*'d*'e*'f \<Rightarrow> bool "  where 
      " sextupleLessEq dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b dict_Basic_classes_Ord_c dict_Basic_classes_Ord_d dict_Basic_classes_Ord_e dict_Basic_classes_Ord_f (x1, x2, x3, x4, x5, x6) (y1, y2, y3, y4, y5, y6) = ( pairLessEq 
@@ -460,16 +692,50 @@ fun sextupleLessEq  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> '
      (instance_Basic_classes_Ord_tup2_dict dict_Basic_classes_Ord_c
         (instance_Basic_classes_Ord_tup2_dict dict_Basic_classes_Ord_d
            (instance_Basic_classes_Ord_tup2_dict dict_Basic_classes_Ord_e
-              dict_Basic_classes_Ord_f)))) dict_Basic_classes_Ord_a (x1, (x2, (x3, (x4, (x5, x6))))) (y1, (y2, (y3, (y4, (y5, y6))))))"
+              dict_Basic_classes_Ord_f)))) dict_Basic_classes_Ord_a (x1, (x2, (x3, (x4, (x5, x6))))) (y1, (y2, (y3, (y4, (y5, y6))))))" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class " 
+  and  dict_Basic_classes_Ord_d  :: " 'd Ord_class " 
+  and  dict_Basic_classes_Ord_e  :: " 'e Ord_class " 
+  and  dict_Basic_classes_Ord_f  :: " 'f Ord_class " 
+  and  x6  :: " 'f " 
+  and  x5  :: " 'e " 
+  and  x4  :: " 'd " 
+  and  x3  :: " 'c " 
+  and  x2  :: " 'b " 
+  and  x1  :: " 'a " 
+  and  y6  :: " 'f " 
+  and  y5  :: " 'e " 
+  and  y4  :: " 'd " 
+  and  y3  :: " 'c " 
+  and  y2  :: " 'b " 
+  and  y1  :: " 'a "
 
 
 definition sextupleGreater  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow> 'd Ord_class \<Rightarrow> 'e Ord_class \<Rightarrow> 'f Ord_class \<Rightarrow> 'f*'e*'d*'c*'b*'a \<Rightarrow> 'f*'e*'d*'c*'b*'a \<Rightarrow> bool "  where 
      " sextupleGreater dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b dict_Basic_classes_Ord_c dict_Basic_classes_Ord_d dict_Basic_classes_Ord_e dict_Basic_classes_Ord_f x123456 y123456 = ( sextupleLess 
-  dict_Basic_classes_Ord_f dict_Basic_classes_Ord_e dict_Basic_classes_Ord_d dict_Basic_classes_Ord_c dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y123456 x123456 )"
+  dict_Basic_classes_Ord_f dict_Basic_classes_Ord_e dict_Basic_classes_Ord_d dict_Basic_classes_Ord_c dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y123456 x123456 )" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class " 
+  and  dict_Basic_classes_Ord_d  :: " 'd Ord_class " 
+  and  dict_Basic_classes_Ord_e  :: " 'e Ord_class " 
+  and  dict_Basic_classes_Ord_f  :: " 'f Ord_class " 
+  and  x123456  :: " 'f*'e*'d*'c*'b*'a " 
+  and  y123456  :: " 'f*'e*'d*'c*'b*'a "
 
 definition sextupleGreaterEq  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow> 'd Ord_class \<Rightarrow> 'e Ord_class \<Rightarrow> 'f Ord_class \<Rightarrow> 'f*'e*'d*'c*'b*'a \<Rightarrow> 'f*'e*'d*'c*'b*'a \<Rightarrow> bool "  where 
      " sextupleGreaterEq dict_Basic_classes_Ord_a dict_Basic_classes_Ord_b dict_Basic_classes_Ord_c dict_Basic_classes_Ord_d dict_Basic_classes_Ord_e dict_Basic_classes_Ord_f x123456 y123456 = ( sextupleLessEq 
-  dict_Basic_classes_Ord_f dict_Basic_classes_Ord_e dict_Basic_classes_Ord_d dict_Basic_classes_Ord_c dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y123456 x123456 )"
+  dict_Basic_classes_Ord_f dict_Basic_classes_Ord_e dict_Basic_classes_Ord_d dict_Basic_classes_Ord_c dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a y123456 x123456 )" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class " 
+  and  dict_Basic_classes_Ord_d  :: " 'd Ord_class " 
+  and  dict_Basic_classes_Ord_e  :: " 'e Ord_class " 
+  and  dict_Basic_classes_Ord_f  :: " 'f Ord_class " 
+  and  x123456  :: " 'f*'e*'d*'c*'b*'a " 
+  and  y123456  :: " 'f*'e*'d*'c*'b*'a "
 
 
 definition instance_Basic_classes_Ord_tup6_dict  :: " 'a Ord_class \<Rightarrow> 'b Ord_class \<Rightarrow> 'c Ord_class \<Rightarrow> 'd Ord_class \<Rightarrow> 'e Ord_class \<Rightarrow> 'f Ord_class \<Rightarrow>('a*'b*'c*'d*'e*'f)Ord_class "  where 
@@ -496,6 +762,12 @@ definition instance_Basic_classes_Ord_tup6_dict  :: " 'a Ord_class \<Rightarrow>
   isGreaterEqual_method = 
   (sextupleGreaterEq dict_Basic_classes_Ord_f dict_Basic_classes_Ord_e
      dict_Basic_classes_Ord_d dict_Basic_classes_Ord_c
-     dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a) |) )"
+     dict_Basic_classes_Ord_b dict_Basic_classes_Ord_a) |) )" 
+  for  dict_Basic_classes_Ord_a  :: " 'a Ord_class " 
+  and  dict_Basic_classes_Ord_b  :: " 'b Ord_class " 
+  and  dict_Basic_classes_Ord_c  :: " 'c Ord_class " 
+  and  dict_Basic_classes_Ord_d  :: " 'd Ord_class " 
+  and  dict_Basic_classes_Ord_e  :: " 'e Ord_class " 
+  and  dict_Basic_classes_Ord_f  :: " 'f Ord_class "
 
 end

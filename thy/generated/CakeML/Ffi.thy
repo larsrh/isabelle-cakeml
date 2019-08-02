@@ -50,7 +50,9 @@ definition initial_ffi_state  :: "(string \<Rightarrow> 'ffi oracle_function)\<R
 (| oracle0      = oc
  , ffi_state   = ffi1
  , io_events   = ([])
- |) )"
+ |) )" 
+  for  oc  :: " string \<Rightarrow> 'ffi oracle_function " 
+  and  ffi1  :: " 'ffi "
 
 
 datatype 'ffi ffi_result = FFI_return " 'ffi ffi_state " " 8 word list " | FFI_final " final_event "
@@ -73,7 +75,11 @@ definition call_FFI  :: " 'ffi ffi_state \<Rightarrow> string \<Rightarrow>(8 wo
     | Oracle_final outcome =>
           FFI_final(Final_event s conf bytes outcome)
     )
-  else FFI_return st bytes )"
+  else FFI_return st bytes )" 
+  for  st  :: " 'ffi ffi_state " 
+  and  s  :: " string " 
+  and  conf  :: "(8 word)list " 
+  and  bytes  :: "(8 word)list "
 
 
 datatype outcome = Success | Resource_limit_hit | FFI_outcome " final_event "
@@ -106,6 +112,10 @@ definition trace_oracle  :: " string \<Rightarrow>(io_event)llist \<Rightarrow>(
         Oracle_return (Option.the (ltl' io_trace)) (List.map snd bytes2)
       else Oracle_final FFI_failed
   | _ => Oracle_final FFI_failed
-  ))"
+  ))" 
+  for  s  :: " string " 
+  and  io_trace  :: "(io_event)llist " 
+  and  conf  :: "(8 word)list " 
+  and  input1  :: "(8 word)list "
 
 end

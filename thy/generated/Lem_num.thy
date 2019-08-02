@@ -16,7 +16,7 @@ begin
 \<comment> \<open>\<open>open import Bool Basic_classes\<close>\<close>
 \<comment> \<open>\<open>open import {isabelle} `HOL-Word.Word` `Complex_Main`\<close>\<close>
 \<comment> \<open>\<open>open import {hol} `integerTheory` `intReduce` `wordsTheory` `wordsLib` `ratTheory` `realTheory` `intrealTheory` `transcTheory`\<close>\<close>
-\<comment> \<open>\<open>open import {coq} `Coq.Numbers.BinNums` `Coq.ZArith.BinInt` `Coq.ZArith.Zpower` `Coq.ZArith.Zdiv` `Coq.ZArith.Zmax` `Coq.Numbers.Natural.Peano.NPeano` `Coq.QArith.Qabs` `Coq.QArith.Qminmax` `Coq.QArith.Qround` `Coq.Reals.ROrderedType` `Coq.Reals.Rbase` `Coq.Reals.Rfunctions`\<close>\<close> 
+\<comment> \<open>\<open>open import {coq} `Coq.Numbers.BinNums` `Coq.ZArith.BinInt` `Coq.ZArith.Zpower` `Coq.ZArith.Zdiv` `Coq.ZArith.Zmax` `Coq.Reals.Rsqrt_def` `Coq.Numbers.Natural.Peano.NPeano` `Coq.QArith.Qabs` `Coq.QArith.Qminmax` `Coq.QArith.Qround` `Coq.Reals.ROrderedType` `Coq.Reals.Rbase` `Coq.Reals.Rfunctions`\<close>\<close> 
 
 \<comment> \<open>\<open>class inline ( Numeral 'a ) 
   val fromNumeral : numeral -> 'a 
@@ -269,13 +269,21 @@ fun  gen_pow_aux  :: "('a \<Rightarrow> 'a \<Rightarrow> 'a)\<Rightarrow> 'a \<R
      | (  (Suc(Suc e'))) => (let e'' = (e div( 2 :: nat)) in
                    (let a' = (if (e mod( 2 :: nat)) =( 0 :: nat) then a else mul a b) in
                    gen_pow_aux mul a' (mul b b) e''))
-   ))"
+   ))" 
+  for  mul  :: " 'a \<Rightarrow> 'a \<Rightarrow> 'a " 
+  and  a  :: " 'a " 
+  and  b  :: " 'a " 
+  and  e  :: " nat "
 
        
 definition gen_pow  :: " 'a \<Rightarrow>('a \<Rightarrow> 'a \<Rightarrow> 'a)\<Rightarrow> 'a \<Rightarrow> nat \<Rightarrow> 'a "  where 
      " gen_pow (one :: 'a) (mul :: 'a \<Rightarrow> 'a \<Rightarrow> 'a) (b :: 'a) (e :: nat) = ( 
   if e <( 0 :: nat) then one else 
-  if (e =( 0 :: nat)) then one else gen_pow_aux mul one b e )"
+  if (e =( 0 :: nat)) then one else gen_pow_aux mul one b e )" 
+  for  one  :: " 'a " 
+  and  mul  :: " 'a \<Rightarrow> 'a \<Rightarrow> 'a " 
+  and  b  :: " 'a " 
+  and  e  :: " nat "
 
 
 \<comment> \<open>\<open>val natPow : nat -> nat -> nat\<close>\<close>
@@ -575,7 +583,8 @@ definition instance_Num_NumNegate_Num_int32_dict  :: "( 32 word)NumNegate_class 
 
 \<comment> \<open>\<open>val int32Abs : int32 -> int32\<close>\<close>
 definition int32Abs  :: " 32 word \<Rightarrow> 32 word "  where 
-     " int32Abs i = ( (if word_sle(((word_of_int 0) ::  32 word)) i then i else - i))"
+     " int32Abs i = ( (if word_sle(((word_of_int 0) ::  32 word)) i then i else - i))" 
+  for  i  :: " 32 word "
 
 
 definition instance_Num_NumAbs_Num_int32_dict  :: "( 32 word)NumAbs_class "  where 
@@ -707,7 +716,8 @@ definition instance_Num_NumNegate_Num_int64_dict  :: "( 64 word)NumNegate_class 
 
 \<comment> \<open>\<open>val int64Abs : int64 -> int64\<close>\<close>
 definition int64Abs  :: " 64 word \<Rightarrow> 64 word "  where 
-     " int64Abs i = ( (if word_sle(((word_of_int 0) ::  64 word)) i then i else - i))"
+     " int64Abs i = ( (if word_sle(((word_of_int 0) ::  64 word)) i then i else - i))" 
+  for  i  :: " 64 word "
 
 
 definition instance_Num_NumAbs_Num_int64_dict  :: "( 64 word)NumAbs_class "  where 
@@ -1037,7 +1047,9 @@ fun  rationalPowInteger  :: " rat \<Rightarrow> int \<Rightarrow> rat "  where
      " rationalPowInteger b e = (
   if e =( 0 :: int) then(Fract ( 1 :: int) (1 :: int)) else
   if e >( 0 :: int) then rationalPowInteger b (e -( 1 :: int)) * b else
-  rationalPowInteger b (e +( 1 :: int)) div b )"
+  rationalPowInteger b (e +( 1 :: int)) div b )" 
+  for  b  :: " rat " 
+  and  e  :: " int "
 
 
 \<comment> \<open>\<open>val rationalPowNat : rational -> nat -> rational\<close>\<close>
@@ -1158,7 +1170,9 @@ definition instance_Num_NumDivision_Num_real_dict  :: "(real)NumDivision_class "
 
 \<comment> \<open>\<open>val realFromFrac : integer -> integer -> real\<close>\<close>
 definition realFromFrac  :: " int \<Rightarrow> int \<Rightarrow> real "  where 
-     " realFromFrac n d = ( ((real_of_int n)) div ((real_of_int d)))"
+     " realFromFrac n d = ( ((real_of_int n)) div ((real_of_int d)))" 
+  for  n  :: " int " 
+  and  d  :: " int "
 
 
 \<comment> \<open>\<open>val realPowInteger : real -> integer -> real\<close>\<close>
@@ -1166,7 +1180,9 @@ fun  realPowInteger  :: " real \<Rightarrow> int \<Rightarrow> real "  where
      " realPowInteger b e = (
   if e =( 0 :: int) then( 1 :: real) else
   if e >( 0 :: int) then realPowInteger b (e -( 1 :: int)) * b else
-  realPowInteger b (e +( 1 :: int)) div b )"
+  realPowInteger b (e +( 1 :: int)) div b )" 
+  for  b  :: " real " 
+  and  e  :: " int "
 
 
 \<comment> \<open>\<open>val realPowNat : real -> nat -> real\<close>\<close>
@@ -1199,7 +1215,8 @@ definition instance_Basic_classes_OrdMaxMin_Num_real_dict  :: "(real)OrdMaxMin_c
 
 \<comment> \<open>\<open>val integerSqrt : integer -> integer\<close>\<close>
 definition integerSqrt  :: " int \<Rightarrow> int "  where 
-     " integerSqrt i = ( floor (sqrt ((real_of_int i))))"
+     " integerSqrt i = ( floor (sqrt ((real_of_int i))))" 
+  for  i  :: " int "
 
 
 \<comment> \<open>\<open> ========================================================================== \<close>\<close>

@@ -62,11 +62,15 @@ begin
 
 \<comment> \<open>\<open>val curry : forall 'a 'b 'c. (('a * 'b) -> 'c) -> 'a -> 'b -> 'c\<close>\<close>
 definition curry  :: "('a*'b \<Rightarrow> 'c)\<Rightarrow> 'a \<Rightarrow> 'b \<Rightarrow> 'c "  where 
-     " curry f = ( (\<lambda> a b .  f (a, b)))"
+     " curry f = ( (\<lambda> a b .  f (a, b)))" 
+  for  f  :: " 'a*'b \<Rightarrow> 'c "
 
 
 \<comment> \<open>\<open>val uncurry : forall 'a 'b 'c. ('a -> 'b -> 'c) -> ('a * 'b -> 'c)\<close>\<close>
 fun uncurry  :: "('a \<Rightarrow> 'b \<Rightarrow> 'c)\<Rightarrow> 'a*'b \<Rightarrow> 'c "  where 
-     " uncurry f (a,b) = ( f a b )"
+     " uncurry f (a,b) = ( f a b )" 
+  for  f  :: " 'a \<Rightarrow> 'b \<Rightarrow> 'c " 
+  and  a  :: " 'a " 
+  and  b  :: " 'b "
 
 end

@@ -66,6 +66,7 @@ datatype op0 =
   | FP_cmp " fp_cmp_op "
   | FP_uop " fp_uop_op "
   | FP_bop " fp_bop_op "
+  | FP_top " fp_top_op "
   \<comment> \<open>\<open> Function application \<close>\<close>
   | Opapp
   \<comment> \<open>\<open> Reference operations \<close>\<close>
@@ -91,6 +92,7 @@ datatype op0 =
   | Chopb " opb "
   \<comment> \<open>\<open> String operations \<close>\<close>
   | Implode
+  | Explode
   | Strsub
   | Strlen
   | Strcat
@@ -215,28 +217,43 @@ pats_bindings  :: "(pat)list \<Rightarrow>(string)list \<Rightarrow>(string)list
 pat_bindings  :: " pat \<Rightarrow>(string)list \<Rightarrow>(string)list "  where 
      "
 pat_bindings Pany already_bound = (
-  already_bound )"
+  already_bound )" 
+  for  already_bound  :: "(string)list "
 |"
 pat_bindings (Pvar n) already_bound = (
-  n # already_bound )"
+  n # already_bound )" 
+  for  n  :: " string " 
+  and  already_bound  :: "(string)list "
 |"
 pat_bindings (Plit l) already_bound = (
-  already_bound )"
+  already_bound )" 
+  for  l  :: " lit " 
+  and  already_bound  :: "(string)list "
 |"
 pat_bindings (Pcon _ ps) already_bound = (
-  pats_bindings ps already_bound )"
+  pats_bindings ps already_bound )" 
+  for  ps  :: "(pat)list " 
+  and  already_bound  :: "(string)list "
 |"
 pat_bindings (Pref p) already_bound = (
-  pat_bindings p already_bound )"
+  pat_bindings p already_bound )" 
+  for  p  :: " pat " 
+  and  already_bound  :: "(string)list "
 |"
 pat_bindings (Ptannot p _) already_bound = (
-  pat_bindings p already_bound )"
+  pat_bindings p already_bound )" 
+  for  p  :: " pat " 
+  and  already_bound  :: "(string)list "
 |"
 pats_bindings [] already_bound = (
-  already_bound )"
+  already_bound )" 
+  for  already_bound  :: "(string)list "
 |"
 pats_bindings (p # ps) already_bound = (
   pats_bindings ps (pat_bindings p already_bound))" 
+  for  ps  :: "(pat)list " 
+  and  p  :: " pat " 
+  and  already_bound  :: "(string)list " 
 by pat_completeness auto
 
 end

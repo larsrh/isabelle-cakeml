@@ -88,7 +88,8 @@ definition prim_type_nums  :: "(nat)list "  where
 
 
 definition Tarray  :: " t \<Rightarrow> t "  where 
-     " Tarray t1 = ( Tapp [t1] Tarray_num )"
+     " Tarray t1 = ( Tapp [t1] Tarray_num )" 
+  for  t1  :: " t "
 
 definition Tbool  :: " t "  where 
      " Tbool = ( Tapp [] Tbool_num )"
@@ -100,25 +101,31 @@ definition Texn  :: " t "  where
      " Texn = ( Tapp [] Texn_num )"
 
 definition Tfn  :: " t \<Rightarrow> t \<Rightarrow> t "  where 
-     " Tfn t1 t2 = ( Tapp [t1,t2] Tfn_num )"
+     " Tfn t1 t2 = ( Tapp [t1,t2] Tfn_num )" 
+  for  t1  :: " t " 
+  and  t2  :: " t "
 
 definition Tint  :: " t "  where 
      " Tint = ( Tapp [] Tint_num )"
 
 definition Tlist  :: " t \<Rightarrow> t "  where 
-     " Tlist t1 = ( Tapp [t1] Tlist_num )"
+     " Tlist t1 = ( Tapp [t1] Tlist_num )" 
+  for  t1  :: " t "
 
 definition Tref  :: " t \<Rightarrow> t "  where 
-     " Tref t1 = ( Tapp [t1] Tref_num )"
+     " Tref t1 = ( Tapp [t1] Tref_num )" 
+  for  t1  :: " t "
 
 definition Tstring  :: " t "  where 
      " Tstring = ( Tapp [] Tstring_num )"
 
 definition Ttup  :: "(t)list \<Rightarrow> t "  where 
-     " Ttup ts = ( Tapp ts Ttup_num )"
+     " Ttup ts = ( Tapp ts Ttup_num )" 
+  for  ts  :: "(t)list "
 
 definition Tvector  :: " t \<Rightarrow> t "  where 
-     " Tvector t1 = ( Tapp [t1] Tvector_num )"
+     " Tvector t1 = ( Tapp [t1] Tvector_num )" 
+  for  t1  :: " t "
 
 definition Tword64  :: " t "  where 
      " Tword64 = ( Tapp [] Tword64_num )"
@@ -138,12 +145,22 @@ function (sequential,domintros)
 check_freevars  :: " nat \<Rightarrow>(string)list \<Rightarrow> t \<Rightarrow> bool "  where 
      "
 check_freevars dbmax tvs (Tvar tv) = (
-  Set.member tv (set tvs))"
+  Set.member tv (set tvs))" 
+  for  dbmax  :: " nat " 
+  and  tvs  :: "(string)list " 
+  and  tv  :: " string "
 |"
 check_freevars dbmax tvs (Tapp ts tn) = (
-  ((\<forall> x \<in> (set ts).  (check_freevars dbmax tvs) x)))"
+  ((\<forall> x \<in> (set ts).  (check_freevars dbmax tvs) x)))" 
+  for  dbmax  :: " nat " 
+  and  tvs  :: "(string)list " 
+  and  tn  :: " nat " 
+  and  ts  :: "(t)list "
 |"
 check_freevars dbmax tvs (Tvar_db n) = ( n < dbmax )" 
+  for  dbmax  :: " nat " 
+  and  tvs  :: "(string)list " 
+  and  n  :: " nat " 
 by pat_completeness auto
 
 
@@ -152,16 +169,26 @@ function (sequential,domintros)
 check_freevars_ast  :: "(string)list \<Rightarrow> ast_t \<Rightarrow> bool "  where 
      "
 check_freevars_ast tvs (Atvar tv) = (
-  Set.member tv (set tvs))"
+  Set.member tv (set tvs))" 
+  for  tvs  :: "(string)list " 
+  and  tv  :: " string "
 |"
 check_freevars_ast tvs (Attup ts) = (
-  ((\<forall> x \<in> (set ts).  (check_freevars_ast tvs) x)))"
+  ((\<forall> x \<in> (set ts).  (check_freevars_ast tvs) x)))" 
+  for  tvs  :: "(string)list " 
+  and  ts  :: "(ast_t)list "
 |"
 check_freevars_ast tvs (Atfun t1 t2) = (
-  check_freevars_ast tvs t1 \<and> check_freevars_ast tvs t2 )"
+  check_freevars_ast tvs t1 \<and> check_freevars_ast tvs t2 )" 
+  for  tvs  :: "(string)list " 
+  and  t1  :: " ast_t " 
+  and  t2  :: " ast_t "
 |"
 check_freevars_ast tvs (Atapp ts tn) = (
   ((\<forall> x \<in> (set ts).  (check_freevars_ast tvs) x)))" 
+  for  tvs  :: "(string)list " 
+  and  tn  :: "((modN),(typeN))id0 " 
+  and  ts  :: "(ast_t)list " 
 by pat_completeness auto
 
 
@@ -175,12 +202,19 @@ type_subst s (Tvar tv) = (
   (case   s tv of
       None => Tvar tv
     | Some(t1) => t1
-  ))"
+  ))" 
+  for  s  :: "((string),(t))Map.map " 
+  and  tv  :: " string "
 |"
 type_subst s (Tapp ts tn) = (
-  Tapp (List.map (type_subst s) ts) tn )"
+  Tapp (List.map (type_subst s) ts) tn )" 
+  for  s  :: "((string),(t))Map.map " 
+  and  tn  :: " nat " 
+  and  ts  :: "(t)list "
 |"
 type_subst s (Tvar_db n) = ( Tvar_db n )" 
+  for  s  :: "((string),(t))Map.map " 
+  and  n  :: " nat " 
 by pat_completeness auto
 
 
@@ -190,15 +224,25 @@ by pat_completeness auto
 function (sequential,domintros) 
 deBruijn_inc  :: " nat \<Rightarrow> nat \<Rightarrow> t \<Rightarrow> t "  where 
      "
-deBruijn_inc skip n (Tvar tv) = ( Tvar tv )"
+deBruijn_inc skip n (Tvar tv) = ( Tvar tv )" 
+  for  skip  :: " nat " 
+  and  n  :: " nat " 
+  and  tv  :: " string "
 |"
 deBruijn_inc skip n (Tvar_db m) = (
   if m < skip then
     Tvar_db m
   else
-    Tvar_db (m + n))"
+    Tvar_db (m + n))" 
+  for  skip  :: " nat " 
+  and  n  :: " nat " 
+  and  m  :: " nat "
 |"
 deBruijn_inc skip n (Tapp ts tn) = ( Tapp (List.map (deBruijn_inc skip n) ts) tn )" 
+  for  skip  :: " nat " 
+  and  n  :: " nat " 
+  and  tn  :: " nat " 
+  and  ts  :: "(t)list " 
 by pat_completeness auto
 
 
@@ -207,7 +251,10 @@ by pat_completeness auto
 function (sequential,domintros) 
 deBruijn_subst  :: " nat \<Rightarrow>(t)list \<Rightarrow> t \<Rightarrow> t "  where 
      "
-deBruijn_subst skip ts (Tvar tv) = ( Tvar tv )"
+deBruijn_subst skip ts (Tvar tv) = ( Tvar tv )" 
+  for  skip  :: " nat " 
+  and  ts  :: "(t)list " 
+  and  tv  :: " string "
 |"
 deBruijn_subst skip ts (Tvar_db n) = (
   if \<not> (n < skip) \<and> (n < (List.length ts + skip)) then
@@ -215,10 +262,17 @@ deBruijn_subst skip ts (Tvar_db n) = (
   else if \<not> (n < skip) then
     Tvar_db (n - List.length ts)
   else
-    Tvar_db n )"
+    Tvar_db n )" 
+  for  skip  :: " nat " 
+  and  ts  :: "(t)list " 
+  and  n  :: " nat "
 |"
 deBruijn_subst skip ts (Tapp ts' tn) = (
   Tapp (List.map (deBruijn_subst skip ts) ts') tn )" 
+  for  skip  :: " nat " 
+  and  ts  :: "(t)list " 
+  and  tn  :: " nat " 
+  and  ts'  :: "(t)list " 
 by pat_completeness auto
 
 
@@ -232,28 +286,49 @@ datatype tenv_val_exp =
 
 \<comment> \<open>\<open>val bind_tvar : nat -> tenv_val_exp -> tenv_val_exp\<close>\<close>
 definition bind_tvar  :: " nat \<Rightarrow> tenv_val_exp \<Rightarrow> tenv_val_exp "  where 
-     " bind_tvar tvs tenvE = ( if tvs =( 0 :: nat) then tenvE else Bind_tvar tvs tenvE )"
+     " bind_tvar tvs tenvE = ( if tvs =( 0 :: nat) then tenvE else Bind_tvar tvs tenvE )" 
+  for  tvs  :: " nat " 
+  and  tenvE  :: " tenv_val_exp "
 
 
 \<comment> \<open>\<open>val opt_bind_name : maybe varN -> nat -> t -> tenv_val_exp -> tenv_val_exp\<close>\<close>
 fun opt_bind_name  :: "(string)option \<Rightarrow> nat \<Rightarrow> t \<Rightarrow> tenv_val_exp \<Rightarrow> tenv_val_exp "  where 
-     " opt_bind_name None tvs t1 tenvE = ( tenvE )"
-|" opt_bind_name (Some n') tvs t1 tenvE = ( Bind_name n' tvs t1 tenvE )"
+     " opt_bind_name None tvs t1 tenvE = ( tenvE )" 
+  for  tvs  :: " nat " 
+  and  t1  :: " t " 
+  and  tenvE  :: " tenv_val_exp "
+|" opt_bind_name (Some n') tvs t1 tenvE = ( Bind_name n' tvs t1 tenvE )" 
+  for  n'  :: " string " 
+  and  tvs  :: " nat " 
+  and  t1  :: " t " 
+  and  tenvE  :: " tenv_val_exp "
 
 
 \<comment> \<open>\<open>val tveLookup : varN -> nat -> tenv_val_exp -> maybe (nat * t)\<close>\<close>
 fun 
 tveLookup  :: " string \<Rightarrow> nat \<Rightarrow> tenv_val_exp \<Rightarrow>(nat*t)option "  where 
      "
-tveLookup n inc Empty = ( None )"
+tveLookup n inc Empty = ( None )" 
+  for  n  :: " string " 
+  and  inc  :: " nat "
 |"
-tveLookup n inc (Bind_tvar tvs tenvE) = ( tveLookup n (inc + tvs) tenvE )"
+tveLookup n inc (Bind_tvar tvs tenvE) = ( tveLookup n (inc + tvs) tenvE )" 
+  for  n  :: " string " 
+  and  inc  :: " nat " 
+  and  tenvE  :: " tenv_val_exp " 
+  and  tvs  :: " nat "
 |"
 tveLookup n inc (Bind_name n' tvs t1 tenvE) = (
   if n' = n then
     Some (tvs, deBruijn_inc tvs inc t1)
   else
-    tveLookup n inc tenvE )"
+    tveLookup n inc tenvE )" 
+  for  n  :: " string " 
+  and  inc  :: " nat " 
+  and  tenvE  :: " tenv_val_exp " 
+  and  t1  :: " t " 
+  and  tvs  :: " nat " 
+  and  n'  :: " string "
 
 
 type_synonym tenv_abbrev =" (modN, typeN, ( tvarN list * t)) namespace "
@@ -275,13 +350,18 @@ definition extend_dec_tenv  :: " type_env \<Rightarrow> type_env \<Rightarrow> t
      " extend_dec_tenv tenv' tenv = (
   (| v0 = (nsAppend(v0   tenv')(v0   tenv)),
      c0 = (nsAppend(c0   tenv')(c0   tenv)),
-     t = (nsAppend(t   tenv')(t   tenv)) |) )"
+     t = (nsAppend(t   tenv')(t   tenv)) |) )" 
+  for  tenv'  :: " type_env " 
+  and  tenv  :: " type_env "
 
 
 \<comment> \<open>\<open>val lookup_varE : id modN varN -> tenv_val_exp -> maybe (nat * t)\<close>\<close>
 fun lookup_varE  :: "((string),(string))id0 \<Rightarrow> tenv_val_exp \<Rightarrow>(nat*t)option "  where 
-     " lookup_varE (Short x) tenvE = ( tveLookup x(( 0 :: nat)) tenvE )"
-|" lookup_varE _ tenvE = ( None )"
+     " lookup_varE (Short x) tenvE = ( tveLookup x(( 0 :: nat)) tenvE )" 
+  for  x  :: " string " 
+  and  tenvE  :: " tenv_val_exp "
+|" lookup_varE _ tenvE = ( None )" 
+  for  tenvE  :: " tenv_val_exp "
 
 
 \<comment> \<open>\<open>val lookup_var : id modN varN -> tenv_val_exp -> type_env -> maybe (nat * t)\<close>\<close>
@@ -290,7 +370,10 @@ definition lookup_var  :: "((modN),(varN))id0 \<Rightarrow> tenv_val_exp \<Right
   (case  lookup_varE id1 tenvE of
     Some x => Some x
   | None => nsLookup(v0   tenv) id1
-  ))"
+  ))" 
+  for  id1  :: "((modN),(varN))id0 " 
+  and  tenvE  :: " tenv_val_exp " 
+  and  tenv  :: " type_env "
 
 
 \<comment> \<open>\<open>val num_tvs : tenv_val_exp -> nat\<close>\<close>
@@ -299,19 +382,32 @@ num_tvs  :: " tenv_val_exp \<Rightarrow> nat "  where
      "
 num_tvs Empty = (( 0 :: nat))"
 |"
-num_tvs (Bind_tvar tvs tenvE) = ( tvs + num_tvs tenvE )"
+num_tvs (Bind_tvar tvs tenvE) = ( tvs + num_tvs tenvE )" 
+  for  tenvE  :: " tenv_val_exp " 
+  and  tvs  :: " nat "
 |"
-num_tvs (Bind_name n tvs t1 tenvE) = ( num_tvs tenvE )"
+num_tvs (Bind_name n tvs t1 tenvE) = ( num_tvs tenvE )" 
+  for  tenvE  :: " tenv_val_exp " 
+  and  t1  :: " t " 
+  and  tvs  :: " nat " 
+  and  n  :: " string "
 
 
 \<comment> \<open>\<open>val bind_var_list : nat -> list (varN * t) -> tenv_val_exp -> tenv_val_exp\<close>\<close>
 fun 
 bind_var_list  :: " nat \<Rightarrow>(string*t)list \<Rightarrow> tenv_val_exp \<Rightarrow> tenv_val_exp "  where 
      "
-bind_var_list tvs [] tenvE = ( tenvE )"
+bind_var_list tvs [] tenvE = ( tenvE )" 
+  for  tvs  :: " nat " 
+  and  tenvE  :: " tenv_val_exp "
 |"
 bind_var_list tvs ((n,t1)# binds) tenvE = (
-  Bind_name n tvs t1 (bind_var_list tvs binds tenvE))"
+  Bind_name n tvs t1 (bind_var_list tvs binds tenvE))" 
+  for  tvs  :: " nat " 
+  and  binds  :: "(string*t)list " 
+  and  t1  :: " t " 
+  and  n  :: " string " 
+  and  tenvE  :: " tenv_val_exp "
 
 
 \<comment> \<open>\<open> A pattern matches values of a certain type and extends the type environment
@@ -351,6 +447,7 @@ definition type_op  :: " op0 \<Rightarrow>(t)list \<Rightarrow> t \<Rightarrow> 
     | (Opb _, [t11, t2]) => (t11 = Tint) \<and> ((t2 = Tint) \<and> (t1 = Tbool))
     | (Opw W8 _, [t11, t2]) => (t11 = Tword8) \<and> ((t2 = Tword8) \<and> (t1 = Tword8))
     | (Opw W64 _, [t11, t2]) => (t11 = Tword64) \<and> ((t2 = Tword64) \<and> (t1 = Tword64))
+    | (FP_top _, [t11, t2, t3]) => (t11 = Tword64) \<and> ((t2 = Tword64) \<and> ((t3 = Tword64) \<and> (t1 = Tword64)))
     | (FP_bop _, [t11, t2]) => (t11 = Tword64) \<and> ((t2 = Tword64) \<and> (t1 = Tword64))
     | (FP_uop _, [t11]) =>  (t11 = Tword64) \<and> (t1 = Tword64)
     | (FP_cmp _, [t11, t2]) =>  (t11 = Tword64) \<and> ((t2 = Tword64) \<and> (t1 = Tbool))
@@ -378,6 +475,7 @@ definition type_op  :: " op0 \<Rightarrow>(t)list \<Rightarrow> t \<Rightarrow> 
     | (Ord, [t11]) => (t11 = Tchar) \<and> (t1 = Tint)
     | (Chopb _, [t11, t2]) => (t11 = Tchar) \<and> ((t2 = Tchar) \<and> (t1 = Tbool))
     | (Implode, [t11]) => (t11 = Tlist Tchar) \<and> (t1 = Tstring)
+    | (Explode, [t11]) => (t11 = Tstring) \<and> (t1 = Tlist Tchar)
     | (Strsub, [t11, t2]) => (t11 = Tstring) \<and> ((t2 = Tint) \<and> (t1 = Tchar))
     | (Strlen, [t11]) => (t11 = Tstring) \<and> (t1 = Tint)
     | (Strcat, [t11]) => (t11 = Tlist Tstring) \<and> (t1 = Tstring)
@@ -393,7 +491,10 @@ definition type_op  :: " op0 \<Rightarrow>(t)list \<Rightarrow> t \<Rightarrow> 
     | (FFI n, [t11,t2]) => (t11 = Tstring) \<and> ((t2 = Tword8array) \<and> (t1 = Ttup []))
     | (ListAppend, [Tapp [t11] ctor, t2]) => (ctor = Tlist_num) \<and> ((t2 = Tapp [t11] ctor) \<and> (t1 = t2))
     | _ => False
-  ))"
+  ))" 
+  for  op1  :: " op0 " 
+  and  ts  :: "(t)list " 
+  and  t1  :: " t "
 
 
 \<comment> \<open>\<open>val check_type_names : tenv_abbrev -> ast_t -> bool\<close>\<close>
@@ -401,13 +502,20 @@ function (sequential,domintros)
 check_type_names  :: "((string),(string),((string)list*t))namespace \<Rightarrow> ast_t \<Rightarrow> bool "  where 
      "
 check_type_names tenvT (Atvar tv) = (
-  True )"
+  True )" 
+  for  tenvT  :: "((string),(string),((string)list*t))namespace " 
+  and  tv  :: " string "
 |"
 check_type_names tenvT (Attup ts) = (
-  ((\<forall> x \<in> (set ts).  (check_type_names tenvT) x)))"
+  ((\<forall> x \<in> (set ts).  (check_type_names tenvT) x)))" 
+  for  tenvT  :: "((string),(string),((string)list*t))namespace " 
+  and  ts  :: "(ast_t)list "
 |"
 check_type_names tenvT (Atfun t1 t2) = (
-  check_type_names tenvT t1 \<and> check_type_names tenvT t2 )"
+  check_type_names tenvT t1 \<and> check_type_names tenvT t2 )" 
+  for  tenvT  :: "((string),(string),((string)list*t))namespace " 
+  and  t1  :: " ast_t " 
+  and  t2  :: " ast_t "
 |"
 check_type_names tenvT (Atapp ts tn) = (
   (case  nsLookup tenvT tn of
@@ -415,6 +523,9 @@ check_type_names tenvT (Atapp ts tn) = (
   | None => False
   ) \<and>
   ((\<forall> x \<in> (set ts).  (check_type_names tenvT) x)))" 
+  for  tenvT  :: "((string),(string),((string)list*t))namespace " 
+  and  tn  :: "((modN),(typeN))id0 " 
+  and  ts  :: "(ast_t)list " 
 by pat_completeness auto
 
 
@@ -423,13 +534,20 @@ by pat_completeness auto
 function (sequential,domintros) 
 type_name_subst  :: "((string),(string),((string)list*t))namespace \<Rightarrow> ast_t \<Rightarrow> t "  where 
      "
-type_name_subst tenvT (Atvar tv) = ( Tvar tv )"
+type_name_subst tenvT (Atvar tv) = ( Tvar tv )" 
+  for  tenvT  :: "((string),(string),((string)list*t))namespace " 
+  and  tv  :: " string "
 |"
 type_name_subst tenvT (Attup ts) = (
-  Ttup (List.map (type_name_subst tenvT) ts))"
+  Ttup (List.map (type_name_subst tenvT) ts))" 
+  for  tenvT  :: "((string),(string),((string)list*t))namespace " 
+  and  ts  :: "(ast_t)list "
 |"
 type_name_subst tenvT (Atfun t1 t2) = (
-  Tfn (type_name_subst tenvT t1) (type_name_subst tenvT t2))"
+  Tfn (type_name_subst tenvT t1) (type_name_subst tenvT t2))" 
+  for  tenvT  :: "((string),(string),((string)list*t))namespace " 
+  and  t1  :: " ast_t " 
+  and  t2  :: " ast_t "
 |"
 type_name_subst tenvT (Atapp ts tc) = (
   (let args = (List.map (type_name_subst tenvT) ts) in
@@ -437,6 +555,9 @@ type_name_subst tenvT (Atapp ts tc) = (
     Some (tvs, t1) => type_subst (map_of (Lem_list_extra.zipSameLength tvs args)) t1
   | None => Ttup args \<comment> \<open>\<open> can't happen, for a type that passes the check \<close>\<close>
   )))" 
+  for  tenvT  :: "((string),(string),((string)list*t))namespace " 
+  and  ts  :: "(ast_t)list " 
+  and  tc  :: "((modN),(typeN))id0 " 
 by pat_completeness auto
 
 
@@ -446,7 +567,8 @@ by pat_completeness auto
  * types mentioned are in scope. \<close>\<close>
 \<comment> \<open>\<open>val check_ctor_tenv : tenv_abbrev -> list (list tvarN * typeN * list (conN * list ast_t)) -> bool\<close>\<close>
 fun  check_ctor_tenv  :: "((modN),(typeN),((tvarN)list*t))namespace \<Rightarrow>((tvarN)list*string*(conN*(ast_t)list)list)list \<Rightarrow> bool "  where 
-     " check_ctor_tenv tenvT [] = ( True )"
+     " check_ctor_tenv tenvT [] = ( True )" 
+  for  tenvT  :: "((modN),(typeN),((tvarN)list*t))namespace "
 |" check_ctor_tenv tenvT ((tvs,tn,ctors)# tds) = (
   check_dup_ctors (tvs,tn,ctors) \<and>
   (Lem_list.allDistinct tvs \<and>
@@ -458,12 +580,18 @@ fun  check_ctor_tenv  :: "((modN),(typeN),((tvarN)list*t))namespace \<Rightarrow
   )) x)) \<and>
   (\<not> (Set.member tn (set (List.map ( \<lambda>x .  
   (case  x of (_,tn,_) => tn )) tds))) \<and>
-  check_ctor_tenv tenvT tds))))"
+  check_ctor_tenv tenvT tds))))" 
+  for  tenvT  :: "((modN),(typeN),((tvarN)list*t))namespace " 
+  and  ctors  :: "(conN*(ast_t)list)list " 
+  and  tds  :: "((tvarN)list*string*(conN*(ast_t)list)list)list " 
+  and  tn  :: " string " 
+  and  tvs  :: "(tvarN)list "
 
 
 \<comment> \<open>\<open>val build_ctor_tenv : tenv_abbrev -> list (list tvarN * typeN * list (conN * list ast_t)) -> list nat -> tenv_ctor\<close>\<close>
 fun  build_ctor_tenv  :: "((modN),(typeN),((tvarN)list*t))namespace \<Rightarrow>((tvarN)list*string*(string*(ast_t)list)list)list \<Rightarrow>(nat)list \<Rightarrow>((string),(string),((tvarN)list*(t)list*nat))namespace "  where 
-     " build_ctor_tenv tenvT [] [] = ( alist_to_ns [])"
+     " build_ctor_tenv tenvT [] [] = ( alist_to_ns [])" 
+  for  tenvT  :: "((modN),(typeN),((tvarN)list*t))namespace "
 |" build_ctor_tenv tenvT ((tvs,tn,ctors)# tds) (id1 # ids) = (
   nsAppend
     (build_ctor_tenv tenvT tds ids)
@@ -472,8 +600,16 @@ fun  build_ctor_tenv  :: "((modN),(typeN),((tvarN)list*t))namespace \<Rightarrow
         (List.map
           ( \<lambda>x .  
   (case  x of (cn,ts) => (cn,(tvs,List.map (type_name_subst tenvT) ts, id1)) ))
-          ctors))))"
-|" build_ctor_tenv tenvT _ _ = ( alist_to_ns [])"
+          ctors))))" 
+  for  tenvT  :: "((modN),(typeN),((tvarN)list*t))namespace " 
+  and  ctors  :: "(string*(ast_t)list)list " 
+  and  tds  :: "((tvarN)list*string*(string*(ast_t)list)list)list " 
+  and  tn  :: " string " 
+  and  tvs  :: "(tvarN)list " 
+  and  id1  :: " nat " 
+  and  ids  :: "(nat)list "
+|" build_ctor_tenv tenvT _ _ = ( alist_to_ns [])" 
+  for  tenvT  :: "((modN),(typeN),((tvarN)list*t))namespace "
 
 
 \<comment> \<open>\<open> For the value restriction on let-based polymorphism \<close>\<close>
@@ -483,15 +619,18 @@ is_value  :: " exp0 \<Rightarrow> bool "  where
      "
 is_value (Lit _) = ( True )"
 |"
-is_value (Con _ es) = ( ((\<forall> x \<in> (set es).  is_value x)))"
+is_value (Con _ es) = ( ((\<forall> x \<in> (set es).  is_value x)))" 
+  for  es  :: "(exp0)list "
 |"
 is_value (Var _) = ( True )"
 |"
 is_value (Fun _ _) = ( True )"
 |"
-is_value (Tannot e _) = ( is_value e )"
+is_value (Tannot e _) = ( is_value e )" 
+  for  e  :: " exp0 "
 |"
-is_value (Lannot e _) = ( is_value e )"
+is_value (Lannot e _) = ( is_value e )" 
+  for  e  :: " exp0 "
 |"
 is_value _ = ( False )" 
 by pat_completeness auto
@@ -806,7 +945,9 @@ type_funs tenv tenvE ((fn, n, e)# funs) ((fn, Tfn t1 t2)# bindings)"
 definition tenv_add_tvs  :: " nat \<Rightarrow>(string*t)list \<Rightarrow>(string*(nat*t))list "  where 
      " tenv_add_tvs tvs bindings = (
   List.map ( \<lambda>x .  
-  (case  x of (n,t1) => (n,(tvs,t1)) )) bindings )"
+  (case  x of (n,t1) => (n,(tvs,t1)) )) bindings )" 
+  for  tvs  :: " nat " 
+  and  bindings  :: "(string*t)list "
 
 
 \<comment> \<open>\<open>val type_pe_determ : type_env -> tenv_val_exp -> pat -> exp -> bool\<close>\<close>
@@ -819,7 +960,11 @@ definition type_pe_determ  :: " type_env \<Rightarrow> tenv_val_exp \<Rightarrow
     (type_p(( 0 :: nat)) tenv p t1 tenv1 \<and> (type_e tenv tenvE e t1 \<and>
     (type_p(( 0 :: nat)) tenv p t2 tenv2 \<and> type_e tenv tenvE e t2)))
     \<longrightarrow>
-    (tenv1 = tenv2)))"
+    (tenv1 = tenv2)))" 
+  for  tenv  :: " type_env " 
+  and  tenvE  :: " tenv_val_exp " 
+  and  p  :: " pat " 
+  and  e  :: " exp0 "
 
 
 \<comment> \<open>\<open>val tscheme_inst : (nat * t) -> (nat * t) -> bool\<close>\<close>
@@ -829,12 +974,18 @@ fun tscheme_inst  :: " nat*t \<Rightarrow> nat*t \<Rightarrow> bool "  where
     (List.length subst = tvs_impl) \<and>
     (check_freevars tvs_impl [] t_impl \<and>
     (((\<forall> x \<in> (set subst).  (check_freevars tvs_spec []) x)) \<and>
-    (deBruijn_subst(( 0 :: nat)) subst t_impl = t_spec)))))"
+    (deBruijn_subst(( 0 :: nat)) subst t_impl = t_spec)))))" 
+  for  t_spec  :: " t " 
+  and  tvs_spec  :: " nat " 
+  and  t_impl  :: " t " 
+  and  tvs_impl  :: " nat "
 
 
 definition tenvLift  :: " string \<Rightarrow> type_env \<Rightarrow> type_env "  where 
      " tenvLift mn tenv = (
-  (| v0 = (nsLift mn(v0   tenv)), c0 = (nsLift mn(c0   tenv)), t = (nsLift mn(t   tenv))  |) )"
+  (| v0 = (nsLift mn(v0   tenv)), c0 = (nsLift mn(c0   tenv)), t = (nsLift mn(t   tenv))  |) )" 
+  for  mn  :: " string " 
+  and  tenv  :: " type_env "
 
 
 inductive
@@ -1058,7 +1209,9 @@ let weak_tenvT n (tvs_spec, t_spec) (tvs_impl, t_impl) =
    \<close>\<close>
 
 definition tscheme_inst2  :: " 'a \<Rightarrow> nat*t \<Rightarrow> nat*t \<Rightarrow> bool "  where 
-     " tscheme_inst2 _ ts1 ts2 = ( tscheme_inst ts1 ts2 )"
+     " tscheme_inst2 _ ts1 ts2 = ( tscheme_inst ts1 ts2 )" 
+  for  ts1  :: " nat*t " 
+  and  ts2  :: " nat*t "
 
 
 \<comment> \<open>\<open>val weak_tenv : type_env -> type_env -> bool\<close>\<close>
@@ -1066,7 +1219,9 @@ definition weak_tenv  :: " type_env \<Rightarrow> type_env \<Rightarrow> bool " 
      " weak_tenv tenv_impl tenv_spec = (
   nsSub tscheme_inst2(v0   tenv_spec)(v0   tenv_impl) \<and>
   nsSub ( \<lambda>x .  
-  (case  x of _ => \<lambda> x y .  x = y ))(c0   tenv_spec)(c0   tenv_impl))"
+  (case  x of _ => \<lambda> x y .  x = y ))(c0   tenv_spec)(c0   tenv_impl))" 
+  for  tenv_impl  :: " type_env " 
+  and  tenv_spec  :: " type_env "
 \<comment> \<open>\<open> &&
   nsSub weak_tenvT tenv_spec.t tenv_impl.t\<close>\<close>
 

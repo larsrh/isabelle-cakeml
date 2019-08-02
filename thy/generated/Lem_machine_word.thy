@@ -38,7 +38,8 @@ end\<close>\<close>
 
 \<comment> \<open>\<open>val size_itself : forall 'a. Size 'a => itself 'a -> nat\<close>\<close>
 definition size_itself  :: "('a::len)itself \<Rightarrow> nat "  where 
-     " size_itself x = ( (len_of (TYPE(_) :: 'a itself)))"
+     " size_itself x = ( (len_of (TYPE(_) :: 'a itself)))" 
+  for  x  :: "('a::len)itself "
 
 
 \<comment> \<open>\<open>*****************************************************************\<close>\<close>
@@ -337,7 +338,8 @@ definition size_itself  :: "('a::len)itself \<Rightarrow> nat "  where
 \<comment> \<open>\<open> Building libraries fails if we don't provide implementations for the
    type class. \<close>\<close>
 definition wordToHex  :: "('a::len)Word.word \<Rightarrow> string "  where 
-     " wordToHex w = ( (''wordToHex not yet implemented''))"
+     " wordToHex w = ( (''wordToHex not yet implemented''))" 
+  for  w  :: "('a::len)Word.word "
 
 
 definition instance_Show_Show_Machine_word_mword_dict  :: "(('a::len)Word.word)Show_class "  where 
@@ -444,7 +446,9 @@ definition signedDivide  :: "('a::len)Word.word \<Rightarrow>('a::len)Word.word 
         if Bits.msb y then (- x) div (- y)
         else - ((- x) div y)
     else if Bits.msb y then - (x div (- y))
-        else x div y )"
+        else x div y )" 
+  for  x  :: "('a::len)Word.word " 
+  and  y  :: "('a::len)Word.word "
 
 
 \<comment> \<open>\<open>val modulo : forall 'a. mword 'a -> mword 'a -> mword 'a\<close>\<close>

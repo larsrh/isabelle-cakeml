@@ -36,7 +36,9 @@ begin
 
 \<comment> \<open>\<open>val fromSet : forall 'k 'v. MapKeyType 'k => ('k -> 'v) -> set 'k -> map 'k 'v\<close>\<close>
 definition fromSet  :: "('k \<Rightarrow> 'v)\<Rightarrow> 'k set \<Rightarrow>('k,'v)Map.map "  where 
-     " fromSet f s = ( Finite_Set.fold (\<lambda> k m .  map_update k (f k) m) Map.empty s )"
+     " fromSet f s = ( Finite_Set.fold (\<lambda> k m .  map_update k (f k) m) Map.empty s )" 
+  for  f  :: " 'k \<Rightarrow> 'v " 
+  and  s  :: " 'k set "
 
 
 \<comment> \<open>\<open>
@@ -51,7 +53,10 @@ assert fromSet_1: (fromSet succ {(2:nat); 3; 4}) = Map.fromList [(2,3); (3, 4); 
 \<comment> \<open>\<open>val fold : forall 'k 'v 'r. MapKeyType 'k, SetType 'k, SetType 'v => ('k -> 'v -> 'r -> 'r) -> map 'k 'v -> 'r -> 'r\<close>\<close>
 definition fold  :: "('k \<Rightarrow> 'v \<Rightarrow> 'r \<Rightarrow> 'r)\<Rightarrow>('k,'v)Map.map \<Rightarrow> 'r \<Rightarrow> 'r "  where 
      " fold f m v = ( Finite_Set.fold ( \<lambda>x .  
-  (case  x of (k, v) => \<lambda> r .  f k v r )) v (map_to_set m))"
+  (case  x of (k, v) => \<lambda> r .  f k v r )) v (map_to_set m))" 
+  for  f  :: " 'k \<Rightarrow> 'v \<Rightarrow> 'r \<Rightarrow> 'r " 
+  and  m  :: "('k,'v)Map.map " 
+  and  v  :: " 'r "
 
 
 \<comment> \<open>\<open>
@@ -76,7 +81,9 @@ definition option_map  :: "('a \<Rightarrow> 'b \<Rightarrow> 'c option)\<Righta
   (case  f k v of   None => m' | Some v' => map_update k v' m' )
   ))
     Map.empty
-    (list_of_set (LemExtraDefs.map_to_set m)))"
+    (list_of_set (LemExtraDefs.map_to_set m)))" 
+  for  f  :: " 'a \<Rightarrow> 'b \<Rightarrow> 'c option " 
+  and  m  :: "('a,'b)Map.map "
 
 
 end

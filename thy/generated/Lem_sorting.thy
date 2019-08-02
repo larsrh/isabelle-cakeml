@@ -31,13 +31,19 @@ begin
 \<comment> \<open>\<open>val isPermutationBy : forall 'a. ('a -> 'a -> bool) -> list 'a -> list 'a -> bool\<close>\<close>
 
 fun  isPermutationBy  :: "('a \<Rightarrow> 'a \<Rightarrow> bool)\<Rightarrow> 'a list \<Rightarrow> 'a list \<Rightarrow> bool "  where 
-     " isPermutationBy eq ([]) l2 = ( (l2 = []))"
+     " isPermutationBy eq ([]) l2 = ( (l2 = []))" 
+  for  eq  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  l2  :: " 'a list "
 |" isPermutationBy eq (x # xs) l2 = ( (
       (case  delete_first (eq x) l2 of
           None => False
         | Some ys => isPermutationBy eq xs ys
       )
-    ))"
+    ))" 
+  for  eq  :: " 'a \<Rightarrow> 'a \<Rightarrow> bool " 
+  and  xs  :: " 'a list " 
+  and  x  :: " 'a " 
+  and  l2  :: " 'a list "
 
 
 
@@ -103,7 +109,10 @@ definition predicate_of_ord  :: "('a \<Rightarrow> 'a \<Rightarrow> ordering)\<R
       LT => True
     | EQ => True
     | GT => False
-  ))"
+  ))" 
+  for  f  :: " 'a \<Rightarrow> 'a \<Rightarrow> ordering " 
+  and  x  :: " 'a " 
+  and  y  :: " 'a "
 
 
 

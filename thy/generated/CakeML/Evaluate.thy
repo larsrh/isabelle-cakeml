@@ -31,11 +31,15 @@ begin
 fun fix_clock  :: " 'a state \<Rightarrow> 'b state*'c \<Rightarrow> 'b state*'c "  where 
      " fix_clock s (s',res) = (
   (( s' (| clock := (if(clock   s') \<le>(clock   s)
-                     then(clock   s') else(clock   s)) |)),res))"
+                     then(clock   s') else(clock   s)) |)),res))" 
+  for  s  :: " 'a state " 
+  and  res  :: " 'c " 
+  and  s'  :: " 'b state "
 
 
 definition dec_clock  :: " 'a state \<Rightarrow> 'a state "  where 
-     " dec_clock s = ( ( s (| clock := ((clock   s) -( 1 :: nat)) |)))"
+     " dec_clock s = ( ( s (| clock := ((clock   s) -( 1 :: nat)) |)))" 
+  for  s  :: " 'a state "
 
 
 \<comment> \<open>\<open> list_result is equivalent to map_result (\v. [v]) I, where map_result is
@@ -43,9 +47,11 @@ definition dec_clock  :: " 'a state \<Rightarrow> 'a state "  where
 fun 
 list_result  :: "('a,'b)result \<Rightarrow>(('a list),'b)result "  where 
      "
-list_result (Rval v2) = ( Rval [v2])"
+list_result (Rval v2) = ( Rval [v2])" 
+  for  v2  :: " 'a "
 |"
-list_result (Rerr e) = ( Rerr e )"
+list_result (Rerr e) = ( Rerr e )" 
+  for  e  :: " 'b error_result "
 
 
 \<comment> \<open>\<open>val evaluate : forall 'ffi. state 'ffi -> sem_env v -> list exp -> state 'ffi * result (list v) v\<close>\<close>
@@ -55,7 +61,9 @@ fun_evaluate_match  :: " 'ffi state \<Rightarrow>(v)sem_env \<Rightarrow> v \<Ri
                    and
 fun_evaluate  :: " 'ffi state \<Rightarrow>(v)sem_env \<Rightarrow>(exp0)list \<Rightarrow> 'ffi state*(((v)list),(v))result "  where 
      "
-fun_evaluate st env [] = ( (st, Rval []))"
+fun_evaluate st env [] = ( (st, Rval []))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env "
 |"
 fun_evaluate st env (e1 # e2 # es) = (
   (case  fix_clock st (fun_evaluate st env [e1]) of
@@ -65,21 +73,36 @@ fun_evaluate st env (e1 # e2 # es) = (
       | res => res
       )
   | res => res
-  ))"
+  ))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  es  :: "(exp0)list " 
+  and  e1  :: " exp0 " 
+  and  e2  :: " exp0 "
 |"
-fun_evaluate st env [Lit l] = ( (st, Rval [Litv l]))"
+fun_evaluate st env [Lit l] = ( (st, Rval [Litv l]))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  l  :: " lit "
 |"
 fun_evaluate st env [Raise e] = (
   (case  fun_evaluate st env [e] of
     (st', Rval v2) => (st', Rerr (Rraise (List.hd v2)))
   | res => res
-  ))"
+  ))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  e  :: " exp0 "
 |"
 fun_evaluate st env [Handle e pes] = (
   (case  fix_clock st (fun_evaluate st env [e]) of
     (st', Rerr (Rraise v2)) => fun_evaluate_match st' env v2 pes v2
   | res => res
-  ))"
+  ))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  pes  :: "(pat*exp0)list " 
+  and  e  :: " exp0 "
 |"
 fun_evaluate st env [Con cn es] = (
   if do_con_check(c   env) cn (List.length es) then
@@ -91,15 +114,26 @@ fun_evaluate st env [Con cn es] = (
         )
     | res => res
     )
-  else (st, Rerr (Rabort Rtype_error)))"
+  else (st, Rerr (Rabort Rtype_error)))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  es  :: "(exp0)list " 
+  and  cn  :: "(((modN),(conN))id0)option "
 |"
 fun_evaluate st env [Var n] = (
   (case  nsLookup(v   env) n of
     Some v2 => (st, Rval [v2])
   | None => (st, Rerr (Rabort Rtype_error))
-  ))"
+  ))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  n  :: "((modN),(varN))id0 "
 |"
-fun_evaluate st env [Fun x e] = ( (st, Rval [Closure env x e]))"
+fun_evaluate st env [Fun x e] = ( (st, Rval [Closure env x e]))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  e  :: " exp0 " 
+  and  x  :: " string "
 |"
 fun_evaluate st env [App op1 es] = (
   (case  fix_clock st (fun_evaluate st env (List.rev es)) of
@@ -119,7 +153,11 @@ fun_evaluate st env [App op1 es] = (
         | None => (st', Rerr (Rabort Rtype_error))
         )
   | res => res
-  ))"
+  ))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  op1  :: " op0 " 
+  and  es  :: "(exp0)list "
 |"
 fun_evaluate st env [Log lop e1 e2] = (
   (case  fix_clock st (fun_evaluate st env [e1]) of
@@ -130,7 +168,12 @@ fun_evaluate st env [Log lop e1 e2] = (
       | None => (st', Rerr (Rabort Rtype_error))
       )
   | res => res
-  ))"
+  ))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  lop  :: " lop " 
+  and  e1  :: " exp0 " 
+  and  e2  :: " exp0 "
 |"
 fun_evaluate st env [If e1 e2 e3] = (
   (case  fix_clock st (fun_evaluate st env [e1]) of
@@ -140,35 +183,65 @@ fun_evaluate st env [If e1 e2 e3] = (
       | None => (st', Rerr (Rabort Rtype_error))
       )
   | res => res
-  ))"
+  ))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  e3  :: " exp0 " 
+  and  e1  :: " exp0 " 
+  and  e2  :: " exp0 "
 |"
 fun_evaluate st env [Mat e pes] = (
   (case  fix_clock st (fun_evaluate st env [e]) of
     (st', Rval v2) =>
       fun_evaluate_match st' env (List.hd v2) pes bind_exn_v
   | res => res
-  ))"
+  ))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  pes  :: "(pat*exp0)list " 
+  and  e  :: " exp0 "
 |"
 fun_evaluate st env [Let xo e1 e2] = (
   (case  fix_clock st (fun_evaluate st env [e1]) of
     (st', Rval v2) => fun_evaluate st' ( env (| v := (nsOptBind xo (List.hd v2)(v   env)) |)) [e2]
   | res => res
-  ))"
+  ))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  xo  :: "(varN)option " 
+  and  e1  :: " exp0 " 
+  and  e2  :: " exp0 "
 |"
 fun_evaluate st env [Letrec funs e] = (
   if allDistinct (List.map ( \<lambda>x .  
   (case  x of (x,y,z) => x )) funs) then
     fun_evaluate st ( env (| v := (build_rec_env funs env(v   env)) |)) [e]
   else
-    (st, Rerr (Rabort Rtype_error)))"
+    (st, Rerr (Rabort Rtype_error)))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  funs  :: "(varN*varN*exp0)list " 
+  and  e  :: " exp0 "
 |"
 fun_evaluate st env [Tannot e t1] = (
-  fun_evaluate st env [e])"
+  fun_evaluate st env [e])" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  t1  :: " ast_t " 
+  and  e  :: " exp0 "
 |"
 fun_evaluate st env [Lannot e l] = (
-  fun_evaluate st env [e])"
+  fun_evaluate st env [e])" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  e  :: " exp0 " 
+  and  l  :: " locn*locn "
 |"
-fun_evaluate_match st env v2 [] err_v = ( (st, Rerr (Rraise err_v)))"
+fun_evaluate_match st env v2 [] err_v = ( (st, Rerr (Rraise err_v)))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  v2  :: " v " 
+  and  err_v  :: " v "
 |"
 fun_evaluate_match st env v2 ((p,e)# pes) err_v  = (
   if allDistinct (pat_bindings p []) then
@@ -178,6 +251,13 @@ fun_evaluate_match st env v2 ((p,e)# pes) err_v  = (
     | Match_type_error => (st, Rerr (Rabort Rtype_error))
     )
   else (st, Rerr (Rabort Rtype_error)))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  v2  :: " v " 
+  and  pes  :: "(pat*exp0)list " 
+  and  p  :: " pat " 
+  and  e  :: " exp0 " 
+  and  err_v  :: " v " 
 by pat_completeness auto
 
 
@@ -186,7 +266,9 @@ by pat_completeness auto
 function (sequential,domintros) 
 fun_evaluate_decs  :: " 'ffi state \<Rightarrow>(v)sem_env \<Rightarrow>(dec)list \<Rightarrow> 'ffi state*(((v)sem_env),(v))result "  where 
      "
-fun_evaluate_decs st env [] = ( (st, Rval (| v = nsEmpty, c = nsEmpty |)))"
+fun_evaluate_decs st env [] = ( (st, Rval (| v = nsEmpty, c = nsEmpty |)))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env "
 |"
 fun_evaluate_decs st env (d1 # d2 # ds) = (
   (case  fun_evaluate_decs st env [d1] of
@@ -195,7 +277,12 @@ fun_evaluate_decs st env (d1 # d2 # ds) = (
       (st2,r) => (st2, combine_dec_result env1 r)
     )
   | res => res
-  ))"
+  ))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  ds  :: "(dec)list " 
+  and  d1  :: " dec " 
+  and  d2  :: " dec "
 |"
 fun_evaluate_decs st env [Dlet locs p e] = (
   if allDistinct (pat_bindings p []) then
@@ -210,7 +297,12 @@ fun_evaluate_decs st env [Dlet locs p e] = (
     | (st', Rerr err) => (st', Rerr err)
     )
   else
-    (st, Rerr (Rabort Rtype_error)))"
+    (st, Rerr (Rabort Rtype_error)))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  locs  :: " locn*locn " 
+  and  p  :: " pat " 
+  and  e  :: " exp0 "
 |"
 fun_evaluate_decs st env [Dletrec locs funs] = (
   (st,
@@ -218,21 +310,40 @@ fun_evaluate_decs st env [Dletrec locs funs] = (
   (case  x of (x,y,z) => x )) funs) then
      Rval (| v = (build_rec_env funs env nsEmpty), c = nsEmpty |)
    else
-     Rerr (Rabort Rtype_error))))"
+     Rerr (Rabort Rtype_error))))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  funs  :: "(varN*varN*exp0)list " 
+  and  locs  :: " locn*locn "
 |"
 fun_evaluate_decs st env [Dtype locs tds] = (
   if ((\<forall> x \<in> (set tds).  check_dup_ctors x)) then
     (( st (| next_type_stamp := ((next_type_stamp   st) + List.length tds) |)),
      Rval (| v = nsEmpty, c = (build_tdefs(next_type_stamp   st) tds) |))
   else
-    (st, Rerr (Rabort Rtype_error)))"
+    (st, Rerr (Rabort Rtype_error)))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  tds  :: "((tvarN)list*typeN*(conN*(ast_t)list)list)list " 
+  and  locs  :: " locn*locn "
 |"
 fun_evaluate_decs st env [Dtabbrev locs tvs tn t1] = (
-  (st, Rval (| v = nsEmpty, c = nsEmpty |)))"
+  (st, Rval (| v = nsEmpty, c = nsEmpty |)))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  t1  :: " ast_t " 
+  and  tn  :: " string " 
+  and  tvs  :: "(tvarN)list " 
+  and  locs  :: " locn*locn "
 |"
 fun_evaluate_decs st env [Dexn locs cn ts] = (
   (( st (| next_exn_stamp := ((next_exn_stamp   st) +( 1 :: nat)) |)),
-   Rval (| v = nsEmpty, c = (nsSing cn (List.length ts, ExnStamp(next_exn_stamp   st))) |)))"
+   Rval (| v = nsEmpty, c = (nsSing cn (List.length ts, ExnStamp(next_exn_stamp   st))) |)))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  cn  :: " string " 
+  and  ts  :: "(ast_t)list " 
+  and  locs  :: " locn*locn "
 |"
 fun_evaluate_decs st env [Dmod mn ds] = (
   (case  fun_evaluate_decs st env ds of
@@ -242,7 +353,11 @@ fun_evaluate_decs st env [Dmod mn ds] = (
          Rval env' => Rval (| v = (nsLift mn(v   env')), c = (nsLift mn(c   env')) |)
        | Rerr err => Rerr err
        ))
-  ))"
+  ))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  ds  :: "(dec)list " 
+  and  mn  :: " string "
 |"
 fun_evaluate_decs st env [Dlocal lds ds] = (
   (case  fun_evaluate_decs st env lds of
@@ -250,6 +365,10 @@ fun_evaluate_decs st env [Dlocal lds ds] = (
     fun_evaluate_decs st1 (extend_dec_env env1 env) ds
   | res => res
   ))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  lds  :: "(dec)list " 
+  and  ds  :: "(dec)list " 
 by pat_completeness auto
 
 end

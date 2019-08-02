@@ -70,12 +70,21 @@ datatype 'ffi e_step_result =
 
 \<comment> \<open>\<open>val push : forall 'ffi. sem_env v -> store_ffi 'ffi v -> exp -> ctxt_frame -> list ctxt -> e_step_result 'ffi\<close>\<close>
 definition push  :: "(v)sem_env \<Rightarrow>(v)store*'ffi ffi_state \<Rightarrow> exp0 \<Rightarrow> ctxt_frame \<Rightarrow>(ctxt_frame*(v)sem_env)list \<Rightarrow> 'ffi e_step_result "  where 
-     " push env s e c' cs = ( Estep (env, s, Exp e, ((c',env)# cs)))"
+     " push env s e c' cs = ( Estep (env, s, Exp e, ((c',env)# cs)))" 
+  for  env  :: "(v)sem_env " 
+  and  s  :: "(v)store*'ffi ffi_state " 
+  and  e  :: " exp0 " 
+  and  c'  :: " ctxt_frame " 
+  and  cs  :: "(ctxt_frame*(v)sem_env)list "
 
 
 \<comment> \<open>\<open>val return : forall 'ffi. sem_env v -> store_ffi 'ffi v -> v -> list ctxt -> e_step_result 'ffi\<close>\<close>
 definition return  :: "(v)sem_env \<Rightarrow>(v)store*'ffi ffi_state \<Rightarrow> v \<Rightarrow>(ctxt)list \<Rightarrow> 'ffi e_step_result "  where 
-     " return env s v2 c2 = ( Estep (env, s, Val v2, c2))"
+     " return env s v2 c2 = ( Estep (env, s, Val v2, c2))" 
+  for  env  :: "(v)sem_env " 
+  and  s  :: "(v)store*'ffi ffi_state " 
+  and  v2  :: " v " 
+  and  c2  :: "(ctxt)list "
 
 
 \<comment> \<open>\<open>val application : forall 'ffi. op -> sem_env v -> store_ffi 'ffi v -> list v -> list ctxt -> e_step_result 'ffi\<close>\<close>
@@ -97,39 +106,86 @@ definition application  :: " op0 \<Rightarrow>(v)sem_env \<Rightarrow>(v)store*'
           )
         | None => Eabort Rtype_error
       )
-    ))"
+    ))" 
+  for  op1  :: " op0 " 
+  and  env  :: "(v)sem_env " 
+  and  s  :: "(v)store*'ffi ffi_state " 
+  and  vs  :: "(v)list " 
+  and  c2  :: "(ctxt)list "
 
 
 \<comment> \<open>\<open> apply a context to a value \<close>\<close>
 \<comment> \<open>\<open>val continue : forall 'ffi. store_ffi 'ffi v -> v -> list ctxt -> e_step_result 'ffi\<close>\<close>
 fun continue  :: "(v)store*'ffi ffi_state \<Rightarrow> v \<Rightarrow>(ctxt_frame*(v)sem_env)list \<Rightarrow> 'ffi e_step_result "  where 
-     " continue s v2 ([]) = ( Estuck )"
+     " continue s v2 ([]) = ( Estuck )" 
+  for  s  :: "(v)store*'ffi ffi_state " 
+  and  v2  :: " v "
 |" continue s v2 ((Craise _, env) # c2) = (
         (case  c2 of
             [] => Estuck
           | ((Chandle _ pes,env') # c2) =>
               Estep (env,s,Val v2,((Cmat ()  pes v2, env')# c2))
           | _ # c2 => Estep (env,s,Val v2,((Craise () ,env)# c2))
-        ))"
+        ))" 
+  for  s  :: "(v)store*'ffi ffi_state " 
+  and  v2  :: " v " 
+  and  env  :: "(v)sem_env " 
+  and  c2  :: "(ctxt_frame*(v)sem_env)list "
 |" continue s v2 ((Chandle _ pes, env) # c2) = (
-        return env s v2 c2 )"
+        return env s v2 c2 )" 
+  for  s  :: "(v)store*'ffi ffi_state " 
+  and  v2  :: " v " 
+  and  pes  :: "(pat*exp0)list " 
+  and  env  :: "(v)sem_env " 
+  and  c2  :: "(ctxt_frame*(v)sem_env)list "
 |" continue s v2 ((Capp op1 vs _ [], env) # c2) = (
-        application op1 env s (v2 # vs) c2 )"
+        application op1 env s (v2 # vs) c2 )" 
+  for  s  :: "(v)store*'ffi ffi_state " 
+  and  v2  :: " v " 
+  and  op1  :: " op0 " 
+  and  vs  :: "(v)list " 
+  and  env  :: "(v)sem_env " 
+  and  c2  :: "(ctxt_frame*(v)sem_env)list "
 |" continue s v2 ((Capp op1 vs _ (e # es), env) # c2) = (
-        push env s e (Capp op1 (v2 # vs) ()  es) c2 )"
+        push env s e (Capp op1 (v2 # vs) ()  es) c2 )" 
+  for  s  :: "(v)store*'ffi ffi_state " 
+  and  v2  :: " v " 
+  and  op1  :: " op0 " 
+  and  es  :: "(exp0)list " 
+  and  vs  :: "(v)list " 
+  and  env  :: "(v)sem_env " 
+  and  e  :: " exp0 " 
+  and  c2  :: "(ctxt_frame*(v)sem_env)list "
 |" continue s v2 ((Clog l _ e, env) # c2) = (
         (case  do_log l v2 e of
             Some (Exp e) => Estep (env, s, Exp e, c2)
           | Some (Val v2) => return env s v2 c2
           | None => Eabort Rtype_error
-        ))"
+        ))" 
+  for  s  :: "(v)store*'ffi ffi_state " 
+  and  v2  :: " v " 
+  and  env  :: "(v)sem_env " 
+  and  e  :: " exp0 " 
+  and  c2  :: "(ctxt_frame*(v)sem_env)list " 
+  and  l  :: " lop "
 |" continue s v2 ((Cif _ e1 e2, env) # c2) = (
         (case  do_if v2 e1 e2 of
             Some e => Estep (env, s, Exp e, c2)
           | None => Eabort Rtype_error
-        ))"
+        ))" 
+  for  s  :: "(v)store*'ffi ffi_state " 
+  and  v2  :: " v " 
+  and  env  :: "(v)sem_env " 
+  and  e1  :: " exp0 " 
+  and  e2  :: " exp0 " 
+  and  c2  :: "(ctxt_frame*(v)sem_env)list "
 |" continue s v2 ((Cmat _ [] err_v, env) # c2) = (
-        Estep (env, s, Val err_v, ((Craise () , env) # c2)))"
+        Estep (env, s, Val err_v, ((Craise () , env) # c2)))" 
+  for  s  :: "(v)store*'ffi ffi_state " 
+  and  v2  :: " v " 
+  and  err_v  :: " v " 
+  and  env  :: "(v)sem_env " 
+  and  c2  :: "(ctxt_frame*(v)sem_env)list "
 |" continue s v2 ((Cmat _ ((p,e)# pes) err_v, env) # c2) = (
         if Lem_list.allDistinct (pat_bindings p []) then
           (case  pmatch(c   env) (fst s) p v2 [] of
@@ -138,9 +194,23 @@ fun continue  :: "(v)store*'ffi ffi_state \<Rightarrow> v \<Rightarrow>(ctxt_fra
             | Match env' => Estep (( env (| v := (nsAppend (alist_to_ns env')(v   env)) |)), s, Exp e, c2)
           )
         else
-          Eabort Rtype_error )"
+          Eabort Rtype_error )" 
+  for  s  :: "(v)store*'ffi ffi_state " 
+  and  v2  :: " v " 
+  and  err_v  :: " v " 
+  and  pes  :: "(pat*exp0)list " 
+  and  env  :: "(v)sem_env " 
+  and  p  :: " pat " 
+  and  e  :: " exp0 " 
+  and  c2  :: "(ctxt_frame*(v)sem_env)list "
 |" continue s v2 ((Clet n _ e, env) # c2) = (
-        Estep (( env (| v := (nsOptBind n v2(v   env)) |)), s, Exp e, c2))"
+        Estep (( env (| v := (nsOptBind n v2(v   env)) |)), s, Exp e, c2))" 
+  for  s  :: "(v)store*'ffi ffi_state " 
+  and  v2  :: " v " 
+  and  env  :: "(v)sem_env " 
+  and  e  :: " exp0 " 
+  and  n  :: "(varN)option " 
+  and  c2  :: "(ctxt_frame*(v)sem_env)list "
 |" continue s v2 ((Ccon n vs _ [], env) # c2) = (
         if do_con_check(c   env) n (List.length vs +( 1 :: nat)) then
            (case  build_conv(c   env) n (v2 # vs) of
@@ -148,16 +218,40 @@ fun continue  :: "(v)store*'ffi ffi_state \<Rightarrow> v \<Rightarrow>(ctxt_fra
              | Some v2 => return env s v2 c2
            )
         else
-          Eabort Rtype_error )"
+          Eabort Rtype_error )" 
+  for  s  :: "(v)store*'ffi ffi_state " 
+  and  v2  :: " v " 
+  and  vs  :: "(v)list " 
+  and  env  :: "(v)sem_env " 
+  and  n  :: "(((modN),(conN))id0)option " 
+  and  c2  :: "(ctxt_frame*(v)sem_env)list "
 |" continue s v2 ((Ccon n vs _ (e # es), env) # c2) = (
         if do_con_check(c   env) n (((List.length vs +( 1 :: nat)) +( 1 :: nat)) + List.length es) then
           push env s e (Ccon n (v2 # vs) ()  es) c2
         else
-          Eabort Rtype_error )"
+          Eabort Rtype_error )" 
+  for  s  :: "(v)store*'ffi ffi_state " 
+  and  v2  :: " v " 
+  and  es  :: "(exp0)list " 
+  and  vs  :: "(v)list " 
+  and  env  :: "(v)sem_env " 
+  and  e  :: " exp0 " 
+  and  n  :: "(((modN),(conN))id0)option " 
+  and  c2  :: "(ctxt_frame*(v)sem_env)list "
 |" continue s v2 ((Ctannot _ t1, env) # c2) = (
-        return env s v2 c2 )"
+        return env s v2 c2 )" 
+  for  s  :: "(v)store*'ffi ffi_state " 
+  and  v2  :: " v " 
+  and  t1  :: " ast_t " 
+  and  env  :: "(v)sem_env " 
+  and  c2  :: "(ctxt_frame*(v)sem_env)list "
 |" continue s v2 ((Clannot _ l, env) # c2) = (
-        return env s v2 c2 )"
+        return env s v2 c2 )" 
+  for  s  :: "(v)store*'ffi ffi_state " 
+  and  v2  :: " v " 
+  and  env  :: "(v)sem_env " 
+  and  c2  :: "(ctxt_frame*(v)sem_env)list " 
+  and  l  :: " locn*locn "
 
 
 \<comment> \<open>\<open> The single step expression evaluator.  Returns None if there is nothing to
@@ -169,7 +263,11 @@ fun continue  :: "(v)store*'ffi ffi_state \<Rightarrow> v \<Rightarrow>(ctxt_fra
 \<comment> \<open>\<open>val e_step : forall 'ffi. small_state 'ffi -> e_step_result 'ffi\<close>\<close>
 fun e_step  :: "(v)sem_env*((v)store*'ffi ffi_state)*exp_or_val*(ctxt)list \<Rightarrow> 'ffi e_step_result "  where 
      " e_step (env, s,(Val v2), c2) = (
-        continue s v2 c2 )"
+        continue s v2 c2 )" 
+  for  env  :: "(v)sem_env " 
+  and  s  :: "(v)store*'ffi ffi_state " 
+  and  v2  :: " v " 
+  and  c2  :: "(ctxt)list "
 |" e_step (env, s,(Exp e), c2) = (
         (case  e of
             Lit l => return env s (Litv l) c2
@@ -215,7 +313,11 @@ fun e_step  :: "(v)sem_env*((v)store*'ffi ffi_state)*exp_or_val*(ctxt)list \<Rig
                        s, Exp e, c2)
           | Tannot e t1 => push env s e (Ctannot ()  t1) c2
           | Lannot e l => push env s e (Clannot ()  l) c2
-        ))"
+        ))" 
+  for  env  :: "(v)sem_env " 
+  and  s  :: "(v)store*'ffi ffi_state " 
+  and  e  :: " exp0 " 
+  and  c2  :: "(ctxt)list "
 
 
 \<comment> \<open>\<open> Define a semantic function using the steps \<close>\<close>
@@ -225,25 +327,45 @@ fun e_step  :: "(v)sem_env*((v)store*'ffi ffi_state)*exp_or_val*(ctxt)list \<Rig
 
 definition e_step_reln  :: "(v)sem_env*('ffi,(v))store_ffi*exp_or_val*(ctxt)list \<Rightarrow>(v)sem_env*('ffi,(v))store_ffi*exp_or_val*(ctxt)list \<Rightarrow> bool "  where 
      " e_step_reln st1 st2 = (
-  (e_step st1 = Estep st2))"
+  (e_step st1 = Estep st2))" 
+  for  st1  :: "(v)sem_env*('ffi,(v))store_ffi*exp_or_val*(ctxt)list " 
+  and  st2  :: "(v)sem_env*('ffi,(v))store_ffi*exp_or_val*(ctxt)list "
 
 
 fun 
 small_eval  :: "(v)sem_env \<Rightarrow>(v)store*'ffi ffi_state \<Rightarrow> exp0 \<Rightarrow>(ctxt)list \<Rightarrow>((v)store*'ffi ffi_state)*((v),(v))result \<Rightarrow> bool "  where 
      "
 small_eval env s e c2 (s', Rval v2) = ((
-  \<exists> env'.  (rtranclp (e_step_reln)) (env,s,Exp e,c2) (env',s',Val v2,[])))"
+  \<exists> env'.  (rtranclp (e_step_reln)) (env,s,Exp e,c2) (env',s',Val v2,[])))" 
+  for  env  :: "(v)sem_env " 
+  and  s  :: "(v)store*'ffi ffi_state " 
+  and  e  :: " exp0 " 
+  and  c2  :: "(ctxt)list " 
+  and  s'  :: "(v)store*'ffi ffi_state " 
+  and  v2  :: " v "
 |"
 small_eval env s e c2 (s', Rerr (Rraise v2)) = ((
   \<exists> env'. 
-  \<exists> env''.  (rtranclp (e_step_reln)) (env,s,Exp e,c2) (env',s',Val v2,[(Craise () , env'')])))"
+  \<exists> env''.  (rtranclp (e_step_reln)) (env,s,Exp e,c2) (env',s',Val v2,[(Craise () , env'')])))" 
+  for  env  :: "(v)sem_env " 
+  and  s  :: "(v)store*'ffi ffi_state " 
+  and  e  :: " exp0 " 
+  and  c2  :: "(ctxt)list " 
+  and  s'  :: "(v)store*'ffi ffi_state " 
+  and  v2  :: " v "
 |"
 small_eval env s e c2 (s', Rerr (Rabort a)) = ((
   \<exists> env'. 
   \<exists> e'. 
   \<exists> c'. 
     (rtranclp (e_step_reln)) (env,s,Exp e,c2) (env',s',e',c') \<and>
-    (e_step (env',s',e',c') = Eabort a)))"
+    (e_step (env',s',e',c') = Eabort a)))" 
+  for  env  :: "(v)sem_env " 
+  and  s  :: "(v)store*'ffi ffi_state " 
+  and  e  :: " exp0 " 
+  and  c2  :: "(ctxt)list " 
+  and  s'  :: "(v)store*'ffi ffi_state " 
+  and  a  :: " abort "
 
 
 \<comment> \<open>\<open>val e_diverges : forall 'ffi. sem_env v -> store_ffi 'ffi v -> exp -> bool\<close>\<close>
@@ -256,6 +378,9 @@ definition e_diverges  :: "(v)sem_env \<Rightarrow>(v)store*'ffi ffi_state \<Rig
     (rtranclp (e_step_reln)) (env,s,Exp e,[]) (env',s',e',c')
     \<longrightarrow>
 ((\<exists> env''. \<exists> s''. \<exists> e''. \<exists> c''. 
-      e_step_reln (env',s',e',c') (env'',s'',e'',c'')))))"
+      e_step_reln (env',s',e',c') (env'',s'',e'',c'')))))" 
+  for  env  :: "(v)sem_env " 
+  and  s  :: "(v)store*'ffi ffi_state " 
+  and  e  :: " exp0 "
 
 end

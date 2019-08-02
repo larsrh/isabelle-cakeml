@@ -48,7 +48,10 @@ fun add_to_sem_env  :: " 'ffi state*(v)sem_env \<Rightarrow>(dec)list \<Rightarr
   (case  fun_evaluate_decs st env prog of
     (st', Rval env') => Some (st', extend_dec_env env' env)
   | _ => None
-  ))"
+  ))" 
+  for  st  :: " 'ffi state " 
+  and  env  :: "(v)sem_env " 
+  and  prog  :: "(dec)list "
 
 
 \<comment> \<open>\<open>val prim_sem_env : forall 'ffi. Eq 'ffi => ffi_state 'ffi -> maybe (state 'ffi * sem_env v)\<close>\<close>
@@ -57,7 +60,8 @@ definition prim_sem_env  :: " 'ffi ffi_state \<Rightarrow>('ffi state*(v)sem_env
   add_to_sem_env
     ((| clock =(( 0 :: nat)), refs = ([]), ffi = ffi1, next_type_stamp =(( 0 :: nat)), next_exn_stamp =(( 0 :: nat))  |),
      (| v = nsEmpty, c = nsEmpty |))
-        prim_types_program )"
+        prim_types_program )" 
+  for  ffi1  :: " 'ffi ffi_state "
 
 
 \<comment> \<open>\<open>open import TypeSystem\<close>\<close>
