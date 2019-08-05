@@ -14,7 +14,7 @@ declare fix_clock_evaluate[code_unfold]
 declare fun_evaluate_equiv[code]
 declare pmatch_single_equiv[code]
 
-declare [[code abort: failwith fp64_negate fp64_sqrt fp64_sub fp64_mul fp64_div fp64_add fp64_abs]]
+declare [[code abort: failwith fp64_negate fp64_sqrt fp64_sub fp64_mul fp64_div fp64_add fp64_abs fp64_mul_add]]
 
 definition empty_ffi_state :: "unit ffi_state" where
 "empty_ffi_state = initial_ffi_state (\<lambda>_ _ _ _. Oracle_final FFI_failed) ()"
